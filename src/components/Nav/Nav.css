@@ -1,0 +1,281 @@
+/* sits at the top of the document and scrolls away with the hero */
+nav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 300;
+}
+
+.nav-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.1rem clamp(1.25rem, 3vw, 2.25rem);
+  background-color: transparent;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.5s var(--ease-premium);
+}
+
+/* the only scroll cue: a hairline once past the hero */
+nav:not(.top) .nav-container {
+  border-bottom-color: var(--rule);
+}
+
+/* --- over a light section, flip to dark ink --- */
+
+nav.nav-invert .nav-logo a,
+nav.nav-invert .nav-toggler {
+  color: var(--soot);
+}
+
+nav.nav-invert .nav-logo-studio {
+  -webkit-text-stroke-color: var(--soot);
+}
+
+nav.nav-invert .nav-inline {
+  color: rgba(8, 8, 7, 0.6);
+}
+
+nav.nav-invert .nav-inline:hover {
+  color: var(--soot);
+}
+
+nav.nav-invert .nav-toggler-hamburger span {
+  background-color: var(--soot);
+}
+
+nav.nav-invert .nav-btn-cta {
+  background: var(--soot);
+  color: var(--chalk);
+}
+
+nav.nav-invert .nav-btn-cta .btn-arrow {
+  background: var(--chalk);
+  color: var(--soot);
+}
+
+nav.nav-invert:not(.top) .nav-container {
+  border-bottom-color: rgba(8, 8, 7, 0.14);
+}
+
+.nav-logo a,
+.nav-toggler,
+.nav-inline,
+.nav-toggler-hamburger span {
+  transition: color 0.45s var(--ease-premium),
+    background-color 0.45s var(--ease-premium),
+    -webkit-text-stroke-color 0.45s var(--ease-premium);
+}
+
+.nav-logo a {
+  display: flex;
+  align-items: baseline;
+  gap: 0.42rem;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 1.02rem;
+  letter-spacing: -0.02em;
+  line-height: 1;
+  color: var(--parchment);
+}
+
+/* outlined at this size needs air, or the strokes close up */
+.nav-logo-studio {
+  color: transparent;
+  -webkit-text-stroke: 0.7px var(--parchment);
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.nav-logo-name {
+  letter-spacing: -0.025em;
+}
+
+.nav-mid {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.25rem, 2.5vw, 2.25rem);
+}
+
+.nav-inline {
+  color: var(--mist);
+  transition: color 0.4s var(--ease-premium);
+}
+
+.nav-inline:hover {
+  color: var(--marble);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2vw, 1.75rem);
+}
+
+.nav-btn-cta {
+  flex-shrink: 0;
+}
+
+.nav-toggler {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: none;
+  border: none;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  color: var(--parchment);
+}
+
+/* the label follows the toggler's colour, not the global dark .mono */
+.nav-toggler .mono {
+  color: inherit;
+}
+
+.nav-toggler-hamburger {
+  position: relative;
+  width: 1.4rem;
+  height: 0.9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.nav-toggler-hamburger span {
+  position: relative;
+  width: 100%;
+  height: 1.5px;
+  background-color: var(--parchment);
+  will-change: transform;
+}
+
+/* ---------- fullscreen overlay ---------- */
+
+.nav-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100svh;
+  background-color: var(--ink);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  z-index: 250;
+  overflow: hidden;
+  will-change: opacity;
+  transform: translateZ(0);
+}
+
+.nav-overlay-inner {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  transform: translateY(-50%);
+  padding: 0 calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem));
+}
+
+.nav-overlay-label {
+  margin-bottom: clamp(1.25rem, 3vh, 2.25rem);
+}
+
+.nav-overlay .nav-items {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(0.1rem, 0.6vh, 0.5rem);
+}
+
+.nav-overlay .nav-item {
+  position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: clamp(1rem, 2.5vw, 2.5rem);
+}
+
+.nav-item-index {
+  color: rgba(181, 198, 212, 0.45);
+  font-size: 0.7rem;
+  transition: color 0.4s var(--ease-premium);
+}
+
+.nav-overlay .nav-item a {
+  display: inline-block;
+  color: var(--parchment);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5.6vw, 6rem);
+  font-weight: 500;
+  letter-spacing: -0.035em;
+  line-height: 1.06;
+  user-select: none;
+  transition: transform 0.55s var(--ease-premium);
+}
+
+.nav-overlay .nav-item:hover a {
+  transform: translateX(clamp(0.5rem, 1.2vw, 1.25rem));
+}
+
+.nav-overlay .nav-item:hover .nav-item-index {
+  color: var(--marble);
+}
+
+/* current page keeps the site's accent-italic device */
+.nav-overlay .nav-item.active a {
+  font-family: var(--font-accent);
+  font-style: italic;
+  letter-spacing: 0;
+  color: var(--mist);
+}
+
+.nav-overlay .nav-footer {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  border-top: 1px solid var(--rule);
+}
+
+.nav-overlay .nav-footer-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1.5rem;
+  padding: 1.5rem calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem));
+}
+
+.nav-overlay .nav-footer-item {
+  display: flex;
+  gap: 2rem;
+}
+
+.nav-overlay .nav-footer-item a {
+  color: var(--mist);
+  transition: color 0.4s var(--ease-premium);
+}
+
+.nav-overlay .nav-footer-item a:hover {
+  color: var(--marble);
+}
+
+@media (max-width: 900px) {
+  .nav-mid {
+    display: none;
+  }
+
+  .nav-btn-cta {
+    display: none;
+  }
+
+  .nav-overlay .nav-item a {
+    font-size: clamp(2.5rem, 9vw, 4.5rem);
+  }
+
+  .nav-overlay .nav-footer-item {
+    gap: 1rem;
+  }
+}

@@ -1,0 +1,23 @@
+.copy-line,
+.copy-word,
+.copy-char {
+  will-change: transform, opacity;
+}
+
+/* SplitText mask wrappers clip tall serif ascenders/descenders —
+   give the line box room without changing the visual leading. */
+.copy-line {
+  padding-top: 0.12em;
+  padding-bottom: 0.16em;
+  margin-top: -0.12em;
+  margin-bottom: -0.16em;
+}
+
+.copy-word {
+  display: inline-block;
+}
+
+.copy-char {
+  display: inline-block;
+  backface-visibility: hidden;
+}

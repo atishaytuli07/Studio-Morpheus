@@ -1,0 +1,305 @@
+.hero {
+  position: relative;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  padding: 0;
+  background-color: var(--navy);
+}
+
+/* --- atmosphere ------------------------------------------------ */
+
+/* haze bloom, upper right — depth, not paint */
+.hero-bloom {
+  position: absolute;
+  top: -45%;
+  right: -18%;
+  width: 105vmax;
+  height: 105vmax;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    color-mix(in srgb, var(--haze) 85%, transparent) 0%,
+    color-mix(in srgb, var(--haze) 30%, transparent) 30%,
+    transparent 58%
+  );
+  will-change: opacity;
+}
+
+/* atmosphere plate — light shafts + drifting mist, fading into the navy */
+.hero-plate {
+  position: absolute;
+  top: 0;
+  /* sits inside the right-hand grid rule rather than bleeding off-screen */
+  right: var(--grid-inset);
+  width: min(48vw, 42rem);
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  /* dissolve on both the left edge and the bottom so the figure never
+     ends on a hard line */
+  -webkit-mask-image:
+    linear-gradient(to left, #000 0%, rgba(0, 0, 0, 0.75) 42%, transparent 88%),
+    linear-gradient(to top, transparent 0%, #000 26%);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to left, #000 0%, rgba(0, 0, 0, 0.75) 42%, transparent 88%),
+    linear-gradient(to top, transparent 0%, #000 26%);
+  mask-composite: intersect;
+}
+
+/* contain, not cover: the raised arm and the plinth must never crop.
+   screen blending drops the source's near-black backdrop straight out,
+   so the figure sits in the navy with no rectangle seam. */
+.hero-figure {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: right bottom;
+  mix-blend-mode: screen;
+  filter: saturate(0.85) contrast(1.06);
+  -webkit-mask-image: linear-gradient(to left, #000 58%, transparent 96%);
+  mask-image: linear-gradient(to left, #000 58%, transparent 96%);
+}
+
+/* --- light shafts: four beams raking down from the upper right --- */
+
+.hero-shafts {
+  position: absolute;
+  inset: -20% -10%;
+  transform: rotate(14deg);
+  transform-origin: 70% 0%;
+}
+
+.hero-shaft {
+  position: absolute;
+  top: -10%;
+  height: 130%;
+  width: calc(3.5rem + var(--i) * 1.6rem);
+  left: calc(18% + var(--i) * 17%);
+  background: linear-gradient(
+    to bottom,
+    color-mix(in srgb, var(--mist) 42%, transparent) 0%,
+    color-mix(in srgb, var(--mist) 16%, transparent) 42%,
+    transparent 80%
+  );
+  filter: blur(10px);
+  opacity: calc(0.9 - var(--i) * 0.13);
+  animation: hero-breathe 9s ease-in-out infinite alternate;
+  animation-delay: calc(var(--i) * -2.4s);
+  will-change: opacity;
+}
+
+@keyframes hero-breathe {
+  to {
+    opacity: calc(0.3 - var(--i) * 0.05);
+  }
+}
+
+/* --- mist: fractal noise, blurred and drifting --- */
+
+.hero-mist {
+  position: absolute;
+  inset: -30%;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='600'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='4' seed='7'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23m)'/%3E%3C/svg%3E");
+  background-size: 130% 130%;
+  mix-blend-mode: screen;
+  filter: blur(22px) contrast(1.4);
+  will-change: transform;
+}
+
+.hero-mist-a {
+  opacity: 0.24;
+  animation: hero-drift-a 46s ease-in-out infinite alternate;
+}
+
+.hero-mist-b {
+  opacity: 0.1;
+  background-position: 40% 60%;
+  animation: hero-drift-b 62s ease-in-out infinite alternate;
+}
+
+@keyframes hero-drift-a {
+  to {
+    transform: translate3d(-6%, 4%, 0) scale(1.12);
+  }
+}
+
+@keyframes hero-drift-b {
+  to {
+    transform: translate3d(7%, -5%, 0) scale(1.18);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-shaft,
+  .hero-mist {
+    animation: none;
+  }
+}
+
+/* the hero's top rule sits below the nav bar */
+.hero .grid-h-top,
+.hero .grid-sparkle-tl,
+.hero .grid-sparkle-tr {
+  top: clamp(4.5rem, 9vh, 6.5rem);
+}
+
+.hero .grid-v,
+.hero .grid-h,
+.hero .grid-sparkle {
+  will-change: transform, opacity;
+}
+
+/* --- content ---------------------------------------------------- */
+
+/* content is bottom-weighted: open sky above for the bloom,
+   headline grounded just above the service strip */
+.hero-inner {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  padding: clamp(7rem, 20vh, 14rem) calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem))
+    clamp(3rem, 6vh, 5rem);
+}
+
+.hero-body {
+  max-width: 52rem;
+}
+
+.hero-eyebrow {
+  margin-bottom: clamp(1.5rem, 3.5vh, 2.5rem);
+}
+
+.hero-title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.6rem, 5.6vw, 6.1rem);
+  line-height: 1.04;
+  letter-spacing: -0.028em;
+  color: var(--marble);
+  max-width: 19ch;
+}
+
+.hero-title em {
+  font-size: 1.06em;
+  color: var(--marble);
+  padding-right: 0.06em;
+}
+
+.hero-sub {
+  margin-top: clamp(1.5rem, 3vh, 2.25rem);
+  max-width: 30rem;
+  color: var(--mist);
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+.hero-cta {
+  margin-top: clamp(2rem, 4.5vh, 3rem);
+  opacity: 0;
+}
+
+/* --- bottom strip ----------------------------------------------- */
+
+.hero-strip {
+  position: relative;
+  z-index: 2;
+  display: block;
+  padding: 0 var(--grid-inset) clamp(2.5rem, 5.5vh, 4rem);
+  opacity: 0;
+}
+
+/* the service list runs as a slow infinite marquee along the bottom rule */
+.hero-marquee {
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent 0%,
+    #000 6%,
+    #000 94%,
+    transparent 100%
+  );
+}
+
+.hero-marquee-track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+  animation: hero-marquee 54s linear infinite;
+}
+
+.hero-marquee-set {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.hero-marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: clamp(1rem, 2.2vw, 2rem);
+  padding-right: clamp(1rem, 2.2vw, 2rem);
+  white-space: nowrap;
+  color: rgba(181, 198, 212, 0.7);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.hero-marquee-dot {
+  color: rgba(181, 198, 212, 0.35);
+  font-size: 0.6rem;
+}
+
+/* four identical sets → shifting by 25% is a seamless loop */
+@keyframes hero-marquee {
+  to {
+    transform: translateX(-25%);
+  }
+}
+
+.hero-marquee:hover .hero-marquee-track {
+  animation-play-state: paused;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-marquee-track {
+    animation: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero-inner {
+    padding: 8rem clamp(2rem, 8vw, 3.5rem) 7rem;
+  }
+
+  .hero-strip {
+    padding: 0 1.25rem 2.5rem;
+  }
+
+  /* the type needs the full width on phones — atmosphere recedes */
+  .hero-plate {
+    width: 82vw;
+  }
+
+  .hero-mist-b {
+    display: none;
+  }
+}

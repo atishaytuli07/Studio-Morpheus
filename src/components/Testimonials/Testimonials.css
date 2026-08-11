@@ -1,0 +1,208 @@
+/* blunt-main's fanned quote cards — hovering one straightens it and
+   scatters its neighbours outward. Light section, blue cards. */
+
+.testimonials {
+  position: relative;
+  background-color: var(--parchment);
+  color: var(--soot);
+  padding: clamp(4rem, 9vh, 7rem) 0 clamp(10rem, 24vh, 17rem);
+  overflow: hidden;
+}
+
+/* --- head rail --- */
+
+.testimonials-head {
+  display: flex;
+  align-items: center;
+  gap: clamp(1rem, 2.5vw, 2rem);
+  padding: 0 calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem));
+  margin-bottom: clamp(2.5rem, 6vh, 4rem);
+  position: relative;
+  z-index: 2;
+}
+
+.testimonials-rule {
+  flex: 1;
+  height: 1px;
+  background: rgba(8, 8, 7, 0.16);
+}
+
+.testimonials-intro {
+  position: relative;
+  z-index: 2;
+  padding: 0 calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem));
+  margin-bottom: clamp(3rem, 8vh, 6rem);
+}
+
+.testimonials-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(1.9rem, 3.8vw, 3.6rem);
+  line-height: 1.06;
+  letter-spacing: -0.03em;
+  color: var(--soot);
+  max-width: 20ch;
+}
+
+.testimonials-title em {
+  color: var(--navy);
+}
+
+/* --- the fan --- */
+
+.testimonial-stage {
+  position: relative;
+  z-index: 2;
+  height: 30rem;
+  margin: 0 auto;
+}
+
+.testimonial-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 20rem;
+  height: 26.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.35rem;
+  padding: 1.6rem;
+  margin: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  will-change: transform;
+  box-shadow: 0 26px 70px rgba(0, 20, 50, 0.22);
+}
+
+/* --- stars --- */
+
+.testimonial-stars {
+  display: flex;
+  gap: 0.28rem;
+}
+
+.testimonial-star {
+  width: 0.82rem;
+  height: 0.82rem;
+}
+
+.tone-navy .testimonial-star {
+  fill: var(--mist);
+}
+
+.tone-paper .testimonial-star {
+  fill: var(--navy);
+}
+
+.testimonial-card.tone-navy {
+  background: linear-gradient(165deg, var(--haze) 0%, var(--navy) 60%, var(--ink) 100%);
+  color: var(--parchment);
+  border: 1px solid rgba(244, 242, 236, 0.12);
+}
+
+.testimonial-card.tone-paper {
+  background: var(--marble);
+  color: var(--soot);
+  border: 1px solid rgba(8, 8, 7, 0.1);
+}
+
+.testimonial-quotemark {
+  font-family: var(--font-accent);
+  font-style: italic;
+  font-size: 1.6em;
+  line-height: 0;
+  vertical-align: -0.15em;
+  padding-right: 0.1em;
+  opacity: 0.55;
+}
+
+.testimonial-quote {
+  flex: 1;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.testimonial-card.tone-navy .testimonial-quote {
+  color: rgba(244, 242, 236, 0.86);
+}
+
+.testimonial-card.tone-paper .testimonial-quote {
+  color: rgba(8, 8, 7, 0.76);
+}
+
+.testimonial-author {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(128, 128, 128, 0.25);
+}
+
+.testimonial-avatar {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+}
+
+.tone-navy .testimonial-avatar {
+  background: rgba(244, 242, 236, 0.12);
+  color: var(--mist);
+}
+
+.tone-paper .testimonial-avatar {
+  background: color-mix(in srgb, var(--navy) 12%, transparent);
+  color: var(--navy);
+}
+
+.testimonial-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.testimonial-name {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: 0.98rem;
+  letter-spacing: -0.02em;
+}
+
+.testimonial-role {
+  font-size: 0.66rem;
+}
+
+.testimonial-card.tone-navy .testimonial-role {
+  color: var(--mist);
+}
+
+/* --- stacked on mobile --- */
+
+@media (max-width: 999px) {
+  .testimonial-stage {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 0 calc(var(--grid-inset) + clamp(1.5rem, 3vw, 3.5rem));
+  }
+
+  .testimonial-card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: min(100%, 24rem);
+    height: auto;
+    min-height: 21rem;
+    cursor: default;
+    will-change: auto;
+  }
+}

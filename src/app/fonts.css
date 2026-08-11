@@ -1,0 +1,38 @@
+/* studio morpheus. — self-hosted faces.
+   Single-face system: PP Pangram Sans for display + body,
+   Palace Italic as the accent, Geist Mono for micro-labels.
+   Only the cuts actually used are declared. */
+
+@font-face {
+  font-family: "pangram-sans";
+  src: url("/fonts/pangram-sans/PPPangramSans-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "pangram-sans";
+  src: url("/fonts/pangram-sans/PPPangramSans-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* accent — real italic; Pangram Sans has no italic cut */
+@font-face {
+  font-family: "palace";
+  src: url("/fonts/palace/palace-italic.ttf") format("truetype");
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "geist-mono";
+  src: url("/fonts/geist-mono/geist-mono-variable.ttf")
+    format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

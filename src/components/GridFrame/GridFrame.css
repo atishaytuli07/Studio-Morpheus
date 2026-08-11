@@ -1,0 +1,81 @@
+.grid-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.grid-v {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--grid-line);
+}
+
+.grid-v-left {
+  left: var(--grid-inset);
+}
+
+.grid-v-right {
+  right: var(--grid-inset);
+}
+
+.grid-h {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--grid-line);
+}
+
+.grid-h-top {
+  top: 0;
+}
+
+.grid-h-bottom {
+  bottom: 0;
+}
+
+.grid-sparkle {
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  fill: var(--grid-mark);
+}
+
+.grid-sparkle-tl {
+  left: var(--grid-inset);
+  top: 0;
+  transform: translate(-50%, -50%);
+}
+
+.grid-sparkle-tr {
+  right: var(--grid-inset);
+  top: 0;
+  transform: translate(50%, -50%);
+}
+
+.grid-sparkle-bl {
+  left: var(--grid-inset);
+  bottom: 0;
+  transform: translate(-50%, 50%);
+}
+
+.grid-sparkle-br {
+  right: var(--grid-inset);
+  bottom: 0;
+  transform: translate(50%, 50%);
+}
+
+/* tone: light rules on dark grounds */
+.grid-frame-light {
+  --grid-line: var(--rule);
+  --grid-mark: var(--mist);
+}
+
+/* tone: ink rules on parchment */
+.grid-frame-dark {
+  --grid-line: rgba(8, 8, 7, 0.14);
+  --grid-mark: rgba(8, 8, 7, 0.4);
+}
