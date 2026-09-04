@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
 import { ReactLenis } from "lenis/react";
 import Nav from "@/components/Nav/Nav";
 
@@ -33,6 +34,10 @@ const LENIS_DESKTOP = {
 
 export default function ClientLayout({ children }) {
   const [isMobile, setIsMobile] = useState(false);
+  const pathname = usePathname();
+
+  // /new is a self-contained second direction with its own nav and chrome
+  const isV2 = pathname?.startsWith("/new");
 
   useEffect(() => {
     const handleResize = () =>
@@ -44,8 +49,8 @@ export default function ClientLayout({ children }) {
 
   return (
     <ReactLenis root options={isMobile ? LENIS_MOBILE : LENIS_DESKTOP}>
-      <div className="grain" aria-hidden="true" />
-      <Nav />
+      {!isV2 && <div className="grain" aria-hidden="true" />}
+      {!isV2 && <Nav />}
       <div className="page">{children}</div>
     </ReactLenis>
   );

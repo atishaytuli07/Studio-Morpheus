@@ -304,7 +304,7 @@ export default function Nav() {
 
   return (
     <>
-      <nav ref={navRef} className="top">
+      <nav ref={navRef} className="site-nav top">
         <div className="nav-container">
           <div className="nav-logo">
             <Link href="/" onClickCapture={(e) => handleLinkClick(e, "/")}>

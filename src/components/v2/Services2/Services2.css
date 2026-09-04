@@ -1,0 +1,232 @@
+/* the client-retained arc carousel, dressed for the dark world:
+   deep navy cards sweeping over the brand-navy ground */
+
+.s2 {
+  position: relative;
+  width: 100%;
+  height: 100svh;
+  overflow: hidden;
+  background: transparent;
+}
+
+.s2-header {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  width: min(90vw, 46rem);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(1rem, 2.5vh, 1.75rem);
+  pointer-events: none;
+}
+
+.s2-label {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-faint);
+}
+
+.s2-title {
+  font-family: var(--v2-display);
+  font-weight: 500;
+  font-size: clamp(2rem, 4.6vw, 4.4rem);
+  line-height: 1.02;
+  letter-spacing: -0.025em;
+  text-transform: uppercase;
+  color: var(--v2-fg);
+}
+
+.s2-meta {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 clamp(1.5rem, 5vw, 5rem) clamp(1.5rem, 3.5vh, 2.5rem);
+}
+
+.s2-meta p {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-faint);
+}
+
+/* --- the arc --- */
+
+.s2-cards {
+  position: absolute;
+  top: 20%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 150vw;
+  height: 600px;
+  z-index: 5;
+  will-change: transform;
+}
+
+.s2-card {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  --card-w: 330px;
+  width: var(--card-w);
+  height: 420px;
+  margin-left: calc(var(--card-w) / -2);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 0.6rem;
+  background: linear-gradient(168deg, #10294f 0%, #071736 62%, #040e22 100%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 30px 80px rgba(0, 4, 14, 0.55);
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.s2-card-media {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 0.35rem;
+  overflow: hidden;
+  background: var(--v2-deep);
+}
+
+.s2-card-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  /* stripped to luminance first — the duotone below supplies all the hue */
+  filter: grayscale(1) contrast(1.08) brightness(0.94);
+}
+
+/* true duotone: `color` blending keeps the photo's luminance and takes hue
+   from this gradient, so the stock imagery is physically incapable of
+   drifting off the blue + white rule (it was reading warm sepia before) */
+.s2-card-media::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    165deg,
+    var(--v2-accent2) 0%,
+    var(--v2-navy) 72%
+  );
+  mix-blend-mode: color;
+  pointer-events: none;
+}
+
+.s2-card-index {
+  position: absolute;
+  z-index: 2; /* above the duotone overlay, or it gets tinted too */
+  top: 0.7rem;
+  left: 0.8rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: #fff;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.55);
+}
+
+.s2-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0 0.25rem 0.35rem;
+}
+
+.s2-card-name {
+  font-weight: 600;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  color: var(--v2-fg);
+}
+
+.s2-card-line {
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--v2-muted);
+}
+
+/* --- reduced motion: static grid --- */
+
+.s2.is-static {
+  height: auto;
+  padding: clamp(4rem, 10vh, 7rem) clamp(1.5rem, 5vw, 5rem);
+}
+
+.s2.is-static .s2-header {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  margin: 0 auto clamp(2.5rem, 6vh, 4rem);
+}
+
+.s2.is-static .s2-cards {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: 100%;
+  height: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+
+.s2.is-static .s2-card {
+  position: relative;
+  left: auto;
+  top: auto;
+  width: auto;
+  height: auto;
+  min-height: 15rem;
+  margin-left: 0;
+  transform: none !important;
+}
+
+.s2.is-static .s2-meta {
+  position: relative;
+  margin-top: 2.5rem;
+  padding-bottom: 0;
+}
+
+/* --- responsive card sizing --- */
+
+@media (max-width: 1200px) {
+  .s2-card {
+    --card-w: 290px;
+    height: 380px;
+  }
+}
+
+@media (max-width: 900px) {
+  .s2-cards {
+    top: 26%;
+    height: 460px;
+  }
+
+  .s2-card {
+    --card-w: min(78vw, 310px);
+    height: min(54vh, 400px);
+  }
+
+  .s2-title {
+    font-size: clamp(1.7rem, 7.4vw, 2.6rem);
+  }
+}
