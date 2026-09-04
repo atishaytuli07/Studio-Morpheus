@@ -9,9 +9,15 @@ import "./Manifesto2.css";
 gsap.registerPlugin(ScrollTrigger);
 
 const STATEMENT =
-  "A creative studio for brands that dream in bold — strategy, design and film, built end to end.";
+  "A creative studio for brands that dream in bold strategy, design and film, built end to end.";
 
-const BADGE = "BRANDING · FILM · SPATIAL · SOCIAL · ";
+/* Real service names only — "SPATIAL" was mine and isn't one of the nine.
+   Each character is placed on its own angular step, the way the reference
+   does it: even spacing regardless of glyph width, which a textPath cannot
+   guarantee. */
+const BADGE = "BRANDING, DESIGN, ILLUSTRATION, MARKETING, ";
+const BADGE_CHARS = [...BADGE];
+const BADGE_STEP = 360 / BADGE_CHARS.length;
 
 /* Every line of body copy below is verbatim from dreamwithmorpheus.com.
    The founder paragraph is four sentences; it is split 2 + 2 across the
@@ -20,10 +26,12 @@ const FOUNDER_A =
   "Morpheus began as a dream in the mind of Sakshi, with a passion for creativity and transformation. Inspired by the Greek god of dreams, morpheus reflects the journey of turning imagination into reality — a path our founder knows well.";
 const FOUNDER_B =
   "What started as a personal aspiration is now a thriving creative agency, dedicated to helping brands shape their own dreams into impactful experiences. With morpheus, Sakshi aspires to do for businesses, what she did for herself — turn bold ideas into meaningful realities, blending creativity and strategy to craft stories that resonate and inspire.";
-/* The site's own two taglines — both verbatim, and both previously homeless
-   in this rebuild. The primary one has been unplaced since we started. */
+/* The column carries ONE idea, not three stacked claims. The quote is the
+   most distinctive thing the old site says — and it is where the studio's
+   name comes from — so it leads, set as a pull quote. The primary tagline
+   becomes its small lead-in rather than a competing headline.
+   Both verbatim; the second tagline was cut as a near-duplicate claim. */
 const TAGLINE = "Transforming ideas into impactful experiences.";
-const TAGLINE_2 = "Dream bigger. We'll make it happen.";
 const QUOTE = "The future belongs to those who believe in the beauty of their dreams.";
 const QUOTE_BY = "Eleanor Roosevelt";
 
@@ -58,15 +66,15 @@ export default function Manifesto2() {
         },
       });
 
-      /* the ticker: step the track up one line at a time, hold, and at the
-         end (on the repeated first item) snap silently back to the top */
-      const n = STATS.length;
-      const step = 100 / (n + 1);
-      const tick = gsap.timeline({ repeat: -1, defaults: { ease: "power3.inOut" } });
-      for (let i = 1; i <= n; i++) {
-        tick.to(".m2-stats-track", { yPercent: -step * i, duration: 0.55 }, "+=2.1");
-      }
-      tick.set(".m2-stats-track", { yPercent: 0 });
+      /* the ticker: one continuous drift, no steps and no holds. The list is
+         rendered twice, so -50% lands exactly on the identical second set
+         and the loop is seamless. */
+      gsap.to(".m2-stats-track", {
+        yPercent: -50,
+        duration: 14,
+        ease: "none",
+        repeat: -1,
+      });
 
       gsap.fromTo(
         [".m2-label", ".m2-badge", ".m2-stats"],
@@ -92,8 +100,19 @@ export default function Manifesto2() {
       {/* top row — three zones: label in the left gutter, the statement as a
           narrower centre-right column, the disc in the right gutter */}
       <div className="m2-top">
+        {/* the corner arrow is drawn, not typed: Neue Montreal has no glyph
+            for U+21B3, so the character fell back and rendered as "l," */}
         <p className="m2-label">
-          <span aria-hidden="true">↳</span> the studio
+          <svg viewBox="0 0 12 12" aria-hidden="true">
+            <path
+              d="M1.5 1v6.5h7"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.3"
+            />
+            <path d="M6.5 5.2 9.8 7.5 6.5 9.8z" fill="currentColor" />
+          </svg>
+          the studio
         </p>
 
         <h2 className="m2-statement" aria-label={STATEMENT}>
@@ -109,23 +128,18 @@ export default function Manifesto2() {
         </h2>
 
         <div className="m2-badge" aria-hidden="true">
-          <svg viewBox="0 0 200 200">
-            <defs>
-              <path
-                id="m2-ring"
-                d="M100,100 m-74,0 a74,74 0 1,1 148,0 a74,74 0 1,1 -148,0"
-                fill="none"
-              />
-            </defs>
-            <text className="m2-badge-text">
-              {/* textLength = the ring's circumference (2π·74), so one repeat
-                  is spaced evenly round the full circle — no seam where a
-                  clipped tail meets the restart */}
-              <textPath href="#m2-ring" textLength="465" lengthAdjust="spacing">
-                {BADGE}
-              </textPath>
-            </text>
-          </svg>
+          {/* the ring spins; each letter sits at its own angle, pushed out to
+              38% of the badge (the reference: 75px on a 198px circle) */}
+          <div className="m2-badge-ring">
+            {BADGE_CHARS.map((ch, i) => (
+              <span
+                key={i}
+                style={{ transform: `rotate(${i * BADGE_STEP}deg) translateY(-38%)` }}
+              >
+                {ch === " " ? " " : ch}
+              </span>
+            ))}
+          </div>
           <span className="m2-badge-disc" />
         </div>
       </div>
@@ -133,8 +147,8 @@ export default function Manifesto2() {
       {/* body — the staggered editorial grid. Named areas so the stagger is
           declared, not accidental:
             lead (indented, bottom-aligned to the portrait) · portrait · —
-            —                · mid (under the portrait)     · quote
-            second image     · facts list                   · —           */}
+            —              · mid (under the portrait) · quote
+            second image   · —                        · facts ticker      */}
       <div className="m2-body">
         <p className="m2-col m2-lead">{FOUNDER_A}</p>
 
@@ -149,11 +163,10 @@ export default function Manifesto2() {
         <p className="m2-col m2-mid">{FOUNDER_B}</p>
 
         <div className="m2-right">
-          <p className="m2-col m2-tagline">{TAGLINE}</p>
-          <p className="m2-col m2-tagline-2">{TAGLINE_2}</p>
-          <blockquote className="m2-col m2-quote">
+          <p className="m2-eyebrow">{TAGLINE}</p>
+          <blockquote className="m2-quote">
             <p>{QUOTE}</p>
-            <cite>— {QUOTE_BY}</cite>
+            <cite>{QUOTE_BY}</cite>
           </blockquote>
         </div>
 
@@ -161,13 +174,16 @@ export default function Manifesto2() {
           <img src="/work/work-8.jpg" alt="" loading="lazy" />
         </figure>
 
-        {/* the facts as a one-line vertical ticker: fixed height, each item
-            rolls up into view, holds, rolls out. The first item is repeated
-            at the end so the wrap is seamless. */}
+        {/* the facts drifting through a fixed window. The list is rendered
+            twice so the -50% loop is seamless; the second set is marked as a
+            clone so reduced motion can drop it. */}
         <div className="m2-stats" aria-label={STATS.join(", ")}>
           <div className="m2-stats-track" aria-hidden="true">
-            {[...STATS, STATS[0]].map((s, i) => (
-              <p className="m2-stat" key={i}>
+            {[...STATS, ...STATS].map((s, i) => (
+              <p
+                className={i >= STATS.length ? "m2-stat is-clone" : "m2-stat"}
+                key={i}
+              >
                 <span>¬</span>
                 {s}
               </p>

@@ -1,180 +1,152 @@
-/* selected work — full-bleed lens-bubble slider; the whole section is
-   the click target, like negative-films' work page */
+/* Selected work — brikken's staggered two-column showcase, in our palette.
+   Ground and ink come from .v2-invert. No pin, no WebGL: the images are the
+   event, and the page keeps moving. */
 
 .w2 {
   position: relative;
-  width: 100%;
-  height: 100svh;
+  padding: clamp(5rem, 12vh, 9rem) clamp(1.5rem, 5vw, 5rem)
+    clamp(4rem, 10vh, 7rem);
   overflow: hidden;
-  background: var(--v2-deep);
-  cursor: pointer;
-  user-select: none;
 }
 
-.w2-canvas {
-  position: absolute;
-  inset: 0;
+/* --- heading --- */
+
+.w2-head {
+  margin-bottom: clamp(3rem, 8vh, 6rem);
+}
+
+.w2-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-muted);
+  margin: 0 0 1rem;
+}
+
+/* the one giant in this section — the portfolio announcing itself */
+.w2-heading {
+  margin: 0;
+  font-family: var(--v2-display);
+  font-weight: 500;
+  font-size: clamp(3rem, 9vw, 9rem);
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  color: var(--v2-fg);
+}
+
+/* --- the staggered columns --- */
+
+.w2-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: clamp(2rem, 5vw, 5rem);
+  align-items: start;
+}
+
+.w2-col {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(4rem, 10vh, 8rem);
+}
+
+/* the right stack hangs lower — the offset is the whole composition */
+.w2-col-offset {
+  margin-top: clamp(4rem, 14vh, 11rem);
+}
+
+/* --- a project --- */
+
+.w2-item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.w2-media {
+  position: relative;
+  margin: 0 0 1.5rem;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--v2-navy);
+}
+
+/* taller than the frame so the parallax has somewhere to travel */
+.w2-media img {
   width: 100%;
-  height: 100%;
-  display: block;
-}
-
-/* mobile / reduced-motion: plain crossfading stack */
-.w2-fallback {
-  position: absolute;
-  inset: 0;
-}
-
-.w2-fallback img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  height: 114%;
   object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.8s var(--v2-ease);
+  display: block;
+  will-change: transform;
 }
 
-.w2-fallback img.is-active {
+.w2-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.35rem;
+  margin: 0 0 0.9rem;
+  font-family: var(--v2-display);
+  font-weight: 500;
+  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  color: var(--v2-fg);
+}
+
+/* the small square after the name — brikken's device, in our navy */
+.w2-mark {
+  width: 0.34em;
+  height: 0.34em;
+  margin-top: 0.12em;
+  flex-shrink: 0;
+  background: var(--v2-navy);
+}
+
+.w2-body {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 1.125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  color: var(--v2-fg);
+}
+
+.w2-index {
+  margin: 1.25rem 0 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  color: var(--v2-muted);
+}
+
+/* --- reduced motion: everything visible, nothing drifting --- */
+
+.w2.is-static .w2-item {
   opacity: 1;
 }
 
-/* keeps type readable over any image */
-.w2-scrim {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background:
-    linear-gradient(180deg, rgba(4, 10, 22, 0.55) 0%, transparent 30%),
-    linear-gradient(0deg, rgba(4, 10, 22, 0.72) 0%, transparent 45%);
+.w2.is-static .w2-media img {
+  height: 100%;
 }
 
-.w2-head,
-.w2-foot {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 clamp(1.5rem, 5vw, 5rem);
-  pointer-events: none;
-  z-index: 2;
-}
-
-.w2-head {
-  top: clamp(1.25rem, 3vh, 2.25rem);
-}
-
-.w2-foot {
-  bottom: clamp(1.25rem, 3vh, 2.25rem);
-  align-items: center;
-}
-
-.w2-progress {
-  display: flex;
-  gap: 0.45rem;
-}
-
-.w2-progress span {
-  width: clamp(1.8rem, 3vw, 3rem);
-  height: 2px;
-  background: rgba(255, 255, 255, 0.22);
-  transition: background 0.6s var(--v2-ease);
-}
-
-.w2-progress span.is-on {
-  background: #fff;
-}
-
-.w2-head p,
-.w2-foot p,
-.w2-counter {
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: rgba(255, 255, 255, 0.6);
-}
-
-/* --- project content, bottom-left --- */
-
-.w2-content {
-  position: absolute;
-  left: clamp(1.5rem, 5vw, 5rem);
-  right: clamp(1.5rem, 5vw, 5rem);
-  bottom: clamp(4.5rem, 10vh, 7rem);
-  z-index: 2;
-  pointer-events: none;
-}
-
-.w2-counter {
-  margin-bottom: 0.9rem;
-  animation: w2-fade 0.8s var(--v2-ease) 0.1s both;
-}
-
-.w2-title-mask {
-  overflow: hidden;
-  /* breathing room so the tight leading never clips ascenders */
-  padding-top: 0.06em;
-  margin-top: -0.06em;
-}
-
-/* the title IS the section — near-viewport scale, like the references */
-.w2-title {
-  font-family: var(--v2-display);
-  font-weight: 500;
-  font-size: clamp(3rem, 7.5vw, 8.5rem);
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  text-transform: uppercase;
-  color: #fff;
-  animation: w2-rise 1s var(--v2-ease) both;
-}
-
-.w2-meta {
-  margin-top: 1rem;
-  font-family: var(--font-mono);
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: rgba(255, 255, 255, 0.65);
-  animation: w2-fade 0.8s var(--v2-ease) 0.28s both;
-}
-
-@keyframes w2-rise {
-  from {
-    transform: translateY(108%);
-  }
-  to {
-    transform: translateY(0);
-  }
-}
-
-@keyframes w2-fade {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .w2-counter,
-  .w2-title,
-  .w2-meta {
-    animation: none;
-  }
-}
+/* --- responsive --- */
 
 @media (max-width: 820px) {
-  .w2-head p:last-child {
-    display: none;
+  /* one column: the stagger has nothing to stagger against */
+  .w2-cols {
+    grid-template-columns: 1fr;
   }
 
-  .w2-title {
-    font-size: clamp(2.4rem, 11vw, 3.6rem);
+  .w2-col-offset {
+    margin-top: clamp(4rem, 10vh, 8rem);
+  }
+
+  .w2-col {
+    gap: clamp(4rem, 10vh, 8rem);
+  }
+
+  .w2-media {
+    aspect-ratio: 3 / 2;
   }
 }

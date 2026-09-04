@@ -25,39 +25,65 @@
   align-items: start;
 }
 
+/* The section opener, not a micro rail. Matched to the reference: 16px,
+   semibold, -0.06em — set in the sans, not the mono. The 11px wide-tracked
+   mono rails elsewhere are a different job; this one has to read. */
 .m2-label {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-family: var(--v2-font);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: -0.06em;
   color: var(--v2-muted);
   opacity: 0;
-  padding-top: 0.4em;
+  padding-top: 0.15em;
 }
 
-/* block, NOT flex: flex drops the whitespace between word items and defeats
-   text-align: justify, which needs normal inline flow */
+.m2-label svg {
+  width: 0.8em;
+  height: 0.8em;
+  /* its own gap: at -0.06em the plain space closes up */
+  margin-right: 0.5em;
+  vertical-align: -0.04em;
+}
+
+/* Normal inline flow, never flex — flex drops the whitespace between the
+   word spans, and justify needs those spaces to distribute. */
 .m2-statement {
-  display: block;
   margin: 0;
-  text-align: justify;
-  text-align-last: left;
   font-family: var(--v2-display);
-  /* Bold, like constantine's — at this middle size Medium carried neither
-     with scale nor with weight. Still inside the rule: extrabold is the
+  /* Bold, like constantine's. Still inside the rule: extrabold is the
      wordmark's alone. */
   font-weight: 700;
-  /* sized to the column, not the viewport — theirs runs ~2.5vw */
   font-size: clamp(1.5rem, 2.7vw, 3rem);
-  line-height: 1.1;
-  letter-spacing: -0.015em;
+  /* the reference sets 32/32 with -1.92px tracking: line-height exactly 1.0
+     and -0.06em. Tight tracking at this weight is most of why the block
+     reads as one solid mass rather than loose words. */
+  line-height: 1;
+  letter-spacing: -0.06em;
+  /* letter-spacing shrinks the word gaps too, and on a packed justified line
+     they collapse to nothing ("STUDIOFOR"). This buys the gaps back without
+     loosening the letters. */
+  word-spacing: 0.3em;
   text-transform: uppercase;
+  /* every line flush to both edges, the last one included, so the block is a
+     true rectangle */
+  text-align: justify;
+  text-align-last: justify;
+  text-indent: 26%;
 }
 
 /* each word stacks a lighter base with a clipped full-ink fill over it */
 .m2-word {
   position: relative;
   display: inline-block;
+  /* The statement's text-indent is INHERITED by these boxes, and the fill is
+     a block box, so its text started 26% in, overflowed the word's right
+     edge, and clip-path cut the tail off — the base then showed through as
+     a lighter last letter on every word. The indent belongs to the
+     statement's own first line, nowhere else. */
+  text-indent: 0;
 }
 
 .m2-base {
@@ -66,7 +92,11 @@
 
 .m2-fill {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  /* sized to its own text, not stretched to the word box: the two then agree
+     no matter how tracking or spacing changes later */
+  width: max-content;
   color: var(--v2-fg);
   white-space: nowrap;
   /* CSS owns the start state so StrictMode re-mounts can't strand it */
@@ -74,7 +104,7 @@
   will-change: clip-path;
 }
 
-/* --- rotating discipline disc, right gutter --- */
+/* ============ rotating discipline disc, right gutter ============ */
 
 .m2-badge {
   position: relative;
@@ -84,24 +114,38 @@
   opacity: 0;
 }
 
-.m2-badge svg {
-  width: 100%;
-  height: 100%;
-  animation: m2-spin 26s linear infinite;
+.m2-badge-ring {
+  position: absolute;
+  inset: 0;
+  animation: m2-spin 14s linear infinite;
+  will-change: transform;
 }
 
-.m2-badge-text {
-  font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  fill: var(--v2-muted);
-  text-transform: uppercase;
+/* each character is centred in the badge, then rotated to its own angle and
+   pushed outward — even angular spacing, whatever the glyph widths */
+.m2-badge-ring span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 50% 50%;
+  font-family: var(--v2-font);
+  font-size: 0.7rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--v2-muted);
+  white-space: pre;
+  user-select: none;
+  pointer-events: none;
 }
 
-/* the navy disc — on bone, the disc is the ink colour */
+/* the navy disc — on bone, the disc is the ink colour. Sized to sit just
+   inside the letter ring (letters at 38%, disc edge at 30%). */
 .m2-badge-disc {
   position: absolute;
-  inset: 26%;
+  inset: 20%;
   border-radius: 50%;
   background: var(--v2-fg);
 }
@@ -117,22 +161,37 @@
 .m2-body {
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.7fr) minmax(0, 1.15fr);
+  /* the ticker sits under the quote in the right column, not under the
+     centre one — it belongs with the studio's other standing facts */
   grid-template-areas:
     "lead portrait ."
     ".    mid      quote"
-    "img  list     .";
+    "img  .        list";
   column-gap: clamp(2rem, 5vw, 5rem);
   row-gap: clamp(1.5rem, 3.5vh, 2.5rem);
 }
 
-/* justified body copy, like theirs — the even measure carries the block */
+/* Justified body copy, matched to the reference: 18px / 500 / -0.06em.
+
+   NOT the captured `line-height: 18px` — that value contradicts the
+   reference's own rendering, where the lines sit 27px apart at 18px type
+   (1.5). Set solid, the block was unreadably tight. The rendering wins.
+
+   No hyphens: theirs never breaks a word. Justify then pays for it in wider
+   word gaps, which is the right trade — mid-word breaks read cheap. */
 .m2-col {
   margin: 0;
-  font-size: 0.98rem;
+  font-size: 1.125rem;
+  font-weight: 500;
   line-height: 1.5;
+  /* NOT the reference's -0.06em. That is measured on Inter, which is wider
+     by default; Neue Montreal is already narrow, and at -0.06em lowercase
+     letters collide ("Dream bigger.We'll"). Tight tracking belongs to the
+     uppercase settings — the statement, the label, the ring. */
+  letter-spacing: -0.012em;
   text-align: justify;
   text-align-last: left;
-  hyphens: auto;
+  hyphens: none;
   color: var(--v2-fg);
 }
 
@@ -144,23 +203,49 @@
   text-indent: 22%;
 }
 
-.m2-portrait {
-  grid-area: portrait;
-  margin: 0;
-  /* narrow, like theirs — the portrait is a figure in the grid, not a hero */
-  width: clamp(11rem, 16vw, 15rem);
-  aspect-ratio: 4 / 5;
-  overflow: hidden;
-  position: relative;
-  background: var(--v2-navy);
-}
-
 .m2-mid {
   grid-area: mid;
   align-self: start;
 }
 
-/* the right column: the two taglines, then the quote beneath them */
+/* --- the two figures: framed, cropped, TRUE colour --- */
+
+/* The duotone is for stock/decorative imagery only; the founder is a real
+   person and the second frame is real work. Recolouring either would
+   misrepresent them — the plan's own rule. */
+.m2-portrait,
+.m2-img {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  background: var(--v2-navy);
+}
+
+.m2-portrait img,
+.m2-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* narrow, like theirs — a figure in the grid, not a hero */
+.m2-portrait {
+  grid-area: portrait;
+  width: clamp(11rem, 16vw, 15rem);
+  aspect-ratio: 4 / 5;
+}
+
+/* the small second image, bottom-left */
+.m2-img {
+  grid-area: img;
+  align-self: end;
+  width: clamp(7rem, 10vw, 9.5rem);
+  aspect-ratio: 1;
+}
+
+/* --- the right column: the two taglines, then the quote --- */
+
 .m2-right {
   grid-area: quote;
   align-self: start;
@@ -169,32 +254,36 @@
   gap: 0.75rem;
 }
 
-/* the studio's primary tagline — the one claim it makes about itself, so it
-   sits a step above body copy without competing with the statement */
-.m2-tagline {
-  font-size: clamp(1.05rem, 1.35vw, 1.35rem);
-  line-height: 1.35;
-  letter-spacing: -0.01em;
-  text-align: left;
-  text-align-last: left;
-}
-
-.m2-tagline-2 {
+/* the tagline is the lead-in, not a headline — it hands off to the quote */
+.m2-eyebrow {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  line-height: 1.5;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
   color: var(--v2-muted);
-  text-align: left;
-  text-align-last: left;
 }
 
+/* the pull quote: the one thing this column says, so it is set at scale */
 .m2-quote {
   display: flex;
   flex-direction: column;
-  gap: 0.6rem;
-  padding-top: 0.9rem;
+  align-items: flex-start;
+  gap: 1rem;
+  margin: 0;
+  padding-top: 1.1rem;
   border-top: 1px solid var(--v2-rule);
 }
 
 .m2-quote p {
   margin: 0;
+  font-size: clamp(1.35rem, 1.9vw, 1.85rem);
+  font-weight: 500;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  color: var(--v2-fg);
+  text-wrap: balance;
 }
 
 .m2-quote cite {
@@ -206,36 +295,30 @@
   color: var(--v2-muted);
 }
 
-/* the small second image, bottom-left, like theirs */
-.m2-img {
-  grid-area: img;
-  align-self: end;
-  margin: 0;
-  width: clamp(7rem, 10vw, 9.5rem);
-  aspect-ratio: 1;
-  overflow: hidden;
-  position: relative;
-  background: var(--v2-navy);
+/* the rule is the attribution's mark — no em-dash character needed */
+.m2-quote cite::before {
+  content: "";
+  display: inline-block;
+  width: 1.5rem;
+  height: 1px;
+  margin-right: 0.6rem;
+  vertical-align: 0.28em;
+  background: currentColor;
+  opacity: 0.5;
 }
 
-/* TRUE colour, no duotone. The duotone is for stock/decorative imagery
-   only; the founder is a real person and the second frame is real work.
-   Recolouring either would misrepresent them — the plan's own rule. */
-.m2-portrait img,
-.m2-img img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
+/* --- the facts ticker --- */
 
-/* the facts ticker: a slot exactly one line tall, the track rolls inside */
+/* A window several items tall with the list scrolling continuously through
+   it (the reference: 150px, 10px gaps), not one line stepping. The list is
+   rendered twice and the track travels exactly -50%, so the wrap is
+   invisible. The spacing lives in margin-bottom, not gap: with `gap` the
+   track is one gap short of two whole sets and -50% would drift. */
 .m2-stats {
-  --stat-line: 1.6rem;
   grid-area: list;
   align-self: start;
-  height: var(--stat-line);
-  overflow: hidden;
+  height: 9.4rem;
+  overflow: clip;
   opacity: 0;
 }
 
@@ -249,11 +332,10 @@
   display: flex;
   align-items: baseline;
   gap: 0.45rem;
-  height: var(--stat-line);
-  line-height: var(--stat-line);
-  margin: 0;
+  margin: 0 0 0.625rem;
   font-family: var(--font-mono);
   font-size: 0.72rem;
+  line-height: 1.4;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--v2-muted);
@@ -271,21 +353,21 @@
 }
 
 .m2.is-static .m2-label,
-.m2.is-static .m2-badge,
-.m2.is-static .m2-stats {
+.m2.is-static .m2-badge {
   opacity: 1;
 }
 
-/* no ticker under reduced motion: show the list whole, minus the wrap copy */
+/* no ticker: the list shows whole, minus the duplicated set */
 .m2.is-static .m2-stats {
+  opacity: 1;
   height: auto;
 }
 
-.m2.is-static .m2-stat:last-child {
+.m2.is-static .m2-stat.is-clone {
   display: none;
 }
 
-.m2.is-static .m2-badge svg {
+.m2.is-static .m2-badge-ring {
   animation: none;
 }
 
@@ -313,9 +395,12 @@
     justify-self: start;
   }
 
+  /* too few words per line to justify at this width — it would tear holes */
   .m2-statement {
     font-size: clamp(1.5rem, 6.5vw, 2.2rem);
     text-align: left;
+    text-align-last: left;
+    text-indent: 0;
   }
 
   /* single column, natural reading order */
