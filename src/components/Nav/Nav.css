@@ -1,5 +1,5 @@
 /* sits at the top of the document and scrolls away with the hero */
-nav {
+nav.site-nav {
   position: absolute;
   top: 0;
   left: 0;
@@ -19,44 +19,44 @@ nav {
 }
 
 /* the only scroll cue: a hairline once past the hero */
-nav:not(.top) .nav-container {
+nav.site-nav:not(.top) .nav-container {
   border-bottom-color: var(--rule);
 }
 
 /* --- over a light section, flip to dark ink --- */
 
-nav.nav-invert .nav-logo a,
-nav.nav-invert .nav-toggler {
+nav.site-nav.nav-invert .nav-logo a,
+nav.site-nav.nav-invert .nav-toggler {
   color: var(--soot);
 }
 
-nav.nav-invert .nav-logo-studio {
+nav.site-nav.nav-invert .nav-logo-studio {
   -webkit-text-stroke-color: var(--soot);
 }
 
-nav.nav-invert .nav-inline {
+nav.site-nav.nav-invert .nav-inline {
   color: rgba(8, 8, 7, 0.6);
 }
 
-nav.nav-invert .nav-inline:hover {
+nav.site-nav.nav-invert .nav-inline:hover {
   color: var(--soot);
 }
 
-nav.nav-invert .nav-toggler-hamburger span {
+nav.site-nav.nav-invert .nav-toggler-hamburger span {
   background-color: var(--soot);
 }
 
-nav.nav-invert .nav-btn-cta {
+nav.site-nav.nav-invert .nav-btn-cta {
   background: var(--soot);
   color: var(--chalk);
 }
 
-nav.nav-invert .nav-btn-cta .btn-arrow {
+nav.site-nav.nav-invert .nav-btn-cta .btn-arrow {
   background: var(--chalk);
   color: var(--soot);
 }
 
-nav.nav-invert:not(.top) .nav-container {
+nav.site-nav.nav-invert:not(.top) .nav-container {
   border-bottom-color: rgba(8, 8, 7, 0.14);
 }
 

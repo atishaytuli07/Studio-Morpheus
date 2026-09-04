@@ -25,7 +25,12 @@ export default function Preloader({ onComplete }) {
   const preloaderRef = useRef(null);
   const lenis = useLenis();
   const lenisRef = useRef(null);
-  lenisRef.current = lenis;
+
+  // keep the ref current without writing it during render (React 19 rule);
+  // the intro effect below runs once but must reach the live Lenis instance
+  useEffect(() => {
+    lenisRef.current = lenis;
+  }, [lenis]);
 
   // plain useEffect, not useGSAP: useGSAP reverts everything it created when
   // StrictMode tears the first pass down, which killed the intro mid-flight

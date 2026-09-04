@@ -1,0 +1,230 @@
+/* ============================================================
+   /new — second design direction.
+   All tokens are scoped to .v2 so this route can diverge freely
+   from the approved v1 system without any bleed either way.
+   ============================================================ */
+
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+.v2 {
+  /* ONE ground for the whole page — never alternating. Saturated blue used
+     as wallpaper is what made the old palette shout; the ground is now a
+     dark, mostly-desaturated midnight and the saturation moved into the
+     light. Same lesson everwonder.studio's #0B0B28 teaches: dark, quiet
+     ground + one big luminous bloom. Still blue + white, just deeper. */
+  /* the dark ground IS the brand navy — lightness 17%, unmistakably blue.
+     The old #0a1226 (L 9%) was a near-black with a cast: next to warm bone it
+     read as black-and-cream, which is why the bone looked dull. */
+  --v2-bg: #002459;
+  --v2-deep: #001a42; /* the shadow pocket, still blue */
+
+  /* the brand navy is now a LIGHT source, not a surface */
+  --v2-navy: #002459;
+  --v2-accent: #1b4e8f;
+  --v2-accent2: #2e6fbf;
+
+  /* the light ink is the SAME bone as the light ground — one colour doing
+     both jobs, so the wordmark on navy and the paper under blue type are
+     literally the same value. Pure white glared; this sits in the air. */
+  --v2-fg: #eeede4;
+  --v2-pure: #ffffff;
+  --v2-muted: rgba(238, 237, 228, 0.64);
+  --v2-faint: rgba(238, 237, 228, 0.38);
+  --v2-rule: rgba(238, 237, 228, 0.14);
+
+  /* the light ground. Hue 215 — a desaturated tint of the brand blue, not a
+     neutral grey and not a warm bone, so the page is still only ever blue
+     and white. This is the third step of the tonal system:
+     paper l≈94  ·  navy l≈17  ·  deep l≈9 */
+  /* Constantine's pair, verbatim. #eeede4 and #0d3479 sit at 10.01:1 in BOTH
+     directions — bone on blue and blue on bone read identically well, which
+     is what lets whole sections invert without retuning anything. */
+  --v2-paper: #eeede4;
+  --v2-blue: #002459;
+
+  /* ink on bone */
+  --v2-paper-fg: #002459; /* 12.6:1 — the brand navy */
+  --v2-paper-muted: #3d5a8f; /*  5.84:1 */
+  --v2-paper-faint: #4a68a0; /*  4.73:1 */
+  --v2-paper-rule: rgba(0, 36, 89, 0.2);
+  /* unfilled statement words: a GHOST of the ink, not a second colour — the
+     navy diluted into the bone, so it tracks both tokens. At 35% it is
+     ≈#98a5b3 / 2.1:1 — below the 3:1 text floor by choice: this is a
+     transient state that fills to 12.6:1 as you scroll, never something
+     you are asked to read. Do not reuse this token for static text. */
+  --v2-paper-word: color-mix(in srgb, var(--v2-navy) 35%, var(--v2-paper));
+
+  /* ink on blue — #8b9dbc is THEIR muted, and it only works here: on blue it
+     is 4.29:1, on bone it collapses to 2.34:1 */
+  --v2-on-blue: #eeede4;
+  --v2-on-blue-muted: #8b9dbc;
+  --v2-on-blue-rule: rgba(238, 237, 228, 0.2); /* their #eeede433 */
+
+  --v2-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --v2-pad: clamp(1.25rem, 4vw, 4rem);
+  --v2-font: "neue-montreal", "Helvetica Neue", Arial, sans-serif;
+  /* section titles: the body face at Medium, never extrabold — the wordmark
+     is the only heavy thing on the site (DZ!NR runs 400, brikken Medium) */
+  --v2-display: "neue-montreal", "Helvetica Neue", Arial, sans-serif;
+
+  position: relative;
+  min-height: 100dvh;
+  background: var(--v2-bg);
+  color: var(--v2-fg);
+  font-family: var(--v2-font);
+}
+
+/* sections are transparent — they sit ON the ground rather than each
+   painting their own, which is what caused the banding between panels */
+.v2 > main {
+  position: relative;
+  z-index: 1;
+}
+
+/* Inverted sections: paper ground, navy ink. Every v2 component reads its
+   colours from these tokens, so redefining them here flips a whole section
+   without touching the component's own CSS. */
+/* bone ground, blue ink */
+.v2-invert {
+  --v2-fg: var(--v2-paper-fg);
+  /* SOLID tints, not alpha — the dark side's alphas collapse when flipped
+     (navy at 42% over bone measures 2.7:1 on 10px mono). */
+  --v2-muted: var(--v2-paper-muted);
+  --v2-faint: var(--v2-paper-faint);
+  --v2-rule: var(--v2-paper-rule);
+
+  background: var(--v2-paper);
+  color: var(--v2-fg);
+}
+
+/* full-bleed brand-blue panel: bone ink, the exact reverse of .v2-invert */
+.v2-blue {
+  --v2-fg: var(--v2-on-blue);
+  --v2-muted: var(--v2-on-blue-muted);
+  --v2-faint: var(--v2-on-blue-muted);
+  --v2-rule: var(--v2-on-blue-rule);
+
+  background: var(--v2-blue);
+  color: var(--v2-fg);
+}
+
+/* the single continuous bloom: two enormous soft light masses drifting
+   behind everything, so the dark never reads as flat and the light feels
+   like one room the page moves through */
+.v2-bloom {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 85% 55% at 76% 8%,
+      color-mix(in srgb, var(--v2-accent2) 22%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 95% 65% at 12% 92%,
+      color-mix(in srgb, var(--v2-navy) 55%, transparent) 0%,
+      transparent 70%
+    );
+  will-change: transform;
+  animation: v2-bloom-drift 52s ease-in-out infinite alternate;
+}
+
+@keyframes v2-bloom-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-4%, 3%, 0) scale(1.12);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-bloom {
+    animation: none;
+  }
+}
+
+.v2-shell {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+  padding: var(--v2-pad);
+}
+
+.v2-label {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-muted);
+}
+
+.v2-title {
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: clamp(2.5rem, 7vw, 6rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  max-width: 18ch;
+}
+
+.v2-note {
+  max-width: 46ch;
+  color: var(--v2-muted);
+  line-height: 1.6;
+}
+
+.v2-rule {
+  height: 1px;
+  background: var(--v2-rule);
+}
+
+/* route-wide grain — fixed above everything, overlay-blended so it reads
+   as texture on every ground, not just the hero's */
+.v2-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.16;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+/* faint vertical column lines across the whole route — brikken's structural
+   detail. Six columns, hairline, drawn from the ink token so they invert. */
+.v2-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: repeating-linear-gradient(
+    90deg,
+    var(--v2-rule) 0 1px,
+    transparent 1px calc(100% / 6)
+  );
+  background-position: calc(100% / 12) 0;
+  opacity: 0.55;
+}

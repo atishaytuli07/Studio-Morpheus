@@ -1,57 +1,28 @@
 "use client";
 
-import "./Services.css";
+import "./Services2.css";
 
 import { useLayoutEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import Copy from "@/components/Copy/Copy";
-import GridFrame from "@/components/GridFrame/GridFrame";
-
 gsap.registerPlugin(ScrollTrigger);
 
-/* verbatim service one-liners from the brand brief */
+/* the arc carousel the client explicitly kept, restyled for the dark
+   monumental world — service one-liners are theirs, verbatim */
 const SERVICES = [
-  {
-    name: "Branding",
-    line: "Unleash your brand's potential — let's make it extraordinary.",
-  },
-  {
-    name: "Social Media",
-    line: "Turn your scroll into a stop — let's spark conversations with your socials.",
-  },
-  {
-    name: "Media Production",
-    line: "From concept to screen — we can make your vision unforgettable.",
-  },
-  {
-    name: "Design",
-    line: "Good design isn't seen — it's felt. Let's make 'em feel.",
-  },
-  {
-    name: "Illustration",
-    line: "Doodles to masterpieces — let's make your brand impossible to ignore.",
-  },
-  {
-    name: "Marketing",
-    line: "Let's turn strategy into success — where your story drives results.",
-  },
-  {
-    name: "Consulting",
-    line: "You've got the vision, we've got the strategy — no excuses.",
-  },
-  {
-    name: "Web & Digital",
-    line: "Websites that work harder than you — experiences that deliver.",
-  },
-  {
-    name: "Special Projects",
-    line: "Got a vision that doesn't fit the box? We got you.",
-  },
+  { name: "Branding", line: "Unleash your brand's potential — let's make it extraordinary." },
+  { name: "Social Media", line: "Turn your scroll into a stop — let's spark conversations." },
+  { name: "Media Production", line: "From concept to screen — we make your vision unforgettable." },
+  { name: "Design", line: "Good design isn't seen — it's felt. Let's make 'em feel." },
+  { name: "Illustration", line: "Doodles to masterpieces — impossible to ignore." },
+  { name: "Marketing", line: "Strategy into success — where your story drives results." },
+  { name: "Consulting", line: "You've got the vision, we've got the strategy — no excuses." },
+  { name: "Web & Digital", line: "Websites that work harder than you — experiences that deliver." },
+  { name: "Special Projects", line: "Got a vision that doesn't fit the box? We got you." },
 ];
 
-export default function Services() {
+export default function Services2() {
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
 
@@ -60,16 +31,15 @@ export default function Services() {
     const cards = cardsRef.current.filter(Boolean);
     if (!section || !cards.length) return;
 
-    // reduced motion: cards fall back to a static grid, no pin
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       section.classList.add("is-static");
       return;
     }
 
     const totalCards = cards.length;
-    /* 0.85/card pinned the page for 7.65 viewports before the arc completed —
-       too long. 0.4 halves the toll without rushing the sweep. */
-    const stickyHeight = window.innerHeight * (totalCards * 0.4);
+    /* 0.8/card meant 9 cards pinned the page for 7.2 viewports (8.2 with the
+       section itself) — far too long a toll for the payoff. 0.4 halves it. */
+    const stickyHeight = window.innerHeight * (totalCards * 0.35);
 
     const arcAngle = Math.PI * 0.4;
     const startAngle = Math.PI / 2 - arcAngle / 2;
@@ -79,7 +49,6 @@ export default function Services() {
         ? window.innerWidth * 7.5
         : window.innerWidth * 2.5;
 
-    // place every card along the arc for a given scroll progress
     function positionCards(progress = 0) {
       const radius = getRadius();
       const cardSpacing = 0.085;
@@ -131,8 +100,6 @@ export default function Services() {
       pinSpacing: true,
       scrub: true,
       invalidateOnRefresh: true,
-      // pinned sections must refresh in document order: earlier = higher
-      refreshPriority: 2,
       onUpdate: (self) => positionCards(self.progress),
     });
 
@@ -146,44 +113,36 @@ export default function Services() {
   }, []);
 
   return (
-    <section className="services" ref={sectionRef} data-nav-invert>
-      <GridFrame tone="dark" rules="none" />
-
-      <div className="services-header">
-        <Copy variant="flicker">
-          <p className="mono">[ what we do ]</p>
-        </Copy>
-        <Copy variant="mask" splitType="lines">
-          <h2 className="services-title">
-            Nine ways to build the <em>dream</em>.
-          </h2>
-        </Copy>
+    <section className="s2" ref={sectionRef}>
+      <div className="s2-header">
+        <p className="s2-label">[ 02 — what we do ]</p>
+        <h2 className="s2-title">Nine ways to build the dream</h2>
       </div>
 
-      <div className="services-meta">
-        <p className="mono">[ 02 ]</p>
-        <p className="mono">nine disciplines · one studio</p>
-      </div>
-
-      <div className="service-cards">
+      <div className="s2-cards">
         {SERVICES.map((service, i) => (
           <article
             key={service.name}
-            className="service-card"
-            ref={(el) => (cardsRef.current[i] = el)}
+            className="s2-card"
+            ref={(el) => {
+              cardsRef.current[i] = el;
+            }}
           >
-            <div className="service-card-media duotone">
+            <div className="s2-card-media">
               <img src={`/services/service-${i + 1}.jpg`} alt="" loading="lazy" />
-              <p className="mono service-card-index">
-                {String(i + 1).padStart(2, "0")}
-              </p>
+              <p className="s2-card-index">{String(i + 1).padStart(2, "0")}</p>
             </div>
-            <div className="service-card-body">
-              <h3 className="service-card-name">{service.name}</h3>
-              <p className="service-card-line">{service.line}</p>
+            <div className="s2-card-body">
+              <h3 className="s2-card-name">{service.name}</h3>
+              <p className="s2-card-line">{service.line}</p>
             </div>
           </article>
         ))}
+      </div>
+
+      <div className="s2-meta">
+        <p>nine disciplines</p>
+        <p>one studio</p>
       </div>
     </section>
   );

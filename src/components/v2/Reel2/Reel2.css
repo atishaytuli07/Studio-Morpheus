@@ -1,0 +1,141 @@
+/* play reel — a framed video on the bone ground that grows to full-bleed
+   as the section pins. Brikken's small video thumbnail, scaled up. */
+
+.r2 {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+}
+
+.r2-head {
+  position: absolute;
+  top: clamp(1.25rem, 3vh, 2.25rem);
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 clamp(1.5rem, 5vw, 5rem);
+  z-index: 2;
+  pointer-events: none;
+}
+
+.r2-head p {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-faint);
+}
+
+.r2-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--v2-navy);
+  /* JS drives scale + radius from 0.76 / 6px; CSS owns the start state */
+  transform: scale(0.76);
+  border-radius: 6px;
+  transform-origin: center center;
+  will-change: transform;
+}
+
+.r2-frame video,
+.r2-poster img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.r2-poster {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* placeholder posters are stock — they get the duotone like the cards */
+.r2-poster img {
+  filter: grayscale(1) contrast(1.05) brightness(0.9);
+}
+
+.r2-poster::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(165deg, var(--v2-accent2), var(--v2-navy) 72%);
+  mix-blend-mode: color;
+  pointer-events: none;
+}
+
+.r2-poster-note {
+  position: absolute;
+  z-index: 1;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-on-blue);
+  padding: 0.5rem 0.8rem;
+  border: 1px solid var(--v2-on-blue-rule);
+  background: rgba(0, 36, 89, 0.55);
+  white-space: nowrap;
+}
+
+/* mute chip — same square white chip as the CTAs */
+.r2-mute {
+  position: absolute;
+  right: clamp(1.5rem, 5vw, 5rem);
+  bottom: clamp(1.25rem, 3vh, 2.25rem);
+  z-index: 2;
+  padding: 0.34rem 0.8rem;
+  border: 0;
+  border-radius: 2px;
+  background: var(--v2-pure);
+  color: var(--v2-navy);
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+}
+
+.r2-mute:focus-visible {
+  outline: 2px solid var(--v2-navy);
+  outline-offset: 2px;
+}
+
+/* --- no pin on mobile / reduced motion: a static framed reel --- */
+
+.r2.is-static {
+  height: auto;
+  padding: clamp(4rem, 10vh, 6rem) clamp(1.5rem, 5vw, 5rem);
+}
+
+.r2.is-static .r2-head {
+  position: relative;
+  top: auto;
+  padding: 0;
+  margin-bottom: 1rem;
+}
+
+/* 4 / 3 — the source is 1600x1200. A 16/9 box cropped a quarter of the
+   frame off the top and bottom; on mobile the reel should be whole. */
+.r2.is-static .r2-frame {
+  transform: none;
+  border-radius: 4px;
+  aspect-ratio: 4 / 3;
+  height: auto;
+}
+
+.r2.is-static .r2-mute {
+  position: relative;
+  right: auto;
+  bottom: auto;
+  margin-top: 1rem;
+}

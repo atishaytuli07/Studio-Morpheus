@@ -1,0 +1,178 @@
+/* one monumental quote at a time — no cards, no boxes, no slider chrome.
+   Words dissolve out of a blur (the manifesto's language) and the next
+   thought resolves in their place. */
+
+.t2 {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  /* ground comes from .v2-invert */
+  padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1.5rem, 5vw, 5rem);
+  overflow: hidden;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* drifting light mass, same family as the hero aurora but quieter */
+.t2-atmo {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 90vw;
+  height: 90vh;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 44% at 50% 50%,
+    color-mix(in srgb, var(--v2-accent2) 46%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent) 24%, transparent) 48%,
+    transparent 72%
+  );
+  filter: blur(52px);
+  opacity: 0.4;
+  animation: t2-drift 38s ease-in-out infinite alternate;
+}
+
+@keyframes t2-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(26%, 18%, 0) scale(1.2);
+  }
+}
+
+/* on paper the same glow reads as a muddy smudge — it needs to be the brand
+   navy at low alpha instead, a wash of colour rather than a light source */
+.v2-invert .t2-atmo {
+  opacity: 0.16;
+  background: radial-gradient(
+    ellipse 50% 44% at 50% 50%,
+    color-mix(in srgb, var(--v2-navy) 42%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent2) 20%, transparent) 48%,
+    transparent 72%
+  );
+}
+
+/* giant outline numeral behind the quote — scale contrast, brand-quiet */
+.t2-ghost {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -54%);
+  font-family: var(--v2-display);
+  font-weight: 500;
+  font-size: clamp(16rem, 36vw, 34rem);
+  line-height: 1;
+  color: transparent;
+  /* derived from the ink colour so it survives the light/dark inversion */
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--v2-fg) 12%, transparent);
+  pointer-events: none;
+  opacity: 0;
+}
+
+.t2-head,
+.t2-foot {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.t2-head p,
+.t2-foot p {
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-faint);
+  opacity: 0;
+}
+
+/* --- the quote --- */
+
+.t2-stage {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 0;
+  gap: clamp(1.75rem, 4.5vh, 3rem);
+  padding: 2rem 0;
+}
+
+.t2-quote {
+  margin: 0;
+  max-width: 26ch;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 3.3vw, 3.3rem);
+  line-height: 1.28;
+  letter-spacing: -0.015em;
+  color: var(--v2-fg);
+}
+
+.t2-word {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(26px);
+  will-change: opacity, filter;
+}
+
+.t2-author {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  opacity: 0;
+}
+
+.t2-name {
+  font-size: 0.95rem;
+  color: var(--v2-muted);
+}
+
+.t2-role {
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--v2-faint);
+}
+
+/* --- reduced motion: everything visible, click still steps through --- */
+
+.t2.is-static {
+  cursor: default;
+}
+
+.t2.is-static .t2-atmo {
+  animation: none;
+}
+
+.t2.is-static .t2-head p,
+.t2.is-static .t2-foot p,
+.t2.is-static .t2-author,
+.t2.is-static .t2-ghost {
+  opacity: 1;
+}
+
+.t2.is-static .t2-word {
+  opacity: 1;
+  filter: none;
+}
+
+@media (max-width: 560px) {
+  .t2-quote {
+    max-width: 22ch;
+    font-size: clamp(1.35rem, 6vw, 1.7rem);
+  }
+
+  .t2-head p:last-child {
+    display: none;
+  }
+}
