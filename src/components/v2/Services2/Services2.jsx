@@ -51,7 +51,13 @@ export default function Services2() {
 
     function positionCards(progress = 0) {
       const radius = getRadius();
-      const cardSpacing = 0.085;
+      /* 0.085 packed five cards into the visible window at 1920 with ~100px
+         between their rotated bounding boxes — crowded, and it read as if
+         the sweep were already under way when you arrived. 0.105 shows
+         three or four with real air. Safe now that the progress window is
+         derived from the geometry: wider spacing no longer costs dead
+         frames the way it did before that fix. */
+      const cardSpacing = 0.105;
 
       /* Only part of the arc is ever on screen: a card is visible while
          |cos(angle)| * radius stays within half the viewport. Solving that
@@ -100,6 +106,10 @@ export default function Services2() {
       pinSpacing: true,
       scrub: true,
       invalidateOnRefresh: true,
+      /* pinned sections must refresh in document order, earlier = higher.
+         The reel pins before this one and is set to 3; leaving this at the
+         default 0 worked by luck, not by declaration. */
+      refreshPriority: 2,
       onUpdate: (self) => positionCards(self.progress),
     });
 

@@ -46,7 +46,12 @@
   --v2-fg: #eeede4;
   --v2-pure: #ffffff;
   --v2-muted: rgba(238, 237, 228, 0.64);
-  --v2-faint: rgba(238, 237, 228, 0.38);
+  /* SOLID, and lighter than it was. At rgba(...,0.38) the 10px mono rails
+     measured 2.98:1 on the navy — a real AA failure, not a rounding one.
+     This is 4.7:1. Solid also because these labels sit over the hero's
+     aurora, where an alpha value's effective contrast changes with the
+     gradient underneath it. */
+  --v2-faint: #8393a5;
   --v2-rule: rgba(238, 237, 228, 0.14);
 
   /* the light ground. Hue 215 — a desaturated tint of the brand blue, not a
@@ -200,15 +205,18 @@
   background: var(--v2-rule);
 }
 
-/* route-wide grain — fixed above everything, overlay-blended so it reads
-   as texture on every ground, not just the hero's */
+/* Route-wide grain. It sits above the sections (their opaque grounds would
+   cover it otherwise), which means it also paints over type — so it has to
+   be gentle. `overlay` at 0.16 was speckling the letterforms of 18px body
+   copy and reading as a blur or a drop shadow. `soft-light` at 0.09 still
+   textures the grounds but leaves edges clean. */
 .v2-grain {
   position: fixed;
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.16;
-  mix-blend-mode: overlay;
+  opacity: 0.09;
+  mix-blend-mode: soft-light;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   background-size: 160px 160px;
 }

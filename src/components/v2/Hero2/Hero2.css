@@ -12,6 +12,9 @@
 }
 
 .h2 {
+  /* held in a variable so the wordmark can break back out of it exactly */
+  --h2-pad: clamp(0.9rem, 1.6vw, 1.5rem);
+
   position: relative;
   height: 100svh;
   display: flex;
@@ -19,7 +22,7 @@
   align-items: center;
   overflow: hidden;
   /* their .hero_home_wrap padding: the whole hero sits inside a site margin */
-  padding: clamp(0.9rem, 1.6vw, 1.5rem);
+  padding: var(--h2-pad);
   /* transparent: the route owns the ground now */
   color: var(--v2-fg);
 }
@@ -230,7 +233,7 @@
   gap: clamp(1.25rem, 2.6vw, 2.5rem);
 }
 
-/* 400, not 500 — at this size khteka's medium reads chunky against the
+/* 400, not 500 — at this size Montreal Medium reads chunky against the
    hairline mono rails, and the nav should recede behind the wordmark */
 .h2-links a {
   font-size: 0.94rem;
@@ -455,8 +458,14 @@
     margin-bottom: 0.5rem;
   }
 
+  /* Full bleed on a phone. At 94% inside the hero's own padding the mark was
+     ~340px on a 390px screen and read as small; here it breaks back out of
+     that padding and touches both edges, which is what makes it feel like
+     the wordmark rather than a picture of one. */
   .h2-wordmark {
+    width: calc(100% + var(--h2-pad) * 2);
     margin-top: clamp(1.25rem, 4vh, 2rem);
+    margin-left: calc(var(--h2-pad) * -1);
   }
 
   .h2-links {

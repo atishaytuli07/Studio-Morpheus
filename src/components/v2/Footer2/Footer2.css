@@ -239,13 +239,19 @@
     flex: 0 0 auto;
   }
 
+  /* Pages left, social right, contact spanning beneath.
+     As flex-wrap with 45% min-widths all three took a full row each: two at
+     45% plus a 2.5rem gap is 346px on a 340px screen — over by six pixels,
+     so it broke to one per line. A 2-up grid can't miss by rounding. */
   .f2-cols {
-    flex-wrap: wrap;
-    gap: 1.5rem 2.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.75rem 1.25rem;
   }
 
-  .f2-col {
-    min-width: 45%;
+  /* the address is too long for half a phone */
+  .f2-col:last-child {
+    grid-column: 1 / -1;
   }
 
   .f2-base {
