@@ -221,12 +221,14 @@
   background: var(--v2-navy);
 }
 
+/* height is set by mountParallax() from data-speed; the frames clip */
 .m2-portrait img,
 .m2-img img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  will-change: transform;
 }
 
 /* narrow, like theirs — a figure in the grid, not a hero */
@@ -386,21 +388,56 @@
 }
 
 @media (max-width: 820px) {
+  /* tighter side margins so the statement gets the width back */
+  .m2 {
+    padding-left: 1.15rem;
+    padding-right: 1.15rem;
+  }
+
+  /* Label and disc share the top line — the label row was half empty and the
+     disc was sitting alone under the statement taking a row of its own.
+     The statement then spans the full width beneath both. */
   .m2-top {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr auto;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .m2-label {
+    grid-column: 1;
+    grid-row: 1;
+    padding-top: 0;
   }
 
   .m2-badge {
-    grid-column: 1;
-    justify-self: start;
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: end;
+    width: 4rem;
   }
 
-  /* too few words per line to justify at this width — it would tear holes */
   .m2-statement {
-    font-size: clamp(1.5rem, 6.5vw, 2.2rem);
+    grid-column: 1 / -1;
+    grid-row: 2;
+    margin-top: 1.5rem;
+  }
+
+  /* Too few words per line to justify at this width — it would tear holes.
+     word-spacing goes back to normal with it: the 0.3em was bought to stop
+     justify squeezing words together, and on left-aligned text it does the
+     opposite, opening gaps the eye reads as broken. */
+  .m2-statement {
+    /* sized to fill the measure now that the side padding is tighter and the
+       disc no longer costs it a row */
+    font-size: clamp(1.55rem, 6.6vw, 2.3rem);
+    line-height: 1.06;
     text-align: left;
     text-align-last: left;
     text-indent: 0;
+    /* not `normal`: the -0.06em tracking shrinks the spaces too, so a bare
+       reset leaves "A CREATIVE" nearly touching. This gives the 0.06em back
+       and a little over, which is a normal gap rather than a justified one. */
+    word-spacing: 0.09em;
   }
 
   /* single column, natural reading order */

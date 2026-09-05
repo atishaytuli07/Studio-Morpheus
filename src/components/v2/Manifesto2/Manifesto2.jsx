@@ -4,6 +4,7 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { mountParallax } from "../parallax";
 import "./Manifesto2.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -90,7 +91,12 @@ export default function Manifesto2() {
       );
     }, section);
 
-    return () => ctx.revert();
+    const stopParallax = mountParallax(section);
+
+    return () => {
+      stopParallax();
+      ctx.revert();
+    };
   }, []);
 
   const words = STATEMENT.split(" ");
@@ -156,6 +162,7 @@ export default function Manifesto2() {
           <img
             src="/founder/portrait.jpg"
             alt="Sakshi Gopal Bhatt, founder of studio morpheus."
+            data-speed="0.22"
             loading="lazy"
           />
         </figure>
@@ -171,7 +178,7 @@ export default function Manifesto2() {
         </div>
 
         <figure className="m2-img">
-          <img src="/work/work-8.jpg" alt="" loading="lazy" />
+          <img src="/work/work-8.jpg" alt="" data-speed="0.32" loading="lazy" />
         </figure>
 
         {/* the facts drifting through a fixed window. The list is rendered

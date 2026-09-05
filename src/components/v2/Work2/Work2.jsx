@@ -4,11 +4,15 @@ import { useEffect, useRef } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
+import { mountParallax } from "../parallax";
 import "./Work2.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* PLACEHOLDER FRAMING — the images are real morpheus work, but the client
+/* Two pieces, not four: "selected" work should be a shortlist, and at this
+   scale two carry the section better than four half-seen ones.
+
+   PLACEHOLDER FRAMING — the images are real morpheus work, but the client
    has not supplied project names or case-study copy (the old site's project
    pages are image-only). Until then each piece is titled by its discipline
    and described with that service's own words, verbatim from the old site.
@@ -24,22 +28,12 @@ const PROJECTS = [
     body: "Design is where imagination meets purpose. From sleek websites to captivating graphics, every detail is designed to inspire. Let's turn your vision into stunning reality.",
     src: "/work/work-1.jpg",
   },
-  {
-    title: "Media Production",
-    body: "Every frame, every sound — We make it count. Whether it's videos, photos, or animations, we create media that doesn't just capture attention, but keeps it.",
-    src: "/work/work-8.jpg",
-  },
-  {
-    title: "Social Media",
-    body: "Social media is where your brand comes alive. We create engaging content and build connections that turn followers into loyal fans. From strategy to execution, we make your social presence unforgettable.",
-    src: "/work/work-2.jpg",
-  },
 ];
 
 const Card = ({ project, index }) => (
   <article className="w2-item">
     <figure className="w2-media">
-      <img src={project.src} alt={project.title} loading="lazy" />
+      <img src={project.src} alt={project.title} data-speed="0.30" loading="lazy" />
     </figure>
     <h3 className="w2-title">
       {project.title}
@@ -80,26 +74,15 @@ export default function Work2() {
         );
       });
 
-      // the images drift a little slower than the page — depth, not motion
-      gsap.utils.toArray(".w2-media img").forEach((img) => {
-        gsap.fromTo(
-          img,
-          { yPercent: -6 },
-          {
-            yPercent: 6,
-            ease: "none",
-            scrollTrigger: {
-              trigger: img,
-              start: "top bottom",
-              end: "bottom top",
-              scrub: true,
-            },
-          }
-        );
-      });
     }, section);
 
-    return () => ctx.revert();
+    // the images drift slower than the page — depth, not motion
+    const stopParallax = mountParallax(section);
+
+    return () => {
+      stopParallax();
+      ctx.revert();
+    };
   }, []);
 
   // split into two column stacks so the right one can hang lower; a single
