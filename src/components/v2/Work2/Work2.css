@@ -63,18 +63,22 @@
   flex-direction: column;
 }
 
+/* taller than the 4/3 it was: with only two pieces each frame carries more
+   of the section, and the extra height is what makes them feel like work
+   rather than thumbnails. Width is unchanged. */
 .w2-media {
   position: relative;
   margin: 0 0 1.5rem;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1 / 1;
   overflow: hidden;
   background: var(--v2-navy);
 }
 
-/* taller than the frame so the parallax has somewhere to travel */
+/* height is set by mountParallax() from the element's own data-speed, so the
+   overscan and the travel can never drift apart and expose a gap */
 .w2-media img {
   width: 100%;
-  height: 114%;
+  height: 100%;
   object-fit: cover;
   display: block;
   will-change: transform;
@@ -128,6 +132,7 @@
 
 .w2.is-static .w2-media img {
   height: 100%;
+  transform: none;
 }
 
 /* --- responsive --- */
@@ -147,6 +152,6 @@
   }
 
   .w2-media {
-    aspect-ratio: 3 / 2;
+    aspect-ratio: 4 / 3;
   }
 }
