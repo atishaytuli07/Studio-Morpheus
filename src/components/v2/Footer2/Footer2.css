@@ -225,6 +225,9 @@
   height: auto;
 }
 
+/* The O's weight turns while the outline stays still — driven from
+   Footer2.jsx, which moves the counter alone. Nothing to declare here. */
+
 @media (max-width: 900px) {
   /* the single row can't hold five things — stack it */
   .f2-row {

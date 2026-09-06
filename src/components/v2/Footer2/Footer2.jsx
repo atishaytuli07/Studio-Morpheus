@@ -18,6 +18,46 @@ const INK_HEIGHT = 67.16;
 const WM_WIDTH = Number(WORDMARK_VIEWBOX.split(" ")[2]);
 const TIGHT_VIEWBOX = `0 ${INK_TOP} ${WM_WIDTH} ${INK_HEIGHT}`;
 
+/* --- the O's weight turns while the letter stays still ---------------------
+
+   The O is an oblique oval, and its stroke is already uneven — 7.2 units at
+   the thin flanks, 15.5 at the top and bottom. That unevenness is not drawn
+   into the contours: both are near-symmetrical, and the weight comes entirely
+   from the counter sitting 6.4 units off the centre of the outline. Move that
+   offset around a circle and the heavy side travels with it, while the
+   outline itself never moves a pixel. No second ring, no overlay, no partial
+   opacity — the same two contours as the static mark, one of them gliding.
+
+   Radius is the letter's own 6.4 scaled back to 4.5, which keeps the thinnest
+   the stroke ever gets at 4.9 units. At the full 6.4 it drops to 3.0 and the
+   ring reads as about to snap. */
+const O_INDEX = 1;
+const [O_OUTER, O_COUNTER] = WORDMARK_GLYPHS[O_INDEX].d
+  .split("Z")
+  .filter((sub) => sub.trim())
+  .map((sub) => `${sub}Z`);
+
+/* the paths are plain polylines — every number is an x or a y in turn */
+const bounds = (d) => {
+  const n = d.match(/-?\d+(?:\.\d+)?/g).map(Number);
+  const xs = n.filter((_, i) => i % 2 === 0);
+  const ys = n.filter((_, i) => i % 2 === 1);
+  return {
+    x: Math.min(...xs),
+    y: Math.min(...ys),
+    w: Math.max(...xs) - Math.min(...xs),
+    h: Math.max(...ys) - Math.min(...ys),
+  };
+};
+const O_BOX = bounds(O_OUTER);
+const C_BOX = bounds(O_COUNTER);
+/* the offset that gives the letter its stress, as an angle and a radius */
+const O_VX = C_BOX.x + C_BOX.w / 2 - (O_BOX.x + O_BOX.w / 2);
+const O_VY = C_BOX.y + C_BOX.h / 2 - (O_BOX.y + O_BOX.h / 2);
+const O_PHASE = Math.atan2(O_VY, O_VX);
+const O_RADIUS = 4.5;
+const O_TURN = 24; // seconds
+
 /* Plain lists, no mono headers — the columns read as one utility bar next to
    the brand and the CTA, rather than three labelled boxes. */
 const COLUMNS = [
@@ -70,6 +110,7 @@ const Arrow = () => (
 
 export default function Footer2() {
   const ref = useRef(null);
+  const counterRef = useRef(null);
 
   useEffect(() => {
     const section = ref.current;
@@ -78,6 +119,37 @@ export default function Footer2() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       return;
     }
+
+    /* The counter's offset walks a circle, so the weight rotates. This is a
+       plain translation computed per frame rather than a CSS rotation: a
+       rotation about the outline's centre would carry the counter's own
+       oblique axis with it and punch straight through the outline, and
+       nesting groups to cancel that back out would leave the rotation origin
+       at the mercy of transform-box. One attribute on one node is cheaper
+       than the mask redraw it triggers anyway. */
+    const counter = counterRef.current;
+    const spin = gsap.to(
+      { t: 0 },
+      {
+        t: 1,
+        duration: O_TURN,
+        ease: "none",
+        repeat: -1,
+        onUpdate() {
+          const a = O_PHASE + this.targets()[0].t * Math.PI * 2;
+          const dx = Math.cos(a) * O_RADIUS - O_VX;
+          const dy = Math.sin(a) * O_RADIUS - O_VY;
+          counter.setAttribute("transform", `translate(${dx.toFixed(3)} ${dy.toFixed(3)})`);
+        },
+      }
+    );
+
+    // it is the page's one idle loop — it must not run where nobody sees it
+    const seen = new IntersectionObserver(
+      ([entry]) => (entry.isIntersecting ? spin.resume() : spin.pause()),
+      { rootMargin: "10%" }
+    );
+    seen.observe(section);
 
     const ctx = gsap.context(() => {
       // deadspace's parallax reveal: the panel rises from behind the page
@@ -97,7 +169,11 @@ export default function Footer2() {
       );
     }, section);
 
-    return () => ctx.revert();
+    return () => {
+      seen.disconnect();
+      spin.kill();
+      ctx.revert();
+    };
   }, []);
 
   return (
@@ -147,16 +223,49 @@ export default function Footer2() {
             preserveAspectRatio="xMidYMid meet"
             aria-hidden="true"
           >
-            {WORDMARK_GLYPHS.map((glyph, i) => (
-              <g key={i} transform={`translate(${glyph.tx} 0)`}>
-                <path
-                  d={glyph.d}
-                  fill="currentColor"
-                  fillRule={glyph.evenodd ? "evenodd" : undefined}
-                  clipRule={glyph.evenodd ? "evenodd" : undefined}
-                />
-              </g>
-            ))}
+            <defs>
+              {/* The O is painted through this instead of as a filled path,
+                  so the counter can be moved on its own. userSpaceOnUse keeps
+                  these coordinates in the glyph's own space — the same one
+                  the path data is written in. */}
+              <mask
+                id="f2-o-ring"
+                maskUnits="userSpaceOnUse"
+                x={O_BOX.x - 12}
+                y={O_BOX.y - 12}
+                width={O_BOX.w + 24}
+                height={O_BOX.h + 24}
+              >
+                <path d={O_OUTER} fill="#fff" />
+                <g ref={counterRef}>
+                  <path d={O_COUNTER} fill="#000" />
+                </g>
+              </mask>
+            </defs>
+
+            {WORDMARK_GLYPHS.map((glyph, i) =>
+              i === O_INDEX ? (
+                <g key={i} transform={`translate(${glyph.tx} 0)`}>
+                  <rect
+                    x={O_BOX.x}
+                    y={O_BOX.y}
+                    width={O_BOX.w}
+                    height={O_BOX.h}
+                    fill="currentColor"
+                    mask="url(#f2-o-ring)"
+                  />
+                </g>
+              ) : (
+                <g key={i} transform={`translate(${glyph.tx} 0)`}>
+                  <path
+                    d={glyph.d}
+                    fill="currentColor"
+                    fillRule={glyph.evenodd ? "evenodd" : undefined}
+                    clipRule={glyph.evenodd ? "evenodd" : undefined}
+                  />
+                </g>
+              )
+            )}
           </svg>
         </div>
 
