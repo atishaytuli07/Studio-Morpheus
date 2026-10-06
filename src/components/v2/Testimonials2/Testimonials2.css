@@ -1,178 +1,251 @@
-/* one monumental quote at a time — no cards, no boxes, no slider chrome.
-   Words dissolve out of a blur (the manifesto's language) and the next
-   thought resolves in their place. */
+/* Kind words — cards scattered across the section, tilted and overlapping,
+   as if dropped on a table. Nothing moves on its own or on hover: a card
+   can be taken and slid or thrown sideways (Testimonials2.jsx). Ground and ink come from
+   .v2-invert; the navy cards re-point the tokens to their own ground. */
 
 .t2 {
   position: relative;
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  /* ground comes from .v2-invert */
-  padding: clamp(1.5rem, 4vh, 2.5rem) clamp(1.5rem, 5vw, 5rem);
+  padding: var(--v2-section-y) var(--v2-gutter);
+  /* the tilted corners poke past the padding; never a horizontal scrollbar */
   overflow: hidden;
-  cursor: pointer;
-  user-select: none;
 }
 
-/* drifting light mass, same family as the hero aurora but quieter */
-.t2-atmo {
-  position: absolute;
-  top: -20%;
-  left: -20%;
-  width: 90vw;
-  height: 90vh;
-  pointer-events: none;
-  background: radial-gradient(
-    ellipse 50% 44% at 50% 50%,
-    color-mix(in srgb, var(--v2-accent2) 46%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent) 24%, transparent) 48%,
-    transparent 72%
-  );
-  filter: blur(52px);
-  opacity: 0.4;
-  animation: t2-drift 38s ease-in-out infinite alternate;
+/* --- heading: the same left-set label + title as every section --- */
+
+.t2-head {
+  margin-bottom: var(--v2-head-gap);
 }
 
-@keyframes t2-drift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(26%, 18%, 0) scale(1.2);
-  }
-}
-
-/* on paper the same glow reads as a muddy smudge — it needs to be the brand
-   navy at low alpha instead, a wash of colour rather than a light source */
-.v2-invert .t2-atmo {
-  opacity: 0.16;
-  background: radial-gradient(
-    ellipse 50% 44% at 50% 50%,
-    color-mix(in srgb, var(--v2-navy) 42%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent2) 20%, transparent) 48%,
-    transparent 72%
-  );
-}
-
-/* giant outline numeral behind the quote — scale contrast, brand-quiet */
-.t2-ghost {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -54%);
-  font-family: var(--v2-display);
-  font-weight: 500;
-  font-size: clamp(16rem, 36vw, 34rem);
-  line-height: 1;
-  color: transparent;
-  /* derived from the ink colour so it survives the light/dark inversion */
-  -webkit-text-stroke: 1px color-mix(in srgb, var(--v2-fg) 12%, transparent);
-  pointer-events: none;
-  opacity: 0;
-}
-
-.t2-head,
-.t2-foot {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-}
-
-.t2-head p,
-.t2-foot p {
+.t2-label {
+  margin: 0 0 1rem;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: 0.68rem;
   text-transform: uppercase;
   letter-spacing: 0.16em;
-  color: var(--v2-faint);
-  opacity: 0;
+  color: var(--v2-muted);
 }
 
-/* --- the quote --- */
-
-.t2-stage {
-  position: relative;
-  z-index: 2;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+.t2-heading {
   margin: 0;
-  gap: clamp(1.75rem, 4.5vh, 3rem);
-  padding: 2rem 0;
-}
-
-.t2-quote {
-  margin: 0;
-  max-width: 26ch;
+  font-family: var(--v2-display);
   font-weight: 500;
-  font-size: clamp(1.7rem, 3.3vw, 3.3rem);
-  line-height: 1.28;
-  letter-spacing: -0.015em;
+  font-size: var(--v2-h-size);
+  line-height: var(--v2-h-leading);
+  letter-spacing: var(--v2-h-tracking);
   color: var(--v2-fg);
 }
 
-.t2-word {
-  display: inline-block;
-  opacity: 0;
-  filter: blur(26px);
-  will-change: opacity, filter;
+/* --- the table --- */
+
+/* Forty fine tracks, as on the reference. Each card is twelve wide (30% of
+   the table) with a narrow two-track gap between neighbours on the top
+   row. There is no vertical gap: the two lower cards are centred under
+   those gaps and pulled UP, so their top corners tuck over the cards
+   above. Each card carries its own tilt in --tilt. */
+.t2-table {
+  display: grid;
+  grid-template-columns: repeat(40, minmax(0, 1fr));
+  align-items: start;
+}
+
+.t2-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  /* landscape, like a card you could pick up */
+  aspect-ratio: 3 / 2;
+  margin: 0;
+  padding: clamp(2.25rem, 3vw, 3rem) clamp(1.5rem, 2.2vw, 2.25rem);
+  border-radius: var(--v2-radius);
+  text-align: center;
+  /* --x and --lean are written by the drag physics. No transition: it
+     would fight the per-frame updates. */
+  transform: translate3d(var(--x, 0px), 0, 0)
+    rotate(calc(var(--tilt) + var(--lean, 0deg)));
+  cursor: grab;
+  user-select: none;
+  /* a finger still scrolls the page vertically; sideways moves the card */
+  touch-action: pan-y;
+  box-shadow:
+    0 1px 2px rgba(0, 20, 50, 0.12),
+    0 24px 48px -22px rgba(0, 20, 50, 0.4);
+}
+
+.t2-card:nth-child(1) {
+  --tilt: -4deg;
+  grid-area: 1 / 1 / auto / span 12;
+}
+
+/* the lower pair: over the top row, by about a fifth of a card */
+.t2-card:nth-child(2) {
+  --tilt: 3deg;
+  grid-area: 2 / 8 / auto / span 12;
+  margin-top: -3.25rem;
+  z-index: 2;
+}
+
+/* the small top offsets keep the row from sitting on a ruled line */
+.t2-card:nth-child(3) {
+  --tilt: -2deg;
+  grid-area: 1 / 15 / auto / span 12;
+  margin-top: 1.75rem;
+}
+
+.t2-card:nth-child(4) {
+  --tilt: 4deg;
+  grid-area: 2 / 22 / auto / span 12;
+  margin-top: -2.25rem;
+  z-index: 2;
+}
+
+.t2-card:nth-child(5) {
+  --tilt: -3deg;
+  grid-area: 1 / 29 / auto / span 12;
+  margin-top: 0.5rem;
+}
+
+.t2-card.is-held {
+  cursor: grabbing;
+}
+
+/* a card with nowhere to travel is not offered as draggable */
+.t2-card.is-fixed {
+  cursor: auto;
+  touch-action: auto;
+}
+
+/* two grounds, alternating: the brand navy, and a paper brighter than the
+   section's bone so it lifts off the table instead of greying into it */
+.t2-card.is-navy {
+  --v2-fg: var(--v2-on-blue);
+  --v2-muted: var(--v2-on-blue-muted);
+  background: var(--v2-navy);
+  color: var(--v2-fg);
+}
+
+.t2-card.is-paper {
+  background: #fbfaf5;
+  color: var(--v2-fg);
+  box-shadow:
+    0 0 0 1px rgba(0, 36, 89, 0.08),
+    0 1px 2px rgba(0, 20, 50, 0.1),
+    0 24px 48px -22px rgba(0, 20, 50, 0.32);
+}
+
+/* --- the marks: one pair in each far corner --- */
+
+/* the one accent on the card: the brighter blue, on both grounds */
+.t2-marks {
+  position: absolute;
+  /* sized to the smaller card: any larger and they touch the quote */
+  width: clamp(1.1rem, 1.4vw, 1.4rem);
+  height: auto;
+  fill: var(--v2-accent2);
+}
+
+/* opening pair, bottom-left */
+.t2-marks-open {
+  left: 1rem;
+  bottom: 1rem;
+}
+
+/* the same drawing turned half a circle reads as the closing pair */
+.t2-marks-close {
+  right: 1rem;
+  top: 1rem;
+  transform: rotate(180deg);
+}
+
+/* --- the words --- */
+
+.t2-quote {
+  margin: 0;
+}
+
+.t2-quote p {
+  margin: 0;
+  font-family: var(--v2-display);
+  font-weight: 500;
+  /* one step down the scale: the card is a quarter of the table now */
+  font-size: var(--v2-t-lg);
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  text-wrap: balance;
+  color: var(--v2-fg);
 }
 
 .t2-author {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  opacity: 0;
+  gap: 0.4rem;
+  margin-top: clamp(1.1rem, 1.6vw, 1.6rem);
 }
 
 .t2-name {
-  font-size: 0.95rem;
+  font-size: var(--v2-t-base);
+  font-weight: 500;
+  color: var(--v2-fg);
+}
+
+/* the page's mono voice, as every other small label on the site */
+.t2-role {
+  font-family: var(--font-mono);
+  font-size: var(--v2-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
 }
 
-.t2-role {
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--v2-faint);
-}
+/* --- tablet: two columns, still scattered --- */
 
-/* --- reduced motion: everything visible, click still steps through --- */
-
-.t2.is-static {
-  cursor: default;
-}
-
-.t2.is-static .t2-atmo {
-  animation: none;
-}
-
-.t2.is-static .t2-head p,
-.t2.is-static .t2-foot p,
-.t2.is-static .t2-author,
-.t2.is-static .t2-ghost {
-  opacity: 1;
-}
-
-.t2.is-static .t2-word {
-  opacity: 1;
-  filter: none;
-}
-
-@media (max-width: 560px) {
-  .t2-quote {
-    max-width: 22ch;
-    font-size: clamp(1.35rem, 6vw, 1.7rem);
+@media (max-width: 1000px) {
+  /* a zigzag down the page, each card tucked over the one before */
+  .t2-table {
+    grid-template-columns: repeat(8, minmax(0, 1fr));
   }
 
-  .t2-head p:last-child {
-    display: none;
+  .t2-card:nth-child(n) {
+    margin-top: -1.5rem;
+    z-index: auto;
+  }
+
+  .t2-card:first-child {
+    margin-top: 0;
+  }
+
+  .t2-card:nth-child(odd) {
+    grid-column: 1 / span 6;
+    grid-row: auto;
+  }
+
+  .t2-card:nth-child(even) {
+    grid-column: 3 / span 6;
+    grid-row: auto;
+  }
+}
+
+/* --- phone: one column, a lighter tilt, no overlap --- */
+
+@media (max-width: 600px) {
+  .t2-table {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+
+  .t2-card:nth-child(n) {
+    margin-top: 0;
+    aspect-ratio: auto;
+    min-height: 15rem;
+  }
+
+  .t2-card:nth-child(odd) {
+    --tilt: -1.5deg;
+  }
+
+  .t2-card:nth-child(even) {
+    --tilt: 1.5deg;
   }
 }

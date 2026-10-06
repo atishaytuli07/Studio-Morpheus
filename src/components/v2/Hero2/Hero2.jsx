@@ -1,18 +1,23 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import gsap from "gsap";
+import { useLenis } from "lenis/react";
 
 import { WORDMARK_GLYPHS, WORDMARK_VIEWBOX } from "./wordmark";
 import { mountWordmarkFluid } from "./wordmarkFluid";
 import "./Hero2.css";
+import { loaderDone, wordmarkLanded } from "../Loader2/loaderGate";
 
+/* In-page for now: the Work, Studio, Services and Contact pages do not
+   exist yet, and these all returned 404. Each points at the section that
+   answers it; swap for routes when the pages are built. */
 const NAV = [
-  { label: "work", href: "/work" },
-  { label: "studio", href: "/studio" },
-  { label: "services", href: "/services" },
-  { label: "contact", href: "/contact" },
+  { label: "work", href: "#work" },
+  { label: "studio", href: "#what-we-do" },
+  { label: "services", href: "#services" },
+  { label: "contact", href: "#contact" },
 ];
 
 const COPY_LINES = [
@@ -30,6 +35,46 @@ export default function Hero2() {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const svgRef = useRef(null);
+  const menuBtnRef = useRef(null);
+  const menuRef = useRef(null);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const lenis = useLenis();
+
+  // smooth where Lenis is running, native otherwise
+  const goTo = (e, href) => {
+    const target = document.querySelector(href);
+    if (!target) return;
+    e.preventDefault();
+    setMenuOpen(false);
+    lenis?.start();
+    if (lenis) lenis.scrollTo(target, { duration: 1.4 });
+    else target.scrollIntoView();
+  };
+
+  /* The menu is a modal sheet: the page behind must not scroll, Escape
+     closes it, focus moves in on open and back to the button on close. */
+  useEffect(() => {
+    if (!menuOpen) return;
+    lenis?.stop();
+    document.documentElement.style.overflow = "hidden";
+    menuRef.current?.querySelector("a, button")?.focus();
+    const button = menuBtnRef.current;
+
+    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
+    // rotated or resized past the breakpoint: the sheet has no button to shut it
+    const wide = window.matchMedia("(min-width: 821px)");
+    const onWide = () => wide.matches && setMenuOpen(false);
+    window.addEventListener("keydown", onKey);
+    wide.addEventListener("change", onWide);
+
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      wide.removeEventListener("change", onWide);
+      document.documentElement.style.overflow = "";
+      lenis?.start();
+      button?.focus({ preventScroll: true });
+    };
+  }, [menuOpen, lenis]);
 
   useEffect(() => {
     const section = ref.current;
@@ -101,11 +146,17 @@ export default function Hero2() {
         { clearProps: "all" }
       );
       section.classList.add("is-settled");
-      startFluid();
+      /* The liquid wordmark imports three.js and compiles shaders — a
+         main-thread hit. Deferred to idle time so it cannot land as a
+         hitch in the middle of the entrance; the SVG shows until then. */
+      const idle = window.requestIdleCallback ?? ((fn) => setTimeout(fn, 200));
+      idle(() => startFluid(), { timeout: 1500 });
       startParallax();
     };
 
-    document.fonts.ready.then(() => {
+    // the entrance waits for the loader's black to start lifting, or it
+    // plays unseen behind it
+    Promise.all([document.fonts.ready, loaderDone()]).then(([, gate]) => {
       if (cancelled) return;
 
       const reduced = window.matchMedia(
@@ -118,10 +169,23 @@ export default function Hero2() {
       }
       heroPlayed = true;
 
+      /* When the loader delivers the wordmark, it flies its own copy onto
+         this one — so these letters must not rise on their own. They switch
+         on, fully formed, the instant the loader's copy lands on top. */
+      const handoff = Boolean(gate?.handoff);
+      if (handoff) {
+        wordmarkLanded().then(() => {
+          if (!cancelled) ctx.add(() => gsap.set(".h2-letter", { y: 0, opacity: 1 }));
+        });
+      }
+
       ctx.add(() => {
         const tl = gsap.timeline({
           defaults: { ease: "expo.out" },
-          onComplete: showAll,
+          // settling swaps in the liquid canvas, which snapshots the letters:
+          // never before they are on
+          onComplete: () =>
+            handoff ? wordmarkLanded().then(() => !cancelled && showAll()) : showAll(),
         });
 
         tl.to(".h2-aurora", { opacity: 0.55, duration: 2.4, ease: "power2.out" }, 0)
@@ -129,13 +193,13 @@ export default function Hero2() {
           .to(".h2-nav", { opacity: 1, y: 0, duration: 1 }, 0.15)
           // copy: masked lines rise, their split-line pattern
           .to(".h2-line-inner", { y: 0, duration: 1.1, stagger: 0.09 }, 0.35)
-          // wordmark: each outlined glyph rises and fades in
-          .to(
-            ".h2-letter",
-            { y: 0, opacity: 1, duration: 1.3, stagger: 0.045 },
-            0.5
-          )
           .to(".h2-meta > *", { opacity: 1, y: 0, duration: 0.8, stagger: 0.06 }, 1.0);
+
+        // wordmark: each outlined glyph rises and fades in — unless the
+        // loader has already carried it here
+        if (!handoff) {
+          tl.to(".h2-letter", { y: 0, opacity: 1, duration: 1.3, stagger: 0.045 }, 0.5);
+        }
       });
     });
 
@@ -181,9 +245,9 @@ export default function Hero2() {
 
         <nav className="h2-links">
           {NAV.map((n) => (
-            <Link key={n.href} href={n.href}>
+            <a key={n.href} href={n.href} onClick={(e) => goTo(e, n.href)}>
               {n.label}
-            </Link>
+            </a>
           ))}
         </nav>
 
@@ -210,7 +274,61 @@ export default function Hero2() {
             </svg>
           </span>
         </a>
+        {/* phones and tablets: the links live behind this */}
+        <button
+          type="button"
+          className="h2-menu-btn"
+          ref={menuBtnRef}
+          aria-expanded={menuOpen}
+          aria-controls="h2-menu"
+          onClick={() => setMenuOpen(true)}
+        >
+          Menu
+        </button>
       </header>
+
+      <div
+        className={`h2-menu${menuOpen ? " is-open" : ""}`}
+        id="h2-menu"
+        ref={menuRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+      >
+        <div className="h2-menu-top">
+          <span className="h2-brand">
+            <svg className="h2-brand-mark" viewBox="0 0 64 64" aria-hidden="true">
+              <path d="M15 9 L49 9 L32 27 Z" />
+              <path d="M15 55 L49 55 L32 37 Z" />
+              <path d="M9 15 L9 49 L27 32 Z" />
+              <path d="M55 15 L55 49 L37 32 Z" />
+            </svg>
+            <span className="h2-brand-name">morpheus</span>
+          </span>
+          <button
+            type="button"
+            className="h2-menu-btn"
+            onClick={() => setMenuOpen(false)}
+          >
+            Close
+          </button>
+        </div>
+
+        <nav className="h2-menu-links">
+          {NAV.map((n) => (
+            <a key={n.href} href={n.href} onClick={(e) => goTo(e, n.href)}>
+              {n.label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="h2-menu-foot">
+          <p>studio morpheus.</p>
+          <a className="h2-cta" href="mailto:sakshi@dreamwithmorpheus.com">
+            Start a project
+          </a>
+        </div>
+      </div>
 
       {/* centred copy — the mark lives in the nav only; twice in one
           viewport was redundant */}

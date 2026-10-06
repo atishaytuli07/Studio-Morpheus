@@ -1,4 +1,6 @@
 import "./new.css";
+import { BOOT_SCRIPT } from "@/components/v2/Loader2/loaderGate";
+import GridLines from "@/components/v2/GridLines/GridLines";
 
 export const metadata = {
   title: "studio morpheus. — v2",
@@ -14,7 +16,11 @@ export default function NewLayout({ children }) {
       {/* one continuous light bloom behind every section */}
       <div className="v2-bloom" aria-hidden="true" />
       {/* brikken-style column lines — the quiet structure under everything */}
-      <div className="v2-grid" aria-hidden="true" />
+      <GridLines />
+      {/* must run before the loader is painted and before any other
+          script: it locks scrolling from the first frame (or, under
+          reduced motion, hides the loader) — see loaderGate.js */}
+      <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       {children}
       {/* one grain layer over the whole route — texture is the thread that
           ties every section into the same atmosphere, monolog-style */}

@@ -1,0 +1,110 @@
+/* The loader: a faded black room, the wordmark filling in bone letter by
+   letter against a 000 → 100 count, then the mark glides down into the
+   hero's wordmark as the black lifts — the hero is revealed with its name
+   already in place. Everything that moves here moves by transform or
+   opacity only; see Loader2.jsx. */
+
+.l2 {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  pointer-events: auto;
+}
+
+/* Black, but not flat: lifted a touch at the centre and a hair toward the
+   brand's blue there, so when it fades the navy hero reads as the light
+   coming up rather than a colour swap. */
+.l2-ground {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 70% 60% at 50% 50%,
+    #0d1017 0%,
+    #07080b 55%,
+    #020203 100%
+  );
+  will-change: opacity;
+}
+
+/* --- the mark --- */
+
+/* Positioned and sized onto the hero's wordmark by JS, then parked in the
+   centre with a transform — so it rasterises once, at the size it lands at. */
+.l2-mark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  aspect-ratio: 389.2 / 83;
+  transform-origin: 0 0;
+  will-change: transform, opacity;
+  opacity: 0;
+}
+
+.l2-ghost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  fill: var(--v2-paper);
+  opacity: 0.09;
+}
+
+/* the window over one letter's ink band */
+.l2-cell {
+  position: absolute;
+  overflow: hidden;
+  transform: translate3d(0, 100%, 0);
+  will-change: transform;
+}
+
+/* the letter inside, held still against the window's movement */
+.l2-cell-in {
+  position: absolute;
+  inset: 0;
+  transform: translate3d(0, -100%, 0);
+  will-change: transform;
+}
+
+.l2-cell-in svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  fill: var(--v2-paper);
+  overflow: visible;
+}
+
+/* --- the two corner notes, in the page's mono voice --- */
+
+.l2-meta {
+  position: absolute;
+  bottom: clamp(1.25rem, 4vh, 2.25rem);
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(238, 237, 228, 0.5);
+  opacity: 0;
+}
+
+.l2-status {
+  left: var(--v2-pad);
+  /* on a phone the count sits bottom-right: keep the line clear of it */
+  max-width: calc(100% - var(--v2-pad) * 2 - 7.5rem);
+  line-height: 1.6;
+}
+
+.l2-count {
+  right: var(--v2-pad);
+  bottom: clamp(1rem, 3.4vh, 2rem);
+  font-family: var(--v2-display);
+  font-size: clamp(2.5rem, 6vw, 5.5rem);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  text-transform: none;
+  color: var(--v2-paper);
+  /* fixed-width digits: the count must tick, not jitter */
+  font-variant-numeric: tabular-nums;
+}

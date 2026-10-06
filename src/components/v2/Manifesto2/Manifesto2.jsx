@@ -20,13 +20,30 @@ const BADGE = "BRANDING, DESIGN, ILLUSTRATION, MARKETING, ";
 const BADGE_CHARS = [...BADGE];
 const BADGE_STEP = 360 / BADGE_CHARS.length;
 
-/* Every line of body copy below is verbatim from dreamwithmorpheus.com.
-   The founder paragraph is four sentences; it is split 2 + 2 across the
-   left column and the column under the portrait. Nothing here is mine. */
-const FOUNDER_A =
-  "Morpheus began as a dream in the mind of Sakshi, with a passion for creativity and transformation. Inspired by the Greek god of dreams, morpheus reflects the journey of turning imagination into reality — a path our founder knows well.";
-const FOUNDER_B =
-  "What started as a personal aspiration is now a thriving creative agency, dedicated to helping brands shape their own dreams into impactful experiences. With morpheus, Sakshi aspires to do for businesses, what she did for herself — turn bold ideas into meaningful realities, blending creativity and strategy to craft stories that resonate and inspire.";
+/* What the studio does — the client asked for this section to say that,
+   not tell the founder's story (that moves to the About page).
+
+   NEW COPY, pending client sign-off: the old site has no "what we do"
+   paragraph, and every one of its one-liners is already in use in the
+   services section below. Written in the old site's own vocabulary
+   ("full-service", "imagination into reality", "dream"). */
+const WHAT_A =
+  "morpheus. is a full-service creative studio. Strategy, design and film live under one roof, so an idea travels from the first conversation to the final frame without changing hands.";
+const WHAT_B =
+  "Every brief starts with the dream behind it. We find what makes a brand worth talking about, shape it into an identity people remember, then carry it everywhere it needs to live — the feed, the website, the shelf and the screen.";
+
+/* the nine disciplines, by their names on the old site */
+const DISCIPLINES = [
+  "Branding",
+  "Design",
+  "Media Production",
+  "Social Media",
+  "Marketing",
+  "Illustrations",
+  "Consulting",
+  "Web & Digital",
+  "Special Projects",
+];
 /* The column carries ONE idea, not three stacked claims. The quote is the
    most distinctive thing the old site says — and it is where the studio's
    name comes from — so it leads, set as a pull quote. The primary tagline
@@ -36,8 +53,24 @@ const TAGLINE = "Transforming ideas into impactful experiences.";
 const QUOTE = "The future belongs to those who believe in the beauty of their dreams.";
 const QUOTE_BY = "Eleanor Roosevelt";
 
-/* facts only — no invented numbers */
-const STATS = ["est. 2024", "nine disciplines", "india / worldwide", "founder-led"];
+/* Facts only — no invented numbers. Eight of them, so the list is longer
+   than the six-row window it scrolls through and nothing is ever on screen
+   twice. All from the old site: the founding year, the service count, the
+   founder, the name's origin and the three crafts the statement leads with. */
+const STATS = [
+  "est. 2024",
+  "nine disciplines",
+  "india / worldwide",
+  "full-service",
+  "founder-led",
+  "strategy to screen",
+  "brand / design / film",
+  "the greek god of dreams",
+];
+
+/* rows per second — the speed is stated, so adding a fact later does not
+   slow the whole list down */
+const TICKER_ROWS_PER_SEC = 0.75;
 
 export default function Manifesto2() {
   const ref = useRef(null);
@@ -72,13 +105,13 @@ export default function Manifesto2() {
          and the loop is seamless. */
       gsap.to(".m2-stats-track", {
         yPercent: -50,
-        duration: 14,
+        duration: STATS.length / TICKER_ROWS_PER_SEC,
         ease: "none",
         repeat: -1,
       });
 
       gsap.fromTo(
-        [".m2-label", ".m2-badge", ".m2-stats"],
+        [".m2-label", ".m2-badge", ".m2-disciplines", ".m2-stats"],
         { opacity: 0, y: 14 },
         {
           opacity: 1,
@@ -102,24 +135,11 @@ export default function Manifesto2() {
   const words = STATEMENT.split(" ");
 
   return (
-    <section className="m2 v2-invert" ref={ref}>
+    <section className="m2 v2-invert" id="what-we-do" ref={ref}>
       {/* top row — three zones: label in the left gutter, the statement as a
           narrower centre-right column, the disc in the right gutter */}
       <div className="m2-top">
-        {/* the corner arrow is drawn, not typed: Neue Montreal has no glyph
-            for U+21B3, so the character fell back and rendered as "l," */}
-        <p className="m2-label">
-          <svg viewBox="0 0 12 12" aria-hidden="true">
-            <path
-              d="M1.5 1v6.5h7"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.3"
-            />
-            <path d="M6.5 5.2 9.8 7.5 6.5 9.8z" fill="currentColor" />
-          </svg>
-          the studio
-        </p>
+        <p className="m2-label">[ 01 — what we do ]</p>
 
         <h2 className="m2-statement" aria-label={STATEMENT}>
           {words.map((word, i) => (
@@ -152,22 +172,23 @@ export default function Manifesto2() {
 
       {/* body — the staggered editorial grid. Named areas so the stagger is
           declared, not accidental:
-            lead (indented, bottom-aligned to the portrait) · portrait · —
-            —              · mid (under the portrait) · quote
-            second image   · —                        · facts ticker      */}
+            lead (indented, bottom-aligned to the figure) · figure · —
+            —                · mid (under the figure)     · quote
+            disciplines      · —                          · facts ticker */}
       <div className="m2-body">
-        <p className="m2-col m2-lead">{FOUNDER_A}</p>
+        <p className="m2-col m2-lead">{WHAT_A}</p>
 
-        <figure className="m2-portrait">
+        {/* real morpheus work, true colour — not a person any more */}
+        <figure className="m2-figure">
           <img
-            src="/founder/portrait.jpg"
-            alt="Sakshi Gopal Bhatt, founder of studio morpheus."
+            src="/work/work-2.jpg"
+            alt="An office interior designed by studio morpheus."
             data-speed="0.22"
             loading="lazy"
           />
         </figure>
 
-        <p className="m2-col m2-mid">{FOUNDER_B}</p>
+        <p className="m2-col m2-mid">{WHAT_B}</p>
 
         <div className="m2-right">
           <p className="m2-eyebrow">{TAGLINE}</p>
@@ -177,9 +198,15 @@ export default function Manifesto2() {
           </blockquote>
         </div>
 
-        <figure className="m2-img">
-          <img src="/work/work-8.jpg" alt="" data-speed="0.32" loading="lazy" />
-        </figure>
+        {/* the index of what we do — where the small frame used to sit */}
+        <ol className="m2-disciplines">
+          {DISCIPLINES.map((d, i) => (
+            <li key={d}>
+              <span>{String(i + 1).padStart(2, "0")}</span>
+              {d}
+            </li>
+          ))}
+        </ol>
 
         {/* the facts drifting through a fixed window. The list is rendered
             twice so the -50% loop is seamless; the second set is marked as a

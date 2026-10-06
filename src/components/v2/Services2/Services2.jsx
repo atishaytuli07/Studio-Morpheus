@@ -39,15 +39,22 @@ export default function Services2() {
     const totalCards = cards.length;
     /* 0.8/card meant 9 cards pinned the page for 7.2 viewports (8.2 with the
        section itself) — far too long a toll for the payoff. 0.4 halves it. */
+    /* 0.35 a card — 3.15 screens for the nine. Tried at 0.26 and reverted:
+       the cards crossed too fast to read and the section felt cut short. */
     const stickyHeight = window.innerHeight * (totalCards * 0.35);
 
     const arcAngle = Math.PI * 0.4;
     const startAngle = Math.PI / 2 - arcAngle / 2;
 
-    const getRadius = () =>
-      window.innerWidth < 900
-        ? window.innerWidth * 7.5
-        : window.innerWidth * 2.5;
+    /* phone: a near-flat arc, one card at a time. Tablet: tighter, so two
+       or three share the screen — on the phone curve a single small card
+       sat alone in the middle of a very tall screen. */
+    const getRadius = () => {
+      const w = window.innerWidth;
+      if (w < 600) return w * 7.5;
+      if (w < 1025) return w * 3.2;
+      return w * 2.5;
+    };
 
     function positionCards(progress = 0) {
       const radius = getRadius();
@@ -71,7 +78,9 @@ export default function Services2() {
       );
       const spread = (Math.PI / 2 - Math.acos(limit)) / arcAngle;
 
-      // a little runway so the first and last card ease in rather than pop
+      /* A little runway so the first and last card ease in whole rather
+         than pop. Starting part-way in (tried, reverted) meant the pin
+         opened and closed on cards sliced by the screen edge. */
       const margin = 0.05;
       const lead = cardSpacing * (totalCards - 1);
       const from = 0.5 - spread - lead - margin;
@@ -123,10 +132,10 @@ export default function Services2() {
   }, []);
 
   return (
-    <section className="s2" ref={sectionRef}>
+    <section className="s2" id="services" ref={sectionRef}>
       <div className="s2-header">
-        <p className="s2-label">[ 02 — what we do ]</p>
-        <h2 className="s2-title">Nine ways to build the dream</h2>
+        <p className="s2-label">[ 04 — services ]</p>
+        <h2 className="s2-title">Services</h2>
       </div>
 
       <div className="s2-cards">
@@ -138,9 +147,14 @@ export default function Services2() {
               cardsRef.current[i] = el;
             }}
           >
-            <div className="s2-card-media">
+            {/* the card is the approved v1 card (src/components/Services),
+                element for element: duotone picture with its index on it,
+                then the name and the line */}
+            <div className="s2-card-media duotone">
               <img src={`/services/service-${i + 1}.jpg`} alt="" loading="lazy" />
-              <p className="s2-card-index">{String(i + 1).padStart(2, "0")}</p>
+              <p className="mono s2-card-index">
+                {String(i + 1).padStart(2, "0")}
+              </p>
             </div>
             <div className="s2-card-body">
               <h3 className="s2-card-name">{service.name}</h3>

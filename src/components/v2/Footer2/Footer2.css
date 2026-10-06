@@ -13,8 +13,11 @@
   position: relative;
   display: flex;
   flex-direction: column;
+  /* A full screen, with the wordmark pushed to the floor. Tried without
+     (the footer ended straight after the links) and reverted: it read as
+     compressed. The air between the links and the mark is the close. */
   min-height: 100svh;
-  padding: clamp(4rem, 10vh, 7rem) clamp(1.5rem, 5vw, 5rem) 0;
+  padding: var(--v2-section-y) var(--v2-gutter) 0;
   will-change: transform;
 }
 
@@ -60,16 +63,18 @@
 .f2-invite {
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  /* label → line: the same 1rem as every section's label → heading */
+  gap: 1rem;
   flex: 0 1 22rem;
 }
 
 .f2-label {
+  margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--v2-faint);
+  letter-spacing: var(--v2-label-tracking);
+  color: var(--v2-muted);
 }
 
 /* sentence case and mid-size on purpose: it must not read as a sibling of
@@ -78,7 +83,7 @@
   margin: 0;
   font-family: var(--v2-display);
   font-weight: 500;
-  font-size: clamp(1.35rem, 1.9vw, 1.9rem);
+  font-size: var(--v2-t-xl);
   line-height: 1.15;
   letter-spacing: -0.02em;
   color: var(--v2-fg);
@@ -89,13 +94,14 @@
 .f2-btn {
   display: inline-flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.5rem 0.5rem 0.5rem 1.1rem;
-  /* square, matching the nav chip — one button shape across the site */
-  border-radius: 2px;
+  gap: 0.7rem;
+  height: var(--v2-btn-h);
+  padding: 0 0.45rem 0 1rem;
+  /* the nav chip exactly — one button, one size, across the site */
+  border-radius: var(--v2-radius-ui);
   background: var(--v2-pure);
   color: var(--v2-navy);
-  font-size: 0.95rem;
+  font-size: var(--v2-t-base);
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
@@ -169,7 +175,7 @@
 }
 
 .f2-col a {
-  font-size: 0.95rem;
+  font-size: var(--v2-t-base);
   color: var(--v2-muted);
   transition: color 0.35s var(--v2-ease);
   overflow-wrap: anywhere;
@@ -192,9 +198,9 @@
 
 .f2-base p {
   font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-faint);
 }
 
@@ -260,5 +266,18 @@
   .f2-base {
     flex-direction: column;
     gap: 0.3rem;
+  }
+}
+
+/* a 24px line of text is not a target a thumb can hit */
+@media (pointer: coarse) {
+  .f2-col {
+    gap: 0;
+  }
+
+  .f2-col a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
   }
 }

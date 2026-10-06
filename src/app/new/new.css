@@ -84,6 +84,37 @@
 
   --v2-ease: cubic-bezier(0.32, 0.72, 0, 1);
   --v2-pad: clamp(1.25rem, 4vw, 4rem);
+
+  /* ONE spacing system for every section. Before this each section carried
+     its own numbers (side 23–72px, top 90–108, bottom 0–108) and the page
+     read as six separate designs. */
+  --v2-gutter: clamp(1.5rem, 5vw, 5rem); /* side margin, 72px at 1440 */
+  /* Width-based, not height-based: tied to vh, a tall tablet got MORE
+     padding than a desktop (128–153px against 108). */
+  --v2-section-y: clamp(4.5rem, 7.5vw, 6.75rem); /* above and below a section */
+  --v2-head-gap: clamp(2.5rem, 3.75vw, 3.5rem); /* heading → content */
+
+  /* ONE section heading and ONE section label */
+  --v2-h-size: clamp(2.75rem, 7.5vw, 7.5rem);
+  --v2-h-leading: 0.9;
+  --v2-h-tracking: -0.04em;
+  --v2-label-size: 0.68rem;
+  --v2-label-tracking: 0.16em;
+
+  /* text below heading size: five steps, no near-duplicates (the page had
+     13.6/14.1, 15.0/15.2, 20.9/21.6 and 25.2/27.4 side by side) */
+  --v2-t-sm: 0.875rem; /* tags, card lines */
+  --v2-t-base: 0.95rem; /* links, names, buttons */
+  --v2-t-body: 1.125rem; /* paragraphs */
+  --v2-t-lg: clamp(1.15rem, 1.45vw, 1.35rem); /* card and project titles */
+  --v2-t-xl: clamp(1.35rem, 1.9vw, 1.75rem); /* quotes, pull lines */
+
+  /* two corner radii: controls, and everything that frames content */
+  --v2-radius-ui: 2px;
+  --v2-radius: 8px;
+
+  /* one button height */
+  --v2-btn-h: 2.5rem;
   --v2-font: "neue-montreal", "Helvetica Neue", Arial, sans-serif;
   /* section titles: the body face at Medium, never extrabold — the wordmark
      is the only heavy thing on the site (DZ!NR runs 400, brikken Medium) */
@@ -228,11 +259,30 @@
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  background-image: repeating-linear-gradient(
-    90deg,
-    var(--v2-rule) 0 1px,
-    transparent 1px calc(100% / 6)
-  );
-  background-position: calc(100% / 12) 0;
   opacity: 0.55;
+}
+
+/* five real hairlines at the sixths, so they can draw up from the floor
+   when the hero is revealed (GridLines.jsx). Undrawn until then. */
+.v2-grid span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--v2-rule);
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+}
+
+/* drawn for good: the inline transform is cleared and the lines stop being
+   animation layers */
+.v2-grid.is-drawn span {
+  transform: none;
+}
+
+/* fingers need 44px: every button grows to it on touch screens */
+@media (pointer: coarse) {
+  .v2 {
+    --v2-btn-h: 2.75rem;
+  }
 }

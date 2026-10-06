@@ -10,8 +10,7 @@
   display: flex;
   flex-direction: column;
   gap: clamp(4rem, 9vh, 7rem);
-  padding: clamp(5rem, 11vh, 8rem) clamp(1.5rem, 5vw, 5rem)
-    clamp(3rem, 7vh, 4.5rem);
+  padding: var(--v2-section-y) var(--v2-gutter);
   overflow: hidden;
 }
 
@@ -25,19 +24,16 @@
   align-items: start;
 }
 
-/* The section opener, not a micro rail. Matched to the reference: 16px,
-   semibold, -0.06em — set in the sans, not the mono. The 11px wide-tracked
-   mono rails elsewhere are a different job; this one has to read. */
+/* the same numbered mono label as every other section */
 .m2-label {
-  font-family: var(--v2-font);
-  font-size: 1rem;
-  font-weight: 600;
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: var(--v2-label-size);
   line-height: 1.25;
   text-transform: uppercase;
-  letter-spacing: -0.06em;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
   opacity: 0;
-  padding-top: 0.15em;
 }
 
 .m2-label svg {
@@ -164,9 +160,9 @@
   /* the ticker sits under the quote in the right column, not under the
      centre one — it belongs with the studio's other standing facts */
   grid-template-areas:
-    "lead portrait ."
-    ".    mid      quote"
-    "img  .        list";
+    "lead        figure ."
+    ".           mid    quote"
+    "disciplines .      list";
   column-gap: clamp(2rem, 5vw, 5rem);
   row-gap: clamp(1.5rem, 3.5vh, 2.5rem);
 }
@@ -181,7 +177,7 @@
    word gaps, which is the right trade — mid-word breaks read cheap. */
 .m2-col {
   margin: 0;
-  font-size: 1.125rem;
+  font-size: var(--v2-t-body);
   font-weight: 500;
   line-height: 1.5;
   /* NOT the reference's -0.06em. That is measured on Inter, which is wider
@@ -195,8 +191,8 @@
   color: var(--v2-fg);
 }
 
-/* the opening paragraph: bottom-aligned to the portrait so its top lands
-   around the portrait's middle, with a real first-line indent */
+/* the opening paragraph: bottom-aligned to the figure so its top lands
+   around the figure's middle, with a real first-line indent */
 .m2-lead {
   grid-area: lead;
   align-self: end;
@@ -208,22 +204,20 @@
   align-self: start;
 }
 
-/* --- the two figures: framed, cropped, TRUE colour --- */
+/* --- the figure: framed, cropped, TRUE colour --- */
 
-/* The duotone is for stock/decorative imagery only; the founder is a real
-   person and the second frame is real work. Recolouring either would
-   misrepresent them — the plan's own rule. */
-.m2-portrait,
-.m2-img {
+/* The duotone is for stock/decorative imagery only; this is real morpheus
+   work, and recolouring it would misrepresent it — the plan's own rule. */
+.m2-figure {
   position: relative;
   margin: 0;
   overflow: hidden;
+  border-radius: var(--v2-radius);
   background: var(--v2-navy);
 }
 
-/* height is set by mountParallax() from data-speed; the frames clip */
-.m2-portrait img,
-.m2-img img {
+/* height is set by mountParallax() from data-speed; the frame clips */
+.m2-figure img {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -232,18 +226,47 @@
 }
 
 /* narrow, like theirs — a figure in the grid, not a hero */
-.m2-portrait {
-  grid-area: portrait;
-  width: clamp(11rem, 16vw, 15rem);
+.m2-figure {
+  grid-area: figure;
+  /* the full width of its column — it was the smallest thing in a section
+     that is mostly air */
+  width: 100%;
   aspect-ratio: 4 / 5;
 }
 
-/* the small second image, bottom-left */
-.m2-img {
-  grid-area: img;
+/* --- the discipline index, bottom-left --- */
+
+/* The same mono voice as the facts ticker opposite, but still: this is the
+   answer to "what do you do", so it is read, not watched. Two columns so
+   nine items stay the height of the ticker's window. */
+.m2-disciplines {
+  grid-area: disciplines;
   align-self: end;
-  width: clamp(7rem, 10vw, 9.5rem);
-  aspect-ratio: 1;
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  column-gap: clamp(1.25rem, 2.5vw, 2.25rem);
+  row-gap: 0.625rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  opacity: 0;
+}
+
+.m2-disciplines li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.55rem;
+  font-family: var(--font-mono);
+  line-height: 1.4;
+  font-size: var(--v2-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--v2-label-tracking);
+  color: var(--v2-fg);
+  white-space: nowrap;
+}
+
+.m2-disciplines span {
+  color: var(--v2-muted);
 }
 
 /* --- the right column: the two taglines, then the quote --- */
@@ -260,10 +283,10 @@
 .m2-eyebrow {
   margin: 0;
   font-family: var(--font-mono);
-  font-size: 0.68rem;
   line-height: 1.5;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
 }
 
@@ -280,7 +303,7 @@
 
 .m2-quote p {
   margin: 0;
-  font-size: clamp(1.35rem, 1.9vw, 1.85rem);
+  font-size: var(--v2-t-xl);
   font-weight: 500;
   line-height: 1.25;
   letter-spacing: -0.025em;
@@ -291,9 +314,9 @@
 .m2-quote cite {
   font-family: var(--font-mono);
   font-style: normal;
-  font-size: 0.66rem;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
 }
 
@@ -319,8 +342,18 @@
 .m2-stats {
   grid-area: list;
   align-self: start;
-  height: 9.4rem;
+  /* six rows of an eight-fact list: shorter than the list, so nothing is
+     ever on screen twice */
+  height: 8.85rem;
   overflow: clip;
+  /* rows fade in at the bottom and out at the top instead of being cut */
+  mask-image: linear-gradient(
+    to bottom,
+    transparent 0,
+    #000 22%,
+    #000 78%,
+    transparent 100%
+  );
   opacity: 0;
 }
 
@@ -336,10 +369,10 @@
   gap: 0.45rem;
   margin: 0 0 0.625rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
   line-height: 1.4;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
   white-space: nowrap;
 }
@@ -355,7 +388,8 @@
 }
 
 .m2.is-static .m2-label,
-.m2.is-static .m2-badge {
+.m2.is-static .m2-badge,
+.m2.is-static .m2-disciplines {
   opacity: 1;
 }
 
@@ -363,6 +397,7 @@
 .m2.is-static .m2-stats {
   opacity: 1;
   height: auto;
+  mask-image: none;
 }
 
 .m2.is-static .m2-stat.is-clone {
@@ -388,18 +423,14 @@
 }
 
 @media (max-width: 820px) {
-  /* tighter side margins so the statement gets the width back */
-  .m2 {
-    padding-left: 1.15rem;
-    padding-right: 1.15rem;
-  }
-
   /* Label and disc share the top line — the label row was half empty and the
      disc was sitting alone under the statement taking a row of its own.
      The statement then spans the full width beneath both. */
+  /* top-aligned: centred against the taller disc, the label sat 25px lower
+     than every other section's label */
   .m2-top {
     grid-template-columns: 1fr auto;
-    align-items: center;
+    align-items: start;
     gap: 1rem;
   }
 
@@ -444,19 +475,43 @@
   .m2-body {
     grid-template-columns: 1fr;
     grid-template-areas:
-      "portrait"
+      "figure"
       "lead"
       "mid"
       "quote"
-      "list"
-      "img";
+      "disciplines"
+      "list";
   }
 
   .m2-lead {
     text-indent: 0;
   }
 
-  .m2-portrait {
+  .m2-figure {
     width: min(60%, 14rem);
+  }
+}
+
+/* Tablet: two columns rather than one. In a single column the 18px copy ran
+   the full width (about 120 characters a line) beside a small image left
+   stranded on its own. */
+@media (min-width: 601px) and (max-width: 820px) {
+  .m2-body {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    grid-template-areas:
+      "figure      lead"
+      "figure      mid"
+      "quote       quote"
+      "disciplines list";
+    column-gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .m2-figure {
+    width: 100%;
+    align-self: start;
+  }
+
+  .m2-lead {
+    align-self: start;
   }
 }

@@ -1,3 +1,4 @@
+import Loader2 from "@/components/v2/Loader2/Loader2";
 import Hero2 from "@/components/v2/Hero2/Hero2";
 import Manifesto2 from "@/components/v2/Manifesto2/Manifesto2";
 import Services2 from "@/components/v2/Services2/Services2";
@@ -9,6 +10,7 @@ import Footer2 from "@/components/v2/Footer2/Footer2";
 export default function NewHome() {
   return (
     <main>
+      <Loader2 />
       <Hero2 />
       <Manifesto2 />
       <Reel2 />

@@ -9,42 +9,43 @@ import "./Work2.css";
 
 gsap.registerPlugin(ScrollTrigger);
 
-/* Two pieces, not four: "selected" work should be a shortlist, and at this
-   scale two carry the section better than four half-seen ones.
+/* PLACEHOLDER FRAMING — the images are real morpheus work, but the client
+   has not supplied project names (the old site's project pages are
+   image-only). Each piece is titled by its discipline, with the tags
+   describing what is in the frame. Swap `title` and `tags` for the client
+   name and categories on delivery.
 
-   PLACEHOLDER FRAMING — the images are real morpheus work, but the client
-   has not supplied project names or case-study copy (the old site's project
-   pages are image-only). Until then each piece is titled by its discipline
-   and described with that service's own words, verbatim from the old site.
-   Swap `title` and `body` for real project names and write-ups on delivery. */
+   Every image is the studio's own work for one service, taken from the old
+   site's hero slider, and each is titled by the service its slide carried:
+   the brand-guideline booklets sat on Design, the arched interior on
+   Marketing. Six, so the grid closes as two full rows — the second
+   mirroring the first's heights. */
 const PROJECTS = [
-  {
-    title: "Branding",
-    body: "Your brand isn't just a logo—it's a story. We turn ideas into captivating brands. Through striking visuals and powerful stories, we create identities that leave a lasting impact.",
-    src: "/work/work-4.jpg",
-  },
-  {
-    title: "Design",
-    body: "Design is where imagination meets purpose. From sleek websites to captivating graphics, every detail is designed to inspire. Let's turn your vision into stunning reality.",
-    src: "/work/work-1.jpg",
-  },
+  { title: "Branding", tags: "Identity, Packaging", src: "/work/work-4.jpg" },
+  { title: "Media Production", tags: "Photo, Film", src: "/work/work-8.jpg" },
+  { title: "Design", tags: "Brand Guidelines, Print", src: "/work/work-guidelines.jpg" },
+  { title: "Social Media", tags: "Content, Illustration", src: "/work/work-social.jpg" },
+  { title: "Illustrations", tags: "Editorial, Print", src: "/work/work-illustration.jpg" },
+  { title: "Marketing", tags: "Campaign Visuals, 3D", src: "/work/work-1.jpg" },
 ];
 
-const Card = ({ project, index }) => (
-  <article className="w2-item">
-    <figure className="w2-media">
-      <img src={project.src} alt={project.title} data-speed="0.30" loading="lazy" />
-    </figure>
-    <h3 className="w2-title">
-      {project.title}
-      <span className="w2-mark" aria-hidden="true" />
-    </h3>
-    <p className="w2-body">{project.body}</p>
-    <p className="w2-index" aria-hidden="true">
-      {String(index + 1).padStart(2, "0")}
-    </p>
-  </article>
-);
+/* Frame heights cycle tall → square → wide across a row and run the other
+   way on the next, so no two neighbours share a bottom edge and the grid
+   never settles into a table. Titles sit under their own frame, so the
+   captions step too. */
+const SHAPES = ["tall", "square", "wide"];
+
+/* A short last row must not leave a hole in the grid. Two left over share
+   the row, a column and a half each; one left over takes it whole. Wider
+   frames need shallower shapes or they tower over the row above. */
+const layoutFor = (i, total) => {
+  const row = Math.floor(i / 3);
+  const col = i % 3;
+  const inRow = Math.min(3, total - row * 3);
+  if (inRow === 2) return { shape: col === 0 ? "wide" : "pano", span: "is-half" };
+  if (inRow === 1) return { shape: "pano", span: "is-full" };
+  return { shape: SHAPES[row % 2 === 0 ? col : 2 - col], span: "" };
+};
 
 export default function Work2() {
   const ref = useRef(null);
@@ -59,21 +60,19 @@ export default function Work2() {
     }
 
     const ctx = gsap.context(() => {
-      // one-shot rise per card as it arrives — no idle loops, no pin
-      gsap.utils.toArray(".w2-item").forEach((item) => {
-        gsap.fromTo(
-          item,
-          { opacity: 0, y: 40 },
-          {
-            opacity: 1,
-            y: 0,
-            duration: 1,
-            ease: "power3.out",
-            scrollTrigger: { trigger: item, start: "top 85%", once: true },
-          }
-        );
-      });
-
+      // one-shot rise per row as it arrives, the cards a beat apart
+      gsap.fromTo(
+        ".w2-card",
+        { opacity: 0, y: 48 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1.1,
+          ease: "power3.out",
+          stagger: 0.09,
+          scrollTrigger: { trigger: ".w2-grid", start: "top 82%", once: true },
+        }
+      );
     }, section);
 
     // the images drift slower than the page — depth, not motion
@@ -85,30 +84,50 @@ export default function Work2() {
     };
   }, []);
 
-  // split into two column stacks so the right one can hang lower; a single
-  // grid with margins would drag the following row down with it
-  const left = PROJECTS.filter((_, i) => i % 2 === 0);
-  const right = PROJECTS.filter((_, i) => i % 2 === 1);
-
   return (
-    <section className="w2 v2-invert" ref={ref}>
+    <section className="w2 v2-invert" id="work" ref={ref}>
       <header className="w2-head">
-        <p className="w2-label">[ 03 — selected work ]</p>
-        <h2 className="w2-heading">Selected Work</h2>
+        <div>
+          <p className="w2-label">[ 03 — selected work ]</p>
+          <h2 className="w2-heading">Selected Work</h2>
+        </div>
+        <p className="w2-count" aria-hidden="true">
+          ({String(PROJECTS.length).padStart(2, "0")})
+        </p>
       </header>
 
-      <div className="w2-cols">
-        <div className="w2-col">
-          {left.map((p, i) => (
-            <Card key={p.title} project={p} index={i * 2} />
-          ))}
-        </div>
-        <div className="w2-col w2-col-offset">
-          {right.map((p, i) => (
-            <Card key={p.title} project={p} index={i * 2 + 1} />
-          ))}
-        </div>
+      <div className="w2-grid">
+        {PROJECTS.map((p, i) => {
+          const { shape, span } = layoutFor(i, PROJECTS.length);
+          return (
+          <article className={`w2-card is-${shape} ${span}`} key={p.title}>
+            {/* the whole card is the link, as on the reference: frame,
+                title and tags are one target */}
+            <a className="w2-link" href="/work">
+              <figure className="w2-media">
+                <div className="w2-zoom">
+                  <img src={p.src} alt={p.title} data-speed="0.30" loading="lazy" />
+                </div>
+              </figure>
+              <h3 className="w2-title">{p.title}</h3>
+              <p className="w2-tags">{p.tags}</p>
+            </a>
+          </article>
+          );
+        })}
       </div>
+
+      <a className="w2-all" href="/work">
+        View all work
+        <svg viewBox="0 0 16 16" aria-hidden="true">
+          <path
+            d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+          />
+        </svg>
+      </a>
     </section>
   );
 }

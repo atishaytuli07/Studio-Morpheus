@@ -1,18 +1,21 @@
-/* Selected work — brikken's staggered two-column showcase, in our palette.
-   Ground and ink come from .v2-invert. No pin, no WebGL: the images are the
+/* Selected work — Griflan's stepped three-column grid, in our palette.
+   Ground and ink come from .v2-invert. No pin, no WebGL: the frames are the
    event, and the page keeps moving. */
 
 .w2 {
   position: relative;
-  padding: clamp(5rem, 12vh, 9rem) clamp(1.5rem, 5vw, 5rem)
-    clamp(4rem, 10vh, 7rem);
+  padding: var(--v2-section-y) var(--v2-gutter);
   overflow: hidden;
 }
 
 /* --- heading --- */
 
 .w2-head {
-  margin-bottom: clamp(3rem, 8vh, 6rem);
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
+  margin-bottom: var(--v2-head-gap);
 }
 
 .w2-label {
@@ -29,49 +32,89 @@
   margin: 0;
   font-family: var(--v2-display);
   font-weight: 500;
-  font-size: clamp(3rem, 9vw, 9rem);
-  line-height: 0.9;
-  letter-spacing: -0.04em;
+  font-size: var(--v2-h-size);
+  line-height: var(--v2-h-leading);
+  letter-spacing: var(--v2-h-tracking);
   color: var(--v2-fg);
 }
 
-/* --- the staggered columns --- */
+.w2-count {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.16em;
+  color: var(--v2-muted);
+}
 
-.w2-cols {
+/* --- the grid --- */
+
+/* Top-aligned: every frame starts on the same line and ends on its own, so
+   the steps show along the bottom — where the eye lands after each image. */
+/* Six tracks, not three: a full row is three cards of two tracks each, and
+   a short last row of two can take three tracks apiece instead of leaving
+   a hole where the third card would be. */
+.w2-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: clamp(2rem, 5vw, 5rem);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  column-gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  row-gap: clamp(3rem, 8vw, 7rem);
   align-items: start;
 }
 
-.w2-col {
+.w2-card {
+  grid-column: span 2;
+}
+
+.w2-card.is-half {
+  grid-column: span 3;
+}
+
+.w2-card.is-full {
+  grid-column: 1 / -1;
+}
+
+.w2-link {
   display: flex;
   flex-direction: column;
-  gap: clamp(4rem, 10vh, 8rem);
+  color: inherit;
+  text-decoration: none;
 }
 
-/* the right stack hangs lower — the offset is the whole composition */
-.w2-col-offset {
-  margin-top: clamp(4rem, 14vh, 11rem);
-}
-
-/* --- a project --- */
-
-.w2-item {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-}
-
-/* taller than the 4/3 it was: with only two pieces each frame carries more
-   of the section, and the extra height is what makes them feel like work
-   rather than thumbnails. Width is unchanged. */
 .w2-media {
   position: relative;
-  margin: 0 0 1.5rem;
-  aspect-ratio: 1 / 1;
+  margin: 0;
   overflow: hidden;
+  /* enough radius to read as a made object, not a crop */
+  border-radius: var(--v2-radius);
   background: var(--v2-navy);
+}
+
+/* the three shapes — the reference's 484 / 408 / 333 on a 432 column */
+.w2-card.is-tall .w2-media {
+  aspect-ratio: 432 / 484;
+}
+
+.w2-card.is-square .w2-media {
+  aspect-ratio: 432 / 408;
+}
+
+.w2-card.is-wide .w2-media {
+  aspect-ratio: 432 / 333;
+}
+
+/* for the wider frames of a short row: at a column and a half, "wide" is
+   already 510px tall, so its neighbour steps down to a panorama rather
+   than up to a square that would tower over the row above */
+.w2-card.is-pano .w2-media {
+  aspect-ratio: 16 / 10;
+}
+
+/* The hover zoom lives on this wrapper, not the image: the image's own
+   transform belongs to the parallax, and two owners of one transform fight. */
+.w2-zoom {
+  position: absolute;
+  inset: 0;
+  transition: transform 0.9s var(--v2-ease);
 }
 
 /* height is set by mountParallax() from the element's own data-speed, so the
@@ -85,48 +128,82 @@
 }
 
 .w2-title {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.35rem;
-  margin: 0 0 0.9rem;
+  margin: 1.25rem 0 0;
   font-family: var(--v2-display);
   font-weight: 500;
-  font-size: clamp(1.6rem, 2.6vw, 2.5rem);
-  line-height: 1.05;
-  letter-spacing: -0.03em;
+  font-size: var(--v2-t-lg);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
   color: var(--v2-fg);
+  transition: color 0.5s var(--v2-ease);
 }
 
-/* the small square after the name — brikken's device, in our navy */
-.w2-mark {
-  width: 0.34em;
-  height: 0.34em;
-  margin-top: 0.12em;
-  flex-shrink: 0;
-  background: var(--v2-navy);
-}
-
-.w2-body {
-  margin: 0;
-  max-width: 46ch;
-  font-size: 1.125rem;
+.w2-tags {
+  margin: 0.35rem 0 0;
+  font-size: var(--v2-t-sm);
   font-weight: 500;
-  line-height: 1.5;
-  letter-spacing: -0.012em;
-  color: var(--v2-fg);
+  letter-spacing: -0.005em;
+  color: var(--v2-muted);
 }
 
-.w2-index {
-  margin: 1.25rem 0 0;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  letter-spacing: 0.16em;
-  color: var(--v2-muted);
+/* the reference changes one thing on hover — the name takes the accent.
+   The frame breathes in a touch so the image answers the pointer too. */
+@media (hover: hover) {
+  .w2-link:hover .w2-title {
+    color: var(--v2-accent2);
+  }
+
+  .w2-link:hover .w2-zoom {
+    transform: scale(1.035);
+  }
+}
+
+.w2-link:focus-visible {
+  outline: 2px solid var(--v2-fg);
+  outline-offset: 6px;
+  border-radius: var(--v2-radius);
+}
+
+/* --- the way on to the full archive --- */
+
+.w2-all {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  gap: 0.6rem;
+  margin: clamp(3.5rem, 8vh, 5.5rem) auto 0;
+  height: var(--v2-btn-h);
+  padding: 0 1.1rem;
+  border: 1px solid var(--v2-rule);
+  border-radius: var(--v2-radius-ui);
+  font-size: var(--v2-t-base);
+  font-weight: 500;
+  color: var(--v2-fg);
+  transition:
+    background-color 0.45s var(--v2-ease),
+    color 0.45s var(--v2-ease),
+    border-color 0.45s var(--v2-ease);
+}
+
+.w2-all svg {
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform 0.45s var(--v2-ease);
+}
+
+.w2-all:hover {
+  background: var(--v2-fg);
+  border-color: var(--v2-fg);
+  color: var(--v2-paper);
+}
+
+.w2-all:hover svg {
+  transform: translate(2px, -2px);
 }
 
 /* --- reduced motion: everything visible, nothing drifting --- */
 
-.w2.is-static .w2-item {
+.w2.is-static .w2-card {
   opacity: 1;
 }
 
@@ -137,21 +214,46 @@
 
 /* --- responsive --- */
 
-@media (max-width: 820px) {
-  /* one column: the stagger has nothing to stagger against */
-  .w2-cols {
+@media (max-width: 900px) {
+  /* two up: every third card runs full width beneath, as a landscape */
+  .w2-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .w2-grid .w2-card {
+    grid-column: auto;
+  }
+
+  .w2-grid .w2-card:nth-child(3n) {
+    grid-column: 1 / -1;
+  }
+
+  .w2-grid .w2-card:nth-child(3n) .w2-media {
+    aspect-ratio: 16 / 9;
+  }
+}
+
+@media (max-width: 600px) {
+  /* one column; the tall frame would take a whole phone screen, so every
+     shape settles to a common ratio and the stepping retires */
+  .w2-grid {
     grid-template-columns: 1fr;
+    row-gap: 3rem;
   }
 
-  .w2-col-offset {
-    margin-top: clamp(4rem, 10vh, 8rem);
-  }
-
-  .w2-col {
-    gap: clamp(4rem, 10vh, 8rem);
-  }
-
-  .w2-media {
+  /* :nth-child(n) matches every card; it is there for weight, so this
+     outranks both .w2-card.is-tall and the tablet's :nth-child(3n) */
+  .w2-grid .w2-card:nth-child(n) .w2-media {
     aspect-ratio: 4 / 3;
+  }
+
+  .w2-head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .w2-count {
+    display: none;
   }
 }
