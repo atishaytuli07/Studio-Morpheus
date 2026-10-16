@@ -3,7 +3,7 @@ import { BOOT_SCRIPT } from "@/components/v2/Loader2/loaderGate";
 import GridLines from "@/components/v2/GridLines/GridLines";
 
 export const metadata = {
-  title: "studio morpheus. — v2",
+  title: "studio morpheus.",
   description:
     "Second design direction for studio morpheus. Transforming ideas into impactful experiences.",
 };

@@ -12,45 +12,8 @@
 
 /* --- heading: the same left-set label + title as every section --- */
 
-/* The heading row also carries the proof (Proof2): the figures to the
-   right of the heading, sitting on its baseline, and the client names on
-   one line underneath.
-   Flex with wrapping, not a two-column grid: the heading never shrinks or
-   breaks for the figures. Where both do not fit on one line, the figures
-   drop to the next one instead. */
 .t2-head {
-  display: flex;
-  flex-wrap: wrap;
-  /* the figures' labels sit on the heading's baseline, not its box bottom
-     (end-aligned they hung ~5px under the letters) */
-  align-items: last baseline;
-  column-gap: clamp(2rem, 5vw, 5rem);
-  row-gap: clamp(1.5rem, 2.5vw, 2rem);
   margin-bottom: var(--v2-head-gap);
-}
-
-.t2-title {
-  flex: 0 0 auto;
-}
-
-.t2-head .p2-stats {
-  margin-left: auto;
-}
-
-.t2-head .p2-clients {
-  flex: 0 0 100%;
-}
-
-/* Below ~1230 the heading and the four figures no longer share a line
-   (measured: they part between 1200 and 1230; 1260 leaves room for a
-   scrollbar). Wrapped but still pushed right, the figures looked
-   misplaced, so from here they go under the heading, set from the left. */
-@media (max-width: 1259px) {
-  .t2-head .p2-stats {
-    flex: 0 0 100%;
-    margin-left: 0;
-    justify-content: start;
-  }
 }
 
 .t2-label {

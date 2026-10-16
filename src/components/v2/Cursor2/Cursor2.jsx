@@ -27,12 +27,12 @@ import "./Cursor2.css";
 const DARK = [
   ".l2", // loader
   ".h2", // hero
-  ".s2", // services
   ".f2", // footer
-  ".h2-menu",
   ".t2-card.is-navy",
   ".s2-card",
-  ".sn-cta",
+  '.gn[data-state="top"]', // the original bar, over the hero
+  ".w2-all",
+  ".c2",
   ".r2-frame",
   ".w2-media",
 ].join(",");
@@ -40,9 +40,9 @@ const DARK = [
 const LIGHT = [
   ".v2-invert",
   ".t2-card.is-paper",
-  ".h2-cta",
   ".f2-btn",
-  ".sn",
+  '.gn:not([data-state="top"])', // on glass
+  ".gn-cta",
   ".r2-mute",
 ].join(",");
 
@@ -151,10 +151,21 @@ export default function Cursor2() {
       }
     };
 
-    // things scroll under a still pointer: re-read what it is over
+    /* Things scroll under a still pointer: re-read what it is over. At most
+       every 100ms and once more when the scroll stops — elementFromPoint
+       forces layout, and Lenis fires a scroll event every frame, right
+       after the scrubbed sections have written their transforms. */
+    let lastCheck = 0;
+    let trailing = 0;
+    const check = () => {
+      lastCheck = performance.now();
+      classify(document.elementFromPoint(target.x, target.y));
+    };
     const onScroll = () => {
       if (!seen) return;
-      classify(document.elementFromPoint(target.x, target.y));
+      clearTimeout(trailing);
+      if (performance.now() - lastCheck > 100) check();
+      trailing = setTimeout(check, 120);
     };
 
     const onDown = () => el.classList.add("is-down");
@@ -171,6 +182,7 @@ export default function Cursor2() {
 
     return () => {
       cancelAnimationFrame(raf);
+      clearTimeout(trailing);
       root.classList.remove("v2-has-cursor");
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("scroll", onScroll);

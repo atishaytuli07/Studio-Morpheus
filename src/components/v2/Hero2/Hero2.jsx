@@ -1,24 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { useLenis } from "lenis/react";
 
 import { WORDMARK_GLYPHS, WORDMARK_VIEWBOX } from "./wordmark";
 import { mountWordmarkFluid } from "./wordmarkFluid";
 import "./Hero2.css";
 import { loaderDone, wordmarkLanded } from "../Loader2/loaderGate";
-
-/* In-page for now: the Work, Studio, Services and Contact pages do not
-   exist yet, and these all returned 404. Each points at the section that
-   answers it; swap for routes when the pages are built. */
-const NAV = [
-  { label: "work", href: "#work" },
-  { label: "studio", href: "#what-we-do" },
-  { label: "services", href: "#services" },
-  { label: "contact", href: "#contact" },
-];
 
 const COPY_LINES = [
   "Just like the Greek god of dreams,",
@@ -35,56 +23,6 @@ export default function Hero2() {
   const ref = useRef(null);
   const wrapRef = useRef(null);
   const svgRef = useRef(null);
-  const menuBtnRef = useRef(null);
-  const menuRef = useRef(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const lenis = useLenis();
-
-  // smooth where Lenis is running, native otherwise
-  const goTo = (e, href) => {
-    const target = document.querySelector(href);
-    if (!target) return;
-    e.preventDefault();
-    setMenuOpen(false);
-    lenis?.start();
-    if (lenis) lenis.scrollTo(target, { duration: 1.4 });
-    else target.scrollIntoView();
-  };
-
-  /* The menu is a modal sheet: the page behind must not scroll, Escape
-     closes it, focus moves in on open and back to the button on close. */
-  /* The scroll nav (ScrollNav) opens this same sheet once the hero's own
-     nav has scrolled away; one menu, two buttons. */
-  useEffect(() => {
-    const open = () => setMenuOpen(true);
-    window.addEventListener("v2:open-menu", open);
-    return () => window.removeEventListener("v2:open-menu", open);
-  }, []);
-
-  useEffect(() => {
-    if (!menuOpen) return;
-    // focus goes back to whichever button opened it, not always the hero's
-    const opener = document.activeElement;
-    lenis?.stop();
-    document.documentElement.style.overflow = "hidden";
-    menuRef.current?.querySelector("a, button")?.focus();
-    const button = opener instanceof HTMLElement ? opener : menuBtnRef.current;
-
-    const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
-    // rotated or resized past the breakpoint: the sheet has no button to shut it
-    const wide = window.matchMedia("(min-width: 821px)");
-    const onWide = () => wide.matches && setMenuOpen(false);
-    window.addEventListener("keydown", onKey);
-    wide.addEventListener("change", onWide);
-
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      wide.removeEventListener("change", onWide);
-      document.documentElement.style.overflow = "";
-      lenis?.start();
-      button?.focus({ preventScroll: true });
-    };
-  }, [menuOpen, lenis]);
 
   useEffect(() => {
     const section = ref.current;
@@ -148,7 +86,6 @@ export default function Hero2() {
         [
           ".h2-aurora",
           ".h2-glow",
-          ".h2-nav",
           ".h2-line-inner",
           ".h2-letter",
           ".h2-meta > *",
@@ -198,9 +135,11 @@ export default function Hero2() {
             handoff ? wordmarkLanded().then(() => !cancelled && showAll()) : showAll(),
         });
 
-        tl.to(".h2-aurora", { opacity: 0.55, duration: 2.4, ease: "power2.out" }, 0)
+        // each mass to its own resting value (CSS: 0.55 and 0.42), so the
+        // settle that hands over to CSS does not step the second one down
+        tl.to(".h2-aurora:not(.h2-aurora-2)", { opacity: 0.55, duration: 2.4, ease: "power2.out" }, 0)
+          .to(".h2-aurora-2", { opacity: 0.42, duration: 2.4, ease: "power2.out" }, 0)
           .to(".h2-glow", { opacity: 1, duration: 2.6, ease: "power2.out" }, 0.2)
-          .to(".h2-nav", { opacity: 1, y: 0, duration: 1 }, 0.15)
           // copy: masked lines rise, their split-line pattern
           .to(".h2-line-inner", { y: 0, duration: 1.1, stagger: 0.09 }, 0.35)
           .to(".h2-meta > *", { opacity: 1, y: 0, duration: 0.8, stagger: 0.06 }, 1.0);
@@ -239,114 +178,6 @@ export default function Hero2() {
         {/* horizon glow: the light mass anchors low, behind the wordmark */}
         <span className="h2-glow" />
         <span className="h2-bg-gradient" />
-      </div>
-
-      {/* full-width bar: wordmark hard left, links centred, CTA hard right */}
-      <header className="h2-nav">
-        <Link href="/new" className="h2-brand" aria-label="studio morpheus.">
-          <svg className="h2-brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-            <path d="M15 9 L49 9 L32 27 Z" />
-            <path d="M15 55 L49 55 L32 37 Z" />
-            <path d="M9 15 L9 49 L27 32 Z" />
-            <path d="M55 15 L55 49 L37 32 Z" />
-          </svg>
-          <span className="h2-brand-name">morpheus</span>
-        </Link>
-
-        <nav className="h2-links">
-          {NAV.map((n) => (
-            <a key={n.href} href={n.href} onClick={(e) => goTo(e, n.href)}>
-              {n.label}
-            </a>
-          ))}
-        </nav>
-
-        <a className="h2-cta" href="mailto:sakshi@dreamwithmorpheus.com">
-          Start a project
-          {/* two arrows: on hover the first exits top-right and the second
-              flies in from bottom-left — the chip feels alive, not static */}
-          <span className="h2-cta-arrow">
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-              />
-            </svg>
-            <svg viewBox="0 0 16 16" aria-hidden="true">
-              <path
-                d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.7"
-              />
-            </svg>
-          </span>
-        </a>
-        {/* phones and tablets: the links live behind this */}
-        <button
-          type="button"
-          className="h2-menu-btn"
-          ref={menuBtnRef}
-          aria-expanded={menuOpen}
-          aria-controls="h2-menu"
-          aria-label="Open menu"
-          onClick={() => setMenuOpen(true)}
-        >
-          <span className="v2-burger" aria-hidden="true">
-            <span />
-            <span />
-          </span>
-        </button>
-      </header>
-
-      <div
-        className={`h2-menu${menuOpen ? " is-open" : ""}`}
-        id="h2-menu"
-        ref={menuRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Menu"
-      >
-        <div className="h2-menu-top">
-          <span className="h2-brand">
-            <svg className="h2-brand-mark" viewBox="0 0 64 64" aria-hidden="true">
-              <path d="M15 9 L49 9 L32 27 Z" />
-              <path d="M15 55 L49 55 L32 37 Z" />
-              <path d="M9 15 L9 49 L27 32 Z" />
-              <path d="M55 15 L55 49 L37 32 Z" />
-            </svg>
-            <span className="h2-brand-name">morpheus</span>
-          </span>
-          <button
-            type="button"
-            className="h2-menu-btn"
-            aria-label="Close menu"
-            onClick={() => setMenuOpen(false)}
-          >
-            {/* the same two lines, crossed while the sheet is open (CSS) */}
-            <span className="v2-burger" aria-hidden="true">
-              <span />
-              <span />
-            </span>
-          </button>
-        </div>
-
-        <nav className="h2-menu-links">
-          {NAV.map((n) => (
-            <a key={n.href} href={n.href} onClick={(e) => goTo(e, n.href)}>
-              {n.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="h2-menu-foot">
-          <p>studio morpheus.</p>
-          <a className="h2-cta" href="mailto:sakshi@dreamwithmorpheus.com">
-            Start a project
-          </a>
-        </div>
       </div>
 
       {/* centred copy — the mark lives in the nav only; twice in one

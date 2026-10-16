@@ -184,20 +184,36 @@ export async function mountWordmarkFluid({ container, svg, pointerTarget }) {
   // pointer state, normalised to the wordmark's own box
   const mouse = { x: 0.5, y: 0.5, prevX: 0.5, prevY: 0.5, vX: 0, vY: 0 };
 
+  /* Velocity is this sample minus the last one. (It was minus the one
+     before that, and nothing reset it when the pointer left: coming back
+     over the mark measured from the old exit point and threw a ripple.)
+     The first move after entering only records where the pointer is. */
+  let fresh = true;
+  // set once the loop exists, below; a move before that has nothing to wake
+  let wake = () => {};
   const onMove = (e) => {
     const rect = svg.getBoundingClientRect();
     const nx = (e.clientX - rect.left) / rect.width;
     const ny = (e.clientY - rect.top) / rect.height;
-    mouse.vX = nx - mouse.prevX;
-    mouse.vY = ny - mouse.prevY;
+    if (fresh) {
+      fresh = false;
+    } else {
+      mouse.vX = nx - mouse.x;
+      mouse.vY = ny - mouse.y;
+    }
     mouse.prevX = mouse.x;
     mouse.prevY = mouse.y;
     mouse.x = nx;
     mouse.y = ny;
+    wake();
+  };
+  const onLeave = () => {
+    fresh = true;
   };
 
   const target = pointerTarget || container;
   target.addEventListener("mousemove", onMove);
+  target.addEventListener("mouseleave", onLeave);
 
   const updateField = () => {
     const data = dataTexture.image.data;
@@ -235,12 +251,36 @@ export async function mountWordmarkFluid({ container, svg, pointerTarget }) {
 
   let raf;
   let running = true;
+  // below 1000px wide the effect stands down (as it would at mount)
+  let disabled = false;
   const clock = new THREE.Clock();
+  /* At rest it stops. The ripple field decays by RELAXATION a frame
+     (0.94^120 is under 0.001), so two seconds after the pointer last moved
+     there is nothing left in it; the only motion left would be the ambient
+     wave, a 0.16% shimmer no one can see. So the loop draws one last frame
+     and sleeps — no WebGL, no texture uploads, nothing per frame while you
+     scroll past — and the next pointer move wakes it. */
+  const IDLE_AFTER = 120; // frames without pointer motion
+  let still = 0;
+  let sleeping = false;
   const render = () => {
     if (!running) return;
+    sleeping = false;
+    const moving = Math.abs(mouse.vX) > 0.0001 || Math.abs(mouse.vY) > 0.0001;
+    still = moving ? 0 : still + 1;
     uniforms.uTime.value = clock.getElapsedTime();
     updateField();
     renderer.render(scene, camera);
+    if (still > IDLE_AFTER) {
+      sleeping = true;
+      return;
+    }
+    raf = requestAnimationFrame(render);
+  };
+  wake = () => {
+    if (!sleeping || !running || disabled) return;
+    sleeping = false;
+    still = 0;
     raf = requestAnimationFrame(render);
   };
   render();
@@ -248,6 +288,7 @@ export async function mountWordmarkFluid({ container, svg, pointerTarget }) {
   // pause offscreen — no point burning frames on a hero nobody is looking at
   const io = new IntersectionObserver(
     ([entry]) => {
+      if (disabled) return;
       if (entry.isIntersecting && !running) {
         running = true;
         render();
@@ -264,6 +305,23 @@ export async function mountWordmarkFluid({ container, svg, pointerTarget }) {
   const onResize = () => {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(async () => {
+      /* Narrowed past 1000px: stop the loop and give the plain SVG back.
+         Widened again: bring the canvas back. (It used to keep rendering a
+         stretched canvas at phone width.) */
+      const narrow = window.innerWidth < 1000;
+      if (narrow !== disabled) {
+        disabled = narrow;
+        canvas.style.display = narrow ? "none" : "";
+        container.classList.toggle("is-fluid", !narrow);
+        if (narrow) {
+          running = false;
+          cancelAnimationFrame(raf);
+          return;
+        }
+        running = true;
+        render();
+      }
+      if (narrow) return;
       width = svg.clientWidth;
       height = svg.clientHeight;
       if (!width || !height) return;
@@ -294,6 +352,7 @@ export async function mountWordmarkFluid({ container, svg, pointerTarget }) {
     clearTimeout(resizeTimer);
     io.disconnect();
     target.removeEventListener("mousemove", onMove);
+    target.removeEventListener("mouseleave", onLeave);
     window.removeEventListener("resize", onResize);
     container.classList.remove("is-fluid");
     canvas.remove();

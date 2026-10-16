@@ -18,7 +18,6 @@
      compressed. The air between the links and the mark is the close. */
   min-height: 100svh;
   padding: var(--v2-section-y) var(--v2-gutter) 0;
-  will-change: transform;
 }
 
 /* the hero's horizon glow, anchoring the cropped wordmark */
@@ -30,14 +29,23 @@
   height: 55vh;
   transform: translateX(-50%);
   pointer-events: none;
+  /* The softness is in the gradient's own stops. It was a blur(30px)
+     filter on a layer wider than the screen, re-run on every frame of the
+     pulse; the extra stops give the same falloff for free. */
   background: radial-gradient(
-    ellipse 55% 52% at 50% 62%,
-    color-mix(in srgb, var(--v2-accent2) 52%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent) 28%, transparent) 48%,
-    transparent 74%
+    ellipse 58% 56% at 50% 62%,
+    color-mix(in srgb, var(--v2-accent2) 50%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent2) 38%, transparent) 22%,
+    color-mix(in srgb, var(--v2-accent) 24%, transparent) 48%,
+    color-mix(in srgb, var(--v2-accent) 8%, transparent) 66%,
+    transparent 80%
   );
-  filter: blur(30px);
   animation: f2-glow-pulse 13s ease-in-out infinite alternate;
+}
+
+/* nobody sees it pulse off screen (Footer2.jsx toggles .is-idle) */
+.f2.is-idle .f2-glow {
+  animation-play-state: paused;
 }
 
 @keyframes f2-glow-pulse {

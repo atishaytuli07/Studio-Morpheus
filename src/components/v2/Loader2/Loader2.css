@@ -7,7 +7,8 @@
 .l2 {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  /* above the nav (200), below the cursor (300) */
+  z-index: 250;
   pointer-events: auto;
 }
 

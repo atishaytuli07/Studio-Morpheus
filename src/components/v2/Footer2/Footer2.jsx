@@ -2,12 +2,9 @@
 
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { WORDMARK_GLYPHS, WORDMARK_VIEWBOX } from "../Hero2/wordmark";
 import "./Footer2.css";
-
-gsap.registerPlugin(ScrollTrigger);
 
 /* The shared viewBox is 83 units tall but the glyphs only ink y 14.58–81.74,
    so ~18% of it is empty space above the caps. The hero wants that padding;
@@ -128,6 +125,7 @@ export default function Footer2() {
        at the mercy of transform-box. One attribute on one node is cheaper
        than the mask redraw it triggers anyway. */
     const counter = counterRef.current;
+    let lastDraw = 0;
     const spin = gsap.to(
       { t: 0 },
       {
@@ -136,6 +134,12 @@ export default function Footer2() {
         ease: "none",
         repeat: -1,
         onUpdate() {
+          /* At most ~24 updates a second: each one redraws the wordmark's
+             mask, and at 24s a turn a step is a quarter of a pixel — no
+             eye can tell 24 from 60 here, but the page can. */
+          const now = performance.now();
+          if (now - lastDraw < 42) return;
+          lastDraw = now;
           const a = O_PHASE + this.targets()[0].t * Math.PI * 2;
           const dx = Math.cos(a) * O_RADIUS - O_VX;
           const dy = Math.sin(a) * O_RADIUS - O_VY;
@@ -144,35 +148,24 @@ export default function Footer2() {
       }
     );
 
-    // it is the page's one idle loop — it must not run where nobody sees it
+    // the O and the glow must not run where nobody sees them
     const seen = new IntersectionObserver(
-      ([entry]) => (entry.isIntersecting ? spin.resume() : spin.pause()),
+      ([entry]) => {
+        section.classList.toggle("is-idle", !entry.isIntersecting);
+        if (entry.isIntersecting) spin.resume();
+        else spin.pause();
+      },
       { rootMargin: "10%" }
     );
     seen.observe(section);
 
-    const ctx = gsap.context(() => {
-      // deadspace's parallax reveal: the panel rises from behind the page
-      gsap.fromTo(
-        ".f2-inner",
-        { yPercent: -26 },
-        {
-          yPercent: 0,
-          ease: "none",
-          scrollTrigger: {
-            trigger: section,
-            start: "top bottom",
-            end: "top top",
-            scrub: true,
-          },
-        }
-      );
-    }, section);
+    /* (The panel used to rise from behind the section above as it scrolled
+       in — a parallax reveal. Removed: the footer now simply arrives with
+       the page.) */
 
     return () => {
       seen.disconnect();
       spin.kill();
-      ctx.revert();
     };
   }, []);
 
@@ -187,7 +180,7 @@ export default function Footer2() {
             The small brand mark went: it was redundant under the wordmark. */}
         <div className="f2-row">
           <div className="f2-invite">
-            <p className="f2-label">[ 06 — the invitation ]</p>
+            <p className="f2-label">[ 06 · the invitation ]</p>
             <h2 className="f2-line">Have a dream? Let&apos;s build it.</h2>
           </div>
 

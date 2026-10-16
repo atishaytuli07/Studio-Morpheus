@@ -1,4 +1,4 @@
-/* Selected work — Griflan's stepped three-column grid, in our palette.
+/* Selected work — pairs and full-width frames, in our palette.
    Ground and ink come from .v2-invert. No pin, no WebGL: the frames are the
    event, and the page keeps moving. */
 
@@ -48,25 +48,17 @@
 
 /* --- the grid --- */
 
-/* Top-aligned: every frame starts on the same line and ends on its own, so
-   the steps show along the bottom — where the eye lands after each image. */
-/* Six tracks, not three: a full row is three cards of two tracks each, and
-   a short last row of two can take three tracks apiece instead of leaving
-   a hole where the third card would be. */
+/* Two, one, two, one (new.studio's rhythm): a pair of equal frames, then
+   one project across the full width, and again. The full-width frame is
+   the pause between pairs — the grid breathes instead of marching. It
+   replaced a three-up grid of stepped heights (tall / square / wide),
+   which read busier than the work in it. */
 .w2-grid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   column-gap: clamp(1.25rem, 2.4vw, 2.25rem);
-  row-gap: clamp(3rem, 8vw, 7rem);
+  row-gap: clamp(3rem, 6vw, 5.5rem);
   align-items: start;
-}
-
-.w2-card {
-  grid-column: span 2;
-}
-
-.w2-card.is-half {
-  grid-column: span 3;
 }
 
 .w2-card.is-full {
@@ -89,24 +81,16 @@
   background: var(--v2-navy);
 }
 
-/* the three shapes — the reference's 484 / 408 / 333 on a 432 column */
-.w2-card.is-tall .w2-media {
-  aspect-ratio: 432 / 484;
+/* a pair shares one shape, so the two frames end on one line; the
+   full-width frame is a wide landscape, so it is a pause, not a wall */
+/* 3:2, not 4:3: at half the page wide, 4:3 frames stood almost as tall as
+   a whole service card and read as the loudest thing on the page */
+.w2-media {
+  aspect-ratio: 3 / 2;
 }
 
-.w2-card.is-square .w2-media {
-  aspect-ratio: 432 / 408;
-}
-
-.w2-card.is-wide .w2-media {
-  aspect-ratio: 432 / 333;
-}
-
-/* for the wider frames of a short row: at a column and a half, "wide" is
-   already 510px tall, so its neighbour steps down to a panorama rather
-   than up to a square that would tower over the row above */
-.w2-card.is-pano .w2-media {
-  aspect-ratio: 16 / 10;
+.w2-card.is-full .w2-media {
+  aspect-ratio: 16 / 7;
 }
 
 /* The hover zoom lives on this wrapper, not the image: the image's own
@@ -125,19 +109,9 @@
   object-fit: cover;
   display: block;
   will-change: transform;
-  /* Black and white at rest; the colour is the reward (Constantine). A
-     touch of contrast keeps the grey from going flat. The return to grey is
-     quicker than the reveal — leaving is the system responding. */
-  filter: grayscale(1) contrast(1.05);
-  transition: filter 350ms ease;
-}
-
-/* in colour: hovered or focused (Work2.css below), or — on touch, where
-   there is no hover — once the card has reached the middle of the screen */
-.w2-card.is-lit .w2-media img,
-.w2-link:focus-visible .w2-media img {
-  filter: grayscale(0) contrast(1);
-  transition: filter 600ms cubic-bezier(0.23, 1, 0.32, 1);
+  /* Full colour, always. It was black and white until hovered
+     (Constantine's move); with the page already navy and bone, grey work
+     made the whole site read as one cold tone. The work is the colour. */
 }
 
 .w2-title {
@@ -147,9 +121,10 @@
   margin: 1.25rem 0 0;
   font-family: var(--v2-display);
   font-weight: 500;
-  font-size: var(--v2-t-lg);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
+  /* a step up from card-title size: the names are the index of the work */
+  font-size: var(--v2-t-xl);
+  line-height: 1.1;
+  letter-spacing: -0.025em;
   color: var(--v2-fg);
   transition: color 0.5s var(--v2-ease);
 }
@@ -184,11 +159,6 @@
 
   .w2-link:hover .w2-zoom {
     transform: scale(1.035);
-  }
-
-  .w2-link:hover .w2-media img {
-    filter: grayscale(0) contrast(1);
-    transition: filter 600ms cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   .w2-link:hover .w2-arrow {
@@ -235,39 +205,62 @@
 
 /* --- the way on to the full archive --- */
 
+/* The site's one button: the nav's navy chip with its blue arrow square,
+   the arrow swapping on hover. It was an outline box — a fifth button
+   style, seen nowhere else. */
 .w2-all {
   display: flex;
   width: max-content;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
   margin: clamp(3.5rem, 8vh, 5.5rem) auto 0;
   height: var(--v2-btn-h);
-  padding: 0 1.1rem;
-  border: 1px solid var(--v2-rule);
+  padding: 0 0.45rem 0 1rem;
   border-radius: var(--v2-radius-ui);
+  background: var(--v2-navy);
+  color: var(--v2-paper);
   font-size: var(--v2-t-base);
   font-weight: 500;
-  color: var(--v2-fg);
-  transition:
-    background-color 0.45s var(--v2-ease),
-    color 0.45s var(--v2-ease),
-    border-color 0.45s var(--v2-ease);
+  white-space: nowrap;
+  transition: scale 160ms ease-out;
 }
 
-.w2-all svg {
+.w2-all:active {
+  scale: 0.97;
+}
+
+.w2-all-arrow {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 1px;
+  background: var(--v2-accent);
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.w2-all-arrow svg {
+  position: absolute;
   width: 0.85rem;
   height: 0.85rem;
   transition: transform 0.45s var(--v2-ease);
 }
 
-.w2-all:hover {
-  background: var(--v2-fg);
-  border-color: var(--v2-fg);
-  color: var(--v2-paper);
+.w2-all-arrow svg:last-child {
+  transform: translate(-150%, 150%);
 }
 
-.w2-all:hover svg {
-  transform: translate(2px, -2px);
+@media (hover: hover) and (pointer: fine) {
+  .w2-all:hover .w2-all-arrow svg:first-child {
+    transform: translate(150%, -150%);
+  }
+
+  .w2-all:hover .w2-all-arrow svg:last-child {
+    transform: translate(0, 0);
+  }
 }
 
 /* --- reduced motion: everything visible, nothing drifting --- */
@@ -283,36 +276,23 @@
 
 /* --- responsive --- */
 
+/* tablet: the full-width frames get taller, or they turn into a strip */
 @media (max-width: 900px) {
-  /* two up: every third card runs full width beneath, as a landscape */
-  .w2-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .w2-grid .w2-card {
-    grid-column: auto;
-  }
-
-  .w2-grid .w2-card:nth-child(3n) {
-    grid-column: 1 / -1;
-  }
-
-  .w2-grid .w2-card:nth-child(3n) .w2-media {
+  .w2-card.is-full .w2-media {
     aspect-ratio: 16 / 9;
   }
 }
 
 @media (max-width: 600px) {
-  /* one column; the tall frame would take a whole phone screen, so every
-     shape settles to a common ratio and the stepping retires */
+  /* one column, one shape: a "full" frame is no wider than the others
+     here, so it simply joins the run */
   .w2-grid {
     grid-template-columns: 1fr;
     row-gap: 3rem;
   }
 
-  /* :nth-child(n) matches every card; it is there for weight, so this
-     outranks both .w2-card.is-tall and the tablet's :nth-child(3n) */
-  .w2-grid .w2-card:nth-child(n) .w2-media {
+  .w2-media,
+  .w2-card.is-full .w2-media {
     aspect-ratio: 4 / 3;
   }
 

@@ -150,17 +150,6 @@
   color: var(--v2-fg);
 }
 
-/* full-bleed brand-blue panel: bone ink, the exact reverse of .v2-invert */
-.v2-blue {
-  --v2-fg: var(--v2-on-blue);
-  --v2-muted: var(--v2-on-blue-muted);
-  --v2-faint: var(--v2-on-blue-muted);
-  --v2-rule: var(--v2-on-blue-rule);
-
-  background: var(--v2-blue);
-  color: var(--v2-fg);
-}
-
 /* the single continuous bloom: two enormous soft light masses drifting
    behind everything, so the dark never reads as flat and the light feels
    like one room the page moves through */
@@ -180,75 +169,26 @@
       color-mix(in srgb, var(--v2-navy) 55%, transparent) 0%,
       transparent 70%
     );
-  will-change: transform;
-  animation: v2-bloom-drift 52s ease-in-out infinite alternate;
-}
-
-@keyframes v2-bloom-drift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(-4%, 3%, 0) scale(1.12);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .v2-bloom {
-    animation: none;
-  }
-}
-
-.v2-shell {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 2rem;
-  padding: var(--v2-pad);
-}
-
-.v2-label {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--v2-muted);
-}
-
-.v2-title {
-  font-family: var(--font-display);
-  font-weight: 500;
-  font-size: clamp(2.5rem, 7vw, 6rem);
-  line-height: 1.02;
-  letter-spacing: -0.03em;
-  max-width: 18ch;
-}
-
-.v2-note {
-  max-width: 46ch;
-  color: var(--v2-muted);
-  line-height: 1.6;
-}
-
-.v2-rule {
-  height: 1px;
-  background: var(--v2-rule);
+  /* still: it drifted forever on a viewport-sized layer, which marked the
+     whole screen as changed every frame — behind sections that are solid
+     bone, where it cannot be seen. The hero's aurora is the moving light. */
 }
 
 /* Route-wide grain. It sits above the sections (their opaque grounds would
    cover it otherwise), which means it also paints over type — so it has to
    be gentle. `overlay` at 0.16 was speckling the letterforms of 18px body
-   copy and reading as a blur or a drop shadow. `soft-light` at 0.09 still
-   textures the grounds but leaves edges clean. */
+   copy and reading as a blur or a drop shadow.
+   Now a pre-rendered tile (public/grain.png — light and dark
+   specks at up to 3% alpha, so on average it neither lightens nor darkens)
+   in the normal blend. It was an SVG noise filter in soft-light, and a
+   blend mode over the whole viewport re-blends every pixel of every frame
+   the page scrolls. */
 .v2-grain {
   position: fixed;
   inset: 0;
   z-index: 60;
   pointer-events: none;
-  opacity: 0.09;
-  mix-blend-mode: soft-light;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("/grain.png");
   background-size: 160px 160px;
 }
 
@@ -330,37 +270,10 @@
   }
 }
 
-/* Two-tone highlight words (Constantine's device): a few concept words in a
-   second blue, revealed by a solid bar that sweeps across and slides away.
-
-   The word is always in place in the section's ink — a second copy in the
-   highlight colour sits on top, clipped shut, so nothing ever leaves a hole
-   in the line. The bar is one clip-path animated through three states
-   (closed at the left → full → closed at the right), so it is reversible
-   when scrubbed and never touches layout.
-
-   Colours: on bone the bright accent blue (4.31:1, a large-text pass); on
-   navy their muted #8b9dbc (5.48:1). The muted blue on bone would be 2.34:1
-   — and would read as a word that has not filled in yet. */
-.v2-hl {
-  position: relative;
-  display: inline-block;
-  white-space: nowrap;
-  text-indent: 0;
-}
-
-.v2-hl-ink {
-  position: absolute;
-  /* a visual copy: never selected or copied twice */
-  user-select: none;
-  top: 0;
-  left: 0;
-  width: max-content;
-  color: var(--v2-hl, var(--v2-accent2));
-  clip-path: inset(0 100% 0 0);
-  will-change: clip-path;
-}
-
+/* The highlight bar (Manifesto2): a solid bar that sweeps across a concept
+   word and slides away as its second-blue fill opens. One clip-path through
+   three states — closed at the left, full, closed at the right — so it is
+   reversible when scrubbed and never touches layout. */
 .v2-hl-bar {
   position: absolute;
   left: -0.04em;
@@ -372,29 +285,18 @@
   pointer-events: none;
 }
 
-/* the finished state, for reduced motion and anywhere the wipe has played */
-.v2-hl.is-lit .v2-hl-ink {
-  clip-path: inset(0 0 0 0);
-}
-
-.v2-hl.is-lit .v2-hl-bar {
-  clip-path: inset(0 0 0 100%);
-}
-
 /* Underline-draw on hover, for text links (Griflan's .uline, faster).
    The line is drawn in from the LEFT on hover and leaves to the RIGHT on
    un-hover — it passes through rather than rewinding — by flipping the
    transform-origin between the two states. 350ms in / 250ms out on a
    strong ease-out: these are hovered dozens of times, so they stay short.
    Real pointers only: a tap would otherwise leave it stuck drawn. */
-.h2-links a,
-.sn-links a,
+.gn-links a,
 .f2-col a {
   position: relative;
 }
 
-.h2-links a::after,
-.sn-links a::after,
+.gn-links a::after,
 .f2-col a::after {
   content: "";
   position: absolute;
@@ -414,8 +316,7 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .h2-links a:hover::after,
-  .sn-links a:hover::after,
+  .gn-links a:hover::after,
   .f2-col a:hover::after {
     transform: scaleX(1);
     transform-origin: left center;
@@ -424,16 +325,14 @@
 }
 
 /* keyboard focus draws it too, so the state is not mouse-only */
-.h2-links a:focus-visible::after,
-.sn-links a:focus-visible::after,
+.gn-links a:focus-visible::after,
 .f2-col a:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left center;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .h2-links a::after,
-  .sn-links a::after,
+  .gn-links a::after,
   .f2-col a::after {
     transition: none;
   }

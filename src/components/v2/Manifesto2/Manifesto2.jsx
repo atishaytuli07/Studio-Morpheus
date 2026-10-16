@@ -5,6 +5,7 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
 import { mountParallax } from "../parallax";
+import Clients2 from "../Clients2/Clients2";
 import "./Manifesto2.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -15,9 +16,8 @@ const STATEMENT =
 /* the concept words that take the second blue — never the first word */
 const HIGHLIGHT = new Set(["dream", "design", "film,"]);
 
-/* Real service names only — "SPATIAL" was mine and isn't one of the nine.
-   Each character is placed on its own angular step, the way the reference
-   does it: even spacing regardless of glyph width, which a textPath cannot
+/* Real service names only. Each character is placed on its own angular
+   step: even spacing regardless of glyph width, which a textPath cannot
    guarantee. */
 const BADGE = "BRANDING, DESIGN, ILLUSTRATION, MARKETING, ";
 const BADGE_CHARS = [...BADGE];
@@ -32,49 +32,31 @@ const BADGE_STEP = 360 / BADGE_CHARS.length;
    ("full-service", "imagination into reality", "dream"). */
 const WHAT_A =
   "morpheus. is a full-service creative studio. Strategy, design and film live under one roof, so an idea travels from the first conversation to the final frame without changing hands.";
+/* (It used to walk through the process itself; the steps below now do,
+   so this says what the process is for.) */
 const WHAT_B =
-  "Every brief starts with the dream behind it. We find what makes a brand worth talking about, shape it into an identity people remember, then carry it everywhere it needs to live — the feed, the website, the shelf and the screen.";
+  "One team holds the idea the whole way, so the brand you launch is the brand people keep meeting, in every place they find it.";
 
-/* the nine disciplines, by their names on the old site */
-const DISCIPLINES = [
-  "Branding",
-  "Design",
-  "Media Production",
-  "Social Media",
-  "Marketing",
-  "Illustrations",
-  "Consulting",
-  "Web & Digital",
-  "Special Projects",
-];
-/* The column carries ONE idea, not three stacked claims. The quote is the
-   most distinctive thing the old site says — and it is where the studio's
-   name comes from — so it leads, set as a pull quote. The primary tagline
-   becomes its small lead-in rather than a competing headline.
-   Both verbatim; the second tagline was cut as a near-duplicate claim. */
-const TAGLINE = "Transforming ideas into impactful experiences.";
-const QUOTE = "The future belongs to those who believe in the beauty of their dreams.";
-const QUOTE_BY = "Eleanor Roosevelt";
-
-/* Facts only — no invented numbers. Eight of them, so the list is longer
-   than the six-row window it scrolls through and nothing is ever on screen
-   twice. All from the old site: the founding year, the service count, the
-   founder, the name's origin and the three crafts the statement leads with. */
-const STATS = [
-  "est. 2024",
-  "nine disciplines",
-  "india / worldwide",
-  "full-service",
-  "founder-led",
-  "strategy to screen",
-  "brand / design / film",
-  "the greek god of dreams",
+/* How the studio works, in four steps: the dream taken to the world.
+   NEW COPY, pending client sign-off, in the old site's own words. It took
+   the place of the nine disciplines listed 01–09, which the Services
+   section below names again, card by card. */
+const PROCESS = [
+  { title: "Listen to the dream", line: "Every brief starts with what you hope it becomes." },
+  { title: "Shape it into a brand", line: "Strategy and identity: what makes you worth talking about." },
+  { title: "Make it real", line: "Design, film and content, made under one roof." },
+  { title: "Carry it everywhere", line: "The feed, the website, the shelf and the screen." },
 ];
 
-/* rows per second — the speed is stated, so adding a fact later does not
-   slow the whole list down */
-const TICKER_ROWS_PER_SEC = 0.75;
+/* What we do, said once and in order: the statement, then the three
+   columns that back it — how we work, the work, the words.
 
+   It used to carry ten things (label, justified caps statement, disc, two
+   justified paragraphs, figure, tagline, borrowed quote, facts ticker, the
+   index) in a staggered grid, in seven type styles. The ticker repeated the
+   hero's own facts and the quote was someone else's line; both went. The
+   statement is now the site's heading voice — Medium, sentence case, left
+   set — rather than the one bold, justified, all-caps block on the page. */
 export default function Manifesto2() {
   const ref = useRef(null);
 
@@ -87,19 +69,24 @@ export default function Manifesto2() {
       return;
     }
 
+    // the badge's spin and the client names' run pause off screen
+    const seen = new IntersectionObserver(
+      ([entry]) => section.classList.toggle("is-idle", !entry.isIntersecting),
+      { rootMargin: "10% 0px" }
+    );
+    seen.observe(section);
+
     const ctx = gsap.context(() => {
-      /* Constantine's device: each word carries a clipped overlay in the
-         full ink over a lighter base, and the clip opens as you scroll.
-         Scrubbed — a progress state, not a one-shot reveal. */
-      /* Highlight words fill differently: a navy bar sweeps across the
-         word (first half of its slot), then slides off to the right while
-         the blue fill opens behind it (second half). Same slot length as
-         every other word, so the rhythm of the fill does not change. */
+      /* each word carries a clipped overlay in the full ink over a lighter
+         base, and the clip opens as you scroll — a progress state, not a
+         one-shot reveal. Highlight words: a navy bar sweeps across the word,
+         then slides off to the right while the blue fill opens behind it,
+         in the same slot length as every other word. */
       const tl = gsap.timeline({
         defaults: { ease: "none" },
         scrollTrigger: {
-          trigger: ".m2-top",
-          start: "top 78%",
+          trigger: ".m2-statement",
+          start: "top 80%",
           end: "bottom 45%",
           scrub: true,
         },
@@ -117,18 +104,9 @@ export default function Manifesto2() {
           .to(fill, { clipPath: "inset(0 0% 0 0)", duration: 0.55 }, at + 0.45);
       });
 
-      /* the ticker: one continuous drift, no steps and no holds. The list is
-         rendered twice, so -50% lands exactly on the identical second set
-         and the loop is seamless. */
-      gsap.to(".m2-stats-track", {
-        yPercent: -50,
-        duration: STATS.length / TICKER_ROWS_PER_SEC,
-        ease: "none",
-        repeat: -1,
-      });
-
+      // the columns rise in together, a beat apart, as they arrive
       gsap.fromTo(
-        [".m2-label", ".m2-badge", ".m2-disciplines", ".m2-stats"],
+        [".m2-label", ".m2-badge"],
         { opacity: 0, y: 14 },
         {
           opacity: 1,
@@ -139,11 +117,24 @@ export default function Manifesto2() {
           scrollTrigger: { trigger: section, start: "top 70%", once: true },
         }
       );
+      gsap.fromTo(
+        ".m2-body > *",
+        { opacity: 0, y: 24 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 1,
+          ease: "power3.out",
+          stagger: 0.08,
+          scrollTrigger: { trigger: ".m2-body", start: "top 80%", once: true },
+        }
+      );
     }, section);
 
     const stopParallax = mountParallax(section);
 
     return () => {
+      seen.disconnect();
       stopParallax();
       ctx.revert();
     };
@@ -153,10 +144,25 @@ export default function Manifesto2() {
 
   return (
     <section className="m2 v2-invert" id="what-we-do" ref={ref}>
-      {/* top row — three zones: label in the left gutter, the statement as a
-          narrower centre-right column, the disc in the right gutter */}
-      <div className="m2-top">
-        <p className="m2-label">[ 01 — what we do ]</p>
+      {/* the head: label and disc on one line, the statement under them */}
+      <div className="m2-head">
+        <p className="m2-label">[ 01 · what we do ]</p>
+
+        <div className="m2-badge" aria-hidden="true">
+          {/* the ring spins; each letter sits at its own angle, pushed out to
+              38% of the badge */}
+          <div className="m2-badge-ring">
+            {BADGE_CHARS.map((ch, i) => (
+              <span
+                key={i}
+                style={{ transform: `rotate(${i * BADGE_STEP}deg) translateY(-38%)` }}
+              >
+                {ch === " " ? " " : ch}
+              </span>
+            ))}
+          </div>
+          <span className="m2-badge-disc" />
+        </div>
 
         <h2 className="m2-statement" aria-label={STATEMENT}>
           {words.map((word, i) => (
@@ -170,33 +176,24 @@ export default function Manifesto2() {
             </span>
           ))}
         </h2>
-
-        <div className="m2-badge" aria-hidden="true">
-          {/* the ring spins; each letter sits at its own angle, pushed out to
-              38% of the badge (the reference: 75px on a 198px circle) */}
-          <div className="m2-badge-ring">
-            {BADGE_CHARS.map((ch, i) => (
-              <span
-                key={i}
-                style={{ transform: `rotate(${i * BADGE_STEP}deg) translateY(-38%)` }}
-              >
-                {ch === " " ? " " : ch}
-              </span>
-            ))}
-          </div>
-          <span className="m2-badge-disc" />
-        </div>
       </div>
 
-      {/* body — the staggered editorial grid. Named areas so the stagger is
-          declared, not accidental:
-            lead (indented, bottom-aligned to the figure) · figure · —
-            —                · mid (under the figure)     · quote
-            disciplines      · —                          · facts ticker */}
+      {/* three columns on the work grid's tracks, all hung from one line */}
       <div className="m2-body">
-        <p className="m2-col m2-lead">{WHAT_A}</p>
+        {/* how we work: four steps, in the index's numbered rows */}
+        <ol className="m2-process" aria-label="How we work">
+          {PROCESS.map((step, i) => (
+            <li key={step.title}>
+              <span className="m2-process-n">{String(i + 1).padStart(2, "0")}</span>
+              <span className="m2-process-text">
+                <span className="m2-process-title">{step.title}</span>
+                <span className="m2-process-line">{step.line}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
 
-        {/* real morpheus work, true colour — not a person any more */}
+        {/* real morpheus work, true colour */}
         <figure className="m2-figure">
           <img
             src="/work/work-2.jpg"
@@ -206,41 +203,12 @@ export default function Manifesto2() {
           />
         </figure>
 
-        <p className="m2-col m2-mid">{WHAT_B}</p>
-
-        <div className="m2-right">
-          <p className="m2-eyebrow">{TAGLINE}</p>
-          <blockquote className="m2-quote">
-            <p>{QUOTE}</p>
-            <cite>{QUOTE_BY}</cite>
-          </blockquote>
-        </div>
-
-        {/* the index of what we do — where the small frame used to sit */}
-        <ol className="m2-disciplines">
-          {DISCIPLINES.map((d, i) => (
-            <li key={d}>
-              <span>{String(i + 1).padStart(2, "0")}</span>
-              {d}
-            </li>
-          ))}
-        </ol>
-
-        {/* the facts drifting through a fixed window. The list is rendered
-            twice so the -50% loop is seamless; the second set is marked as a
-            clone so reduced motion can drop it. */}
-        <div className="m2-stats" aria-label={STATS.join(", ")}>
-          <div className="m2-stats-track" aria-hidden="true">
-            {[...STATS, ...STATS].map((s, i) => (
-              <p
-                className={i >= STATS.length ? "m2-stat is-clone" : "m2-stat"}
-                key={i}
-              >
-                <span>¬</span>
-                {s}
-              </p>
-            ))}
-          </div>
+        <div className="m2-text">
+          <p>{WHAT_A}</p>
+          <p>{WHAT_B}</p>
+          {/* and who it has done it for: the column's last line, level
+              with the foot of the picture beside it */}
+          <Clients2 />
         </div>
       </div>
     </section>

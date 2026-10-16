@@ -207,6 +207,9 @@ export default function Loader2() {
 
     const glide = () => {
       window.removeEventListener("resize", place);
+      // nothing may have moved the page under the black, but be sure: the
+      // mark is aimed at the hero's wordmark as it sits at the very top
+      window.scrollTo(0, 0);
       place(); // layout has settled by now — re-aim before leaving
 
       // the letters are full: their layers can go before the mark moves

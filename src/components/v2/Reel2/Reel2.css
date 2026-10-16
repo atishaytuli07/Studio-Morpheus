@@ -14,6 +14,16 @@
   --r2-open: calc(1 - var(--p));
 
   position: relative;
+  /* one screen, plus the 0.7 the stage is held for while the frame opens */
+  height: 170svh;
+  /* clip, not hidden: hidden would make this a scroll container and the
+     sticky stage would stop sticking */
+  overflow: clip;
+}
+
+.r2-stage {
+  position: sticky;
+  top: 0;
   height: 100svh;
   overflow: hidden;
   display: grid;
@@ -129,40 +139,50 @@
   outline-offset: 2px;
 }
 
-/* --- no pin on mobile / reduced motion: a static framed reel --- */
+/* --- no hold on narrower screens or with reduced motion: a static framed
+   reel. A media query, not a class added from JS, so the layout is final
+   from the first paint (adding it after hydration shifted the page). --- */
 
-.r2.is-static {
-  height: auto;
-  padding: var(--v2-section-y) var(--v2-gutter);
-}
+@media (max-width: 999px), (prefers-reduced-motion: reduce) {
+  .r2 {
+    height: auto;
+    padding: var(--v2-section-y) var(--v2-gutter);
+  }
 
-.r2.is-static .r2-head {
-  position: relative;
-  top: auto;
-  padding: 0;
-  margin-bottom: 1.5rem;
-  opacity: 1;
-}
+  .r2-stage {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
 
-/* 4 / 3 — the source is 1600x1200. A 16/9 box cropped a quarter of the
-   frame off the top and bottom; on mobile the reel should be whole. */
-.r2.is-static .r2-frame {
-  position: relative;
-  inset: auto;
-  width: 100%;
-  clip-path: none;
-  border-radius: var(--v2-radius);
-  aspect-ratio: 4 / 3;
-  height: auto;
-}
+  .r2-head {
+    position: relative;
+    top: auto;
+    padding: 0;
+    margin-bottom: 1.5rem;
+    opacity: 1;
+  }
 
-.r2.is-static .r2-mute {
-  position: relative;
-  right: auto;
-  bottom: auto;
-  margin-top: 1rem;
-  /* on the left edge with everything else, not floating in the centre */
-  justify-self: start;
+  /* 4 / 3 — the source is 1600x1200. A 16/9 box cropped a quarter of the
+     frame off the top and bottom; on mobile the reel should be whole. */
+  .r2-frame {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    clip-path: none;
+    border-radius: var(--v2-radius);
+    aspect-ratio: 4 / 3;
+    height: auto;
+  }
+
+  .r2-mute {
+    position: relative;
+    right: auto;
+    bottom: auto;
+    margin-top: 1rem;
+    /* on the left edge with everything else, not floating in the centre */
+    justify-self: start;
+  }
 }
 
 @media (pointer: coarse) {

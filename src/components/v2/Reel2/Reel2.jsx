@@ -26,33 +26,72 @@ export default function Reel2() {
     const frame = frameRef.current;
     if (!section || !frame) return;
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced || window.innerWidth < 1000) {
-      section.classList.add("is-static");
-      return;
-    }
+    /* The hold is for wide screens with motion allowed, re-decided when the
+       window crosses 1000px. The layout for each case is CSS's (media
+       queries in Reel2.css), so it is right from the first paint; this only
+       drives the frame's opening.
 
-    const ctx = gsap.context(() => {
+       Held with position: sticky, not a ScrollTrigger pin. Pinning switches
+       the section to position: fixed and back, and Chrome counted each
+       switch as a full-screen layout shift (CLS ~1 a time, nothing visibly
+       moving) — a "poor" Core Web Vitals score from two pins. Sticky
+       never shifts. */
+    const mm = gsap.matchMedia(section);
+    mm.add("(min-width: 1000px) and (prefers-reduced-motion: no-preference)", () => {
+      /* The window's insets, read once per refresh. The progress is then
+         written straight onto the two things that move — the frame's clip
+         and the label's fade — not as a --p variable on the section, which
+         every element inside inherited and re-styled on every frame. */
+      const head = section.querySelector(".r2-head");
+      let box = null;
+      const measure = () => {
+        const cs = getComputedStyle(section);
+        const px = (v) => parseFloat(v) || 0;
+        const probe = (name) => {
+          const el = document.createElement("div");
+          el.style.cssText = `position:absolute;visibility:hidden;width:var(${name})`;
+          section.appendChild(el);
+          const w = el.getBoundingClientRect().width;
+          el.remove();
+          return w;
+        };
+        box = {
+          top: probe("--r2-top"),
+          bottom: probe("--r2-bottom"),
+          side: probe("--v2-gutter"),
+          radius: px(cs.getPropertyValue("--v2-radius")) || 8,
+        };
+      };
+      const paint = (p) => {
+        if (!box) measure();
+        const o = 1 - p;
+        frame.style.clipPath = `inset(${(box.top * o).toFixed(1)}px ${(box.side * o).toFixed(1)}px ${(box.bottom * o).toFixed(1)}px ${(box.side * o).toFixed(1)}px round ${(box.radius * o).toFixed(1)}px)`;
+        if (head) head.style.opacity = Math.max(0, 1 - p * 3).toFixed(3);
+      };
+
       /* polite-chaos' Showreel: the frame grows from 0.75 to full-bleed while
          the section is pinned. Held to 1.0 viewport, not their 2 — the
          page has a length budget. Square-cornered, to match the chips. */
       ScrollTrigger.create({
         trigger: section,
+        // the section is 1.7 screens tall; its stage holds for the extra 0.7
         start: "top top",
-        // 0.7 of a screen, and the frame starts larger: at 1.0 and 0.76 the
-        // first half of the pin was mostly bare ground around a small video
-        end: () => `+=${window.innerHeight * 0.7}px`,
-        pin: true,
-        pinSpacing: true,
-        // earliest pin on the page must refresh first
-        refreshPriority: 3,
+        end: "bottom bottom",
+        scrub: true,
         invalidateOnRefresh: true,
-        // the window, its corners and the label all read this one value
-        onUpdate: (self) => section.style.setProperty("--p", self.progress.toFixed(4)),
+        onRefresh: (self) => {
+          measure();
+          paint(self.progress);
+        },
+        onUpdate: (self) => paint(self.progress),
       });
-    }, section);
+      return () => {
+        frame.style.clipPath = "";
+        if (head) head.style.opacity = "";
+      };
+    });
 
-    return () => ctx.revert();
+    return () => mm.revert();
   }, []);
 
   /* Playback is deliberately separate from the pin above: the pin is a
@@ -102,43 +141,45 @@ export default function Reel2() {
 
   return (
     <section className="r2 v2-invert" ref={sectionRef}>
-      <div className="r2-head">
-        <p>[ 02 — showreel ]</p>
-        <p>{REEL_SRC ? "00:34" : "footage pending"}</p>
-      </div>
+      <div className="r2-stage">
+        <div className="r2-head">
+          <p>[ 02 · showreel ]</p>
+          <p>{REEL_SRC ? "00:34" : "footage pending"}</p>
+        </div>
 
-      <div className="r2-frame" ref={frameRef}>
-        {REEL_SRC ? (
-          <video
-            ref={videoRef}
-            src={REEL_SRC}
-            poster={POSTER}
-            muted
-            loop
-            playsInline
-            preload="none"
-          />
-        ) : (
-          <div className="r2-poster">
-            <img src={POSTER} alt="" />
-            <p className="r2-poster-note">
-              reel · awaiting footage from the studio
-            </p>
-          </div>
+        <div className="r2-frame" ref={frameRef}>
+          {REEL_SRC ? (
+            <video
+              ref={videoRef}
+              src={REEL_SRC}
+              poster={POSTER}
+              muted
+              loop
+              playsInline
+              preload="none"
+            />
+          ) : (
+            <div className="r2-poster">
+              <img src={POSTER} alt="" />
+              <p className="r2-poster-note">
+                reel · awaiting footage from the studio
+              </p>
+            </div>
+          )}
+        </div>
+
+        {REEL_SRC && (
+          <button
+            type="button"
+            className="r2-mute"
+            onClick={toggleMute}
+          >
+            {/* the visible words are the name (WCAG 2.5.3): what it says is
+                what it does, so no separate label or pressed state */}
+            {muted ? "sound on" : "sound off"}
+          </button>
         )}
       </div>
-
-      {REEL_SRC && (
-        <button
-          type="button"
-          className="r2-mute"
-          onClick={toggleMute}
-          aria-pressed={!muted}
-          aria-label={muted ? "Unmute reel" : "Mute reel"}
-        >
-          {muted ? "sound on" : "sound off"}
-        </button>
-      )}
     </section>
   );
 }

@@ -21,8 +21,11 @@
   flex-direction: column;
   align-items: center;
   overflow: hidden;
-  /* their .hero_home_wrap padding: the whole hero sits inside a site margin */
-  padding: var(--h2-pad);
+  /* their .hero_home_wrap padding: the whole hero sits inside a site margin.
+     The top also keeps the room the hero's own nav row used to take (58px):
+     the fixed glass nav (Nav2) floats over that band now, and the copy and
+     the wordmark stay exactly where they were. */
+  padding: calc(var(--h2-pad) + 3.6rem) var(--h2-pad) var(--h2-pad);
   /* transparent: the route owns the ground now */
   color: var(--v2-fg);
 }
@@ -55,13 +58,19 @@
   width: 95vw;
   height: 95vh;
   pointer-events: none;
+  /* The softness lives in the gradient's stops, eased out to nothing. It
+     was a blur(48px) filter on a layer nearly the size of the screen,
+     re-run by the compositor on every frame of the drift — the hero's
+     heaviest cost by far. */
   background: radial-gradient(
-    ellipse 50% 44% at 50% 50%,
-    color-mix(in srgb, var(--v2-accent2) 72%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent) 36%, transparent) 48%,
-    transparent 72%
+    ellipse 54% 48% at 50% 50%,
+    color-mix(in srgb, var(--v2-accent2) 70%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent2) 52%, transparent) 20%,
+    color-mix(in srgb, var(--v2-accent) 34%, transparent) 44%,
+    color-mix(in srgb, var(--v2-accent) 14%, transparent) 62%,
+    color-mix(in srgb, var(--v2-accent) 4%, transparent) 74%,
+    transparent 84%
   );
-  filter: blur(48px);
   opacity: 0;
   will-change: transform, opacity;
   animation: h2-drift 28s ease-in-out infinite alternate;
@@ -87,12 +96,14 @@
   width: 72vw;
   height: 72vh;
   background: radial-gradient(
-    ellipse 50% 46% at 50% 50%,
-    color-mix(in srgb, var(--v2-accent2) 52%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent) 22%, transparent) 50%,
-    transparent 72%
+    ellipse 54% 50% at 50% 50%,
+    color-mix(in srgb, var(--v2-accent2) 50%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent2) 36%, transparent) 22%,
+    color-mix(in srgb, var(--v2-accent) 20%, transparent) 46%,
+    color-mix(in srgb, var(--v2-accent) 8%, transparent) 64%,
+    color-mix(in srgb, var(--v2-accent) 2%, transparent) 76%,
+    transparent 86%
   );
-  filter: blur(56px);
   animation: h2-drift-2 37s ease-in-out infinite alternate;
 }
 
@@ -129,12 +140,13 @@
   position: absolute;
   inset: 0;
   background: radial-gradient(
-    ellipse 55% 52% at 50% 62%,
-    color-mix(in srgb, var(--v2-accent2) 66%, transparent) 0%,
-    color-mix(in srgb, var(--v2-accent) 34%, transparent) 48%,
-    transparent 74%
+    ellipse 58% 56% at 50% 62%,
+    color-mix(in srgb, var(--v2-accent2) 64%, transparent) 0%,
+    color-mix(in srgb, var(--v2-accent2) 48%, transparent) 22%,
+    color-mix(in srgb, var(--v2-accent) 30%, transparent) 48%,
+    color-mix(in srgb, var(--v2-accent) 10%, transparent) 66%,
+    transparent 80%
   );
-  filter: blur(30px);
   animation: h2-glow-pulse 13s ease-in-out infinite alternate;
 }
 
@@ -186,248 +198,6 @@
 
 /* grain now lives at the route level (.v2-grain in new.css) so every
    section shares the same texture, not just the hero */
-
-/* --- floating pill nav --- */
-
-/* spans the full width, like monolog's — not a compact pill.
-   tight to the top edge; the old margin pushed everything down */
-.h2-nav {
-  position: relative;
-  z-index: 3;
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  align-items: center;
-  gap: 1.5rem;
-  /* the hero keeps its own slim outer margin (the wordmark bleeds to it),
-     but the text rows step in to the page gutter so the logo, the nav and
-     everything below share one left edge */
-  padding: clamp(0.4rem, 1vh, 0.75rem) calc(var(--v2-gutter) - var(--h2-pad));
-  /* initial state: JS animates to rest, .is-settled clears */
-  opacity: 0;
-  transform: translateY(-12px);
-}
-
-.h2-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  justify-self: start;
-  color: var(--v2-fg);
-}
-
-.h2-brand-mark {
-  width: 1.5rem;
-  height: 1.5rem;
-  fill: var(--v2-fg);
-  flex-shrink: 0;
-}
-
-.h2-brand-name {
-  font-weight: 500;
-  font-size: var(--v2-t-base);
-  letter-spacing: -0.02em;
-}
-
-.h2-links {
-  display: flex;
-  align-items: center;
-  justify-self: center;
-  gap: clamp(1.25rem, 2.6vw, 2.5rem);
-}
-
-/* 400, not 500 — at this size Montreal Medium reads chunky against the
-   hairline mono rails, and the nav should recede behind the wordmark */
-.h2-links a {
-  font-size: var(--v2-t-base);
-  font-weight: 400;
-  color: var(--v2-fg);
-}
-
-/* square and compact. The pill was competing with the wordmark for weight;
-   a hard-cornered chip reads editorial and lets the mark carry the page. */
-.h2-cta {
-  display: inline-flex;
-  align-items: center;
-  justify-self: end;
-  gap: 0.7rem;
-  height: var(--v2-btn-h);
-  padding: 0 0.45rem 0 1rem;
-  border-radius: var(--v2-radius-ui);
-  /* pure white, not the tinted text colour — the chip is the one true
-     white moment on the page and should read as a hard stop */
-  background: var(--v2-pure);
-  color: var(--v2-navy);
-  font-size: var(--v2-t-base);
-  font-weight: 500;
-  white-space: nowrap;
-  transition:
-    transform 0.4s var(--v2-ease),
-    box-shadow 0.4s var(--v2-ease);
-}
-
-.h2-cta:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 24px rgba(0, 8, 24, 0.35);
-}
-
-.h2-cta:active {
-  transform: translateY(0) scale(0.98);
-}
-
-/* solid navy chip — the washed grey circle read as a dead pixel.
-   overflow hides the swap animation. */
-.h2-cta-arrow {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: 1.6rem;
-  height: 1.6rem;
-  border-radius: 1px;
-  background: var(--v2-accent);
-  color: #fff;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.h2-cta-arrow svg {
-  position: absolute;
-  width: 0.85rem;
-  height: 0.85rem;
-  transition: transform 0.45s var(--v2-ease);
-}
-
-/* second arrow waits off-canvas, bottom-left */
-.h2-cta-arrow svg:last-child {
-  transform: translate(-150%, 150%);
-}
-
-/* hover: first exits top-right, second flies in along the same diagonal */
-.h2-cta:hover .h2-cta-arrow svg:first-child {
-  transform: translate(150%, -150%);
-}
-
-.h2-cta:hover .h2-cta-arrow svg:last-child {
-  transform: translate(0, 0);
-}
-
-/* --- the menu: phones and tablets --- */
-
-/* the same chip as the CTA, outlined — a second control, not a second CTA */
-.h2-menu-btn {
-  display: none;
-  align-items: center;
-  justify-content: center;
-  justify-self: end;
-  /* a 44px target around a 26px icon; pulled right so the lines, not the
-     invisible target, sit on the page's right edge */
-  width: 2.75rem;
-  height: 2.75rem;
-  margin-right: -0.55rem;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--v2-fg);
-  cursor: pointer;
-}
-
-/* inside the open sheet, the two lines cross — a beat after the sheet
-   starts to appear, so the change is seen rather than skipped */
-.h2-menu.is-open .v2-burger {
-  --burger-open: 1;
-  transition-delay: 80ms;
-}
-
-/* a full navy sheet over the page. visibility (not display) so it can fade,
-   and so it is out of the tab order and the accessibility tree when shut */
-.h2-menu {
-  position: fixed;
-  inset: 0;
-  z-index: 150;
-  display: flex;
-  flex-direction: column;
-  padding: var(--h2-pad) var(--v2-gutter) var(--v2-gutter);
-  background: var(--v2-navy);
-  color: var(--v2-fg);
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.35s var(--v2-ease),
-    visibility 0s linear 0.35s;
-}
-
-.h2-menu.is-open {
-  opacity: 1;
-  visibility: visible;
-  transition:
-    opacity 0.35s var(--v2-ease),
-    visibility 0s;
-}
-
-.h2-menu-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  /* the same row height as the nav underneath, so the logo does not jump */
-  padding: clamp(0.4rem, 1vh, 0.75rem) 0;
-}
-
-.h2-menu-links {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.35rem;
-}
-
-/* the section-heading style: the menu is the page's contents list */
-.h2-menu-links a {
-  font-family: var(--v2-display);
-  font-weight: 500;
-  font-size: clamp(2.75rem, 13vw, 5rem);
-  line-height: 1.05;
-  letter-spacing: var(--v2-h-tracking);
-  text-transform: capitalize;
-  color: var(--v2-fg);
-}
-
-.h2-menu-foot {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--v2-rule);
-}
-
-.h2-menu-foot p {
-  margin: 0;
-  font-family: var(--font-mono);
-  font-size: var(--v2-label-size);
-  text-transform: uppercase;
-  letter-spacing: var(--v2-label-tracking);
-  color: var(--v2-muted);
-}
-
-.h2-menu .h2-cta {
-  display: inline-flex;
-  /* no arrow box in here, so the padding is even */
-  padding: 0 1rem;
-}
-
-.h2-menu-btn:focus-visible,
-.h2-menu a:focus-visible {
-  outline: 2px solid var(--v2-fg);
-  outline-offset: 4px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .h2-menu,
-  .h2-menu.is-open {
-    transition: none;
-  }
-}
 
 /* --- centred content: masked copy lines --- */
 
@@ -553,13 +323,6 @@
 
 /* ============ responsive ============ */
 
-@media (max-width: 1024px) {
-  .h2-links {
-    gap: clamp(0.7rem, 1.6vw, 1.2rem);
-  }
-
-}
-
 @media (max-width: 820px) {
   /* Not a full 100svh slab on a phone or tablet, but not content-height
      either: sized to its content the hero was under half the screen and
@@ -591,20 +354,6 @@
     margin-left: calc(var(--h2-pad) * -1);
   }
 
-  .h2-links {
-    display: none;
-  }
-
-  /* the links move into the menu; its button joins the row */
-  .h2-nav {
-    grid-template-columns: 1fr auto auto;
-    gap: 0.6rem;
-  }
-
-  .h2-menu-btn {
-    display: inline-flex;
-  }
-
   .h2-copy {
     font-size: clamp(1.25rem, 4.8vw, 1.9rem);
   }
@@ -615,18 +364,7 @@
     grid-template-columns: 1fr 1fr;
   }
 
-  /* the CTA moves into the menu here; with three columns its empty track
-     still took a gap, pushing the Menu button 10px in from the gutter */
-  .h2-nav {
-    grid-template-columns: 1fr auto;
-  }
-
   .h2-meta p:nth-child(2) {
-    display: none;
-  }
-
-  /* no room for logo + chip + menu on a phone: the chip lives in the menu */
-  .h2-cta {
     display: none;
   }
 }
@@ -657,7 +395,6 @@
     animation: none;
   }
 
-  .h2-nav,
   .h2-meta p {
     opacity: 1;
     transform: none;
@@ -682,7 +419,6 @@
   opacity: 1;
 }
 
-.h2.is-settled .h2-nav,
 .h2.is-settled .h2-meta p {
   opacity: 1;
   transform: none;
@@ -695,9 +431,3 @@
   will-change: auto;
 }
 
-/* the logo is a link: a thumb needs 44px, not the 25px of its text */
-@media (pointer: coarse) {
-  .h2-nav .h2-brand {
-    min-height: 2.75rem;
-  }
-}

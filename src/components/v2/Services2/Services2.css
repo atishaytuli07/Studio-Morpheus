@@ -1,5 +1,7 @@
-/* the client-retained arc carousel, dressed for the dark world:
-   deep navy cards sweeping over the brand-navy ground */
+/* the client-retained arc carousel: the deep navy v1 cards sweeping over
+   the bone ground. It was navy on navy — the page read as one long blue.
+   Navy now belongs to the two bookends (hero, footer); here it is only the
+   cards, so they carry the colour. Ground and ink come from .v2-invert. */
 
 .s2 {
   /* Where the heading block ends: label + heading + the shared gap,
@@ -7,23 +9,46 @@
      so the cards can never ride up over the heading, or under the scroll
      nav pill, on any screen height. */
   --s2-top: var(--v2-section-y);
+  /* (the arc hung 0.75rem lower than this; lifted to the heading gap) */
   --s2-stack: calc(
-    var(--s2-top) + 1.75rem + var(--v2-h-size) * 0.9 + var(--v2-head-gap) +
-      0.75rem
+    var(--s2-top) + 1.75rem + var(--v2-h-size) * 0.9 + var(--v2-head-gap)
   );
   /* The card takes the height that is left below the heading, less room
      for the rail along the bottom and the arc's dip — between 19rem and
      440px. Width follows at v1's ratio. (The reserve was 8.5rem: sized for
      the outermost tilted card while it is half off screen, it left every
      card smaller than it needed to be.) */
-  --s2-card-h: clamp(19rem, calc(100svh - var(--s2-stack) - 6rem), 440px);
+  /* a step bigger (was capped at 440px with 6rem reserved): the dial needs
+     ~4rem under the cards, so 5rem still clears it. The gap between cards
+     is a fixed 56px in Services2.jsx and does not change with the size. */
+  /* Capped at 540px (was 480): on tall screens the cards had room they were
+     not allowed to use, and sat small beside the work above. The room kept
+     under them for the dial grows with the screen (11svh, never under 5rem),
+     so the bigger cards do not push the dial's label onto the screen edge. */
+  --s2-card-h: clamp(
+    19rem,
+    calc(100svh - var(--s2-stack) - max(5rem, 11svh)),
+    540px
+  );
   --s2-card-ratio: 0.786;
 
   position: relative;
   width: 100%;
+  /* the track: one screen, plus the turn (--s2-hold, set in Services2.jsx) */
+  height: calc(100svh * (1 + var(--s2-hold, 2.52)));
+  /* clip, not hidden: hidden would make this a scroll container and the
+     sticky stage would stop sticking */
+  overflow: clip;
+  /* stated, not left to .v2-invert: this file may load after new.css */
+  background: var(--v2-paper);
+}
+
+/* the screen that is held while the cards turn */
+.s2-stage {
+  position: sticky;
+  top: 0;
   height: 100svh;
   overflow: hidden;
-  background: transparent;
 }
 
 /* Top-left, like every other section's heading. It used to sit dead centre
@@ -35,7 +60,24 @@
   left: var(--v2-gutter);
   right: var(--v2-gutter);
   z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2rem;
   pointer-events: none;
+}
+
+/* beside the heading, on its baseline: what the nine are, in one line of
+   body copy, so the header's right half is not an empty corner */
+.s2-intro {
+  margin: 0 0 0.35rem;
+  max-width: 21rem;
+  font-size: var(--v2-t-body);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.012em;
+  color: var(--v2-muted);
+  text-wrap: balance;
 }
 
 .s2-label {
@@ -57,25 +99,6 @@
   color: var(--v2-fg);
 }
 
-.s2-meta {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  z-index: 2;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 var(--v2-gutter) clamp(1.5rem, 3.5vh, 2.5rem);
-}
-
-.s2-meta p {
-  font-family: var(--font-mono);
-  font-size: var(--v2-label-size);
-  text-transform: uppercase;
-  letter-spacing: var(--v2-label-tracking);
-  color: var(--v2-faint);
-}
-
 /* --- the arc --- */
 
 .s2-cards {
@@ -93,7 +116,6 @@
   width: 150vw;
   height: 600px;
   z-index: 5;
-  will-change: transform;
 }
 
 /* The card itself is the v1 card from the "/" route, value for value — the
@@ -127,6 +149,10 @@
     inset 0 1px 0 rgba(244, 242, 236, 0.1),
     0 26px 70px rgba(0, 20, 50, 0.28);
   transform-origin: center center;
+}
+
+/* moved every frame while the section turns: layers then, not always */
+.s2.is-live .s2-card {
   will-change: transform;
 }
 
@@ -178,7 +204,18 @@
   pointer-events: none;
 }
 
+/* the still wrapper: it carries the edge fade, so the fade does not turn
+   with the strip */
 .s2-dial-ticks {
+  position: absolute;
+  inset: 0;
+  /* fades out toward both edges, where the corner notes sit */
+  -webkit-mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
+  mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
+}
+
+/* the strip that turns (Services2.jsx writes its rotate and its origin) */
+.s2-dial-ticks svg {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -187,9 +224,7 @@
   fill: none;
   stroke-width: 1.5;
   stroke-linecap: round;
-  /* fades out toward both edges, where the corner notes sit */
-  -webkit-mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
-  mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
+  will-change: transform;
 }
 
 .s2-dial-ticks path {
@@ -222,53 +257,72 @@
   white-space: nowrap;
 }
 
-/* --- reduced motion: static grid --- */
+/* the line beside the heading needs the width of a desktop; below it,
+   it would wrap under the heading, into the space the cards hang from */
+@media (max-width: 1024px) {
+  .s2-intro {
+    display: none;
+  }
 
-.s2.is-static {
-  height: auto;
-  padding: var(--v2-section-y) var(--v2-gutter);
+  /* the desktop arc was lifted 0.75rem; here the heading needs that room */
+  .s2 {
+    --s2-stack: calc(
+      var(--s2-top) + 1.75rem + var(--v2-h-size) * 0.9 + var(--v2-head-gap) +
+        0.75rem
+    );
+  }
 }
 
-.s2.is-static .s2-header {
-  position: relative;
-  top: auto;
-  left: auto;
-  transform: none;
-  right: auto;
-  margin: 0 0 var(--v2-head-gap);
-}
+/* --- reduced motion: a static grid. A media query, not a class added
+   from JS, so the layout is final from the first paint. --- */
 
-.s2.is-static .s2-cards {
-  position: relative;
-  top: auto;
-  left: auto;
-  transform: none;
-  width: 100%;
-  height: auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  gap: 1rem;
-}
+@media (prefers-reduced-motion: reduce) {
+  .s2 {
+    height: auto;
+    padding: var(--v2-section-y) var(--v2-gutter);
+  }
 
-.s2.is-static .s2-card {
-  position: relative;
-  left: auto;
-  top: auto;
-  width: auto;
-  height: auto;
-  min-height: 15rem;
-  margin-left: 0;
-  transform: none !important;
-}
+  .s2-stage {
+    position: relative;
+    height: auto;
+    overflow: visible;
+  }
 
-.s2.is-static .s2-dial {
-  display: none;
-}
+  .s2 .s2-header {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    right: auto;
+    margin: 0 0 var(--v2-head-gap);
+  }
 
-.s2.is-static .s2-meta {
-  position: relative;
-  margin-top: 2.5rem;
-  padding-bottom: 0;
+  .s2 .s2-cards {
+    position: relative;
+    top: auto;
+    left: auto;
+    transform: none;
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+    gap: 1rem;
+  }
+
+  .s2 .s2-card {
+    position: relative;
+    left: auto;
+    top: auto;
+    width: auto;
+    height: auto;
+    min-height: 15rem;
+    margin-left: 0;
+    transform: none !important;
+  }
+
+  .s2 .s2-dial {
+    display: none;
+  }
 }
 
 /* --- responsive card sizing --- */
@@ -278,21 +332,18 @@
   .s2 {
     --s2-top: 4.5rem;
   }
-
-  /* the outer cards dip into the bottom corners here; the two corner notes
-     are decoration, the cards are the content — the notes give way */
-  .s2-meta {
-    display: none;
-  }
 }
 
-@media (max-width: 900px) {
+/* phones. (This was max-width: 900px, overlapping the tablet block below
+   from 600 to 900, where the tablet's values won anyway — the range now
+   says what actually applies.) */
+@media (max-width: 599px) {
   .s2-cards {
     height: 460px;
   }
 
   .s2-card {
-    --card-w: min(78vw, 310px);
+    --card-w: min(80vw, 320px);
   }
 
   .s2 {
@@ -304,10 +355,10 @@
    1180px-tall navy screen. (The arc is also tighter here — Services2.jsx.) */
 @media (min-width: 600px) and (max-width: 1024px) {
   .s2-card {
-    --card-w: 340px;
+    --card-w: 360px;
   }
 
   .s2 {
-    --s2-card-h: 450px;
+    --s2-card-h: 470px;
   }
 }
