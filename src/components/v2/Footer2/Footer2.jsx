@@ -62,9 +62,9 @@ const O_TURN = 24; // seconds
    the brand and the CTA, rather than three labelled boxes. */
 const COLUMNS = [
   [
-    { label: "Work", href: "/work" },
-    { label: "Studio", href: "/studio" },
-    { label: "Services", href: "/services" },
+    { label: "Work", href: "#work" },
+    { label: "Studio", href: "#what-we-do" },
+    { label: "Services", href: "#services" },
   ],
   [
     {
@@ -177,7 +177,7 @@ export default function Footer2() {
   }, []);
 
   return (
-    <footer className="f2" ref={ref}>
+    <footer className="f2" id="contact" ref={ref}>
       <div className="f2-inner">
         {/* the hero's horizon glow returns behind the wordmark — bookend light */}
         <div className="f2-glow" aria-hidden="true" />
@@ -187,7 +187,7 @@ export default function Footer2() {
             The small brand mark went: it was redundant under the wordmark. */}
         <div className="f2-row">
           <div className="f2-invite">
-            <p className="f2-label">[ 05 — the invitation ]</p>
+            <p className="f2-label">[ 06 — the invitation ]</p>
             <h2 className="f2-line">Have a dream? Let&apos;s build it.</h2>
           </div>
 

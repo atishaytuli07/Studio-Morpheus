@@ -39,19 +39,16 @@ export default function Reel2() {
       ScrollTrigger.create({
         trigger: section,
         start: "top top",
-        end: () => `+=${window.innerHeight * 1.0}px`,
+        // 0.7 of a screen, and the frame starts larger: at 1.0 and 0.76 the
+        // first half of the pin was mostly bare ground around a small video
+        end: () => `+=${window.innerHeight * 0.7}px`,
         pin: true,
         pinSpacing: true,
         // earliest pin on the page must refresh first
         refreshPriority: 3,
         invalidateOnRefresh: true,
-        onUpdate: (self) => {
-          const p = self.progress;
-          gsap.set(frame, {
-            scale: gsap.utils.mapRange(0, 1, 0.76, 1, p),
-            borderRadius: `${gsap.utils.mapRange(0, 0.5, 6, 0, Math.min(p, 0.5))}px`,
-          });
-        },
+        // the window, its corners and the label all read this one value
+        onUpdate: (self) => section.style.setProperty("--p", self.progress.toFixed(4)),
       });
     }, section);
 
@@ -106,9 +103,7 @@ export default function Reel2() {
   return (
     <section className="r2 v2-invert" ref={sectionRef}>
       <div className="r2-head">
-        <p>
-          <span aria-hidden="true">↳</span> play reel
-        </p>
+        <p>[ 02 — showreel ]</p>
         <p>{REEL_SRC ? "00:34" : "footage pending"}</p>
       </div>
 

@@ -1,7 +1,18 @@
-/* play reel — a framed video on the bone ground that grows to full-bleed
-   as the section pins. Brikken's small video thumbnail, scaled up. */
+/* Showreel — a framed video on the bone ground that opens to full-bleed as
+   the section pins.
+
+   The frame is always full-screen; a clip-path window opens over it. That
+   lets the label sit where every other section's label sits (--v2-section-y
+   from the top) with the video starting beneath it. The old version scaled
+   the whole frame down, which left the label 27px from the top edge. */
 
 .r2 {
+  /* 0 → 1 across the pin, written by Reel2.jsx */
+  --p: 0;
+  --r2-top: calc(var(--v2-section-y) + 3rem);
+  --r2-bottom: 4.5rem;
+  --r2-open: calc(1 - var(--p));
+
   position: relative;
   height: 100svh;
   overflow: hidden;
@@ -11,35 +22,41 @@
 
 .r2-head {
   position: absolute;
-  top: clamp(1.25rem, 3vh, 2.25rem);
+  top: var(--v2-section-y);
   left: 0;
+  /* gone by the time the video reaches it */
+  opacity: calc(1 - var(--p) * 3);
   width: 100%;
   display: flex;
   justify-content: space-between;
-  padding: 0 clamp(1.5rem, 5vw, 5rem);
+  padding: 0 var(--v2-gutter);
   z-index: 2;
   pointer-events: none;
 }
 
 .r2-head p {
   font-family: var(--font-mono);
-  font-size: 0.68rem;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--v2-faint);
+  letter-spacing: var(--v2-label-tracking);
+  color: var(--v2-muted);
 }
 
+/* absolute, not a grid item: as a centred grid child its 100% height
+   resolved to the video's own height (684px of 900), so the clip window
+   opened 108px lower than it was told to and never reached full-bleed */
 .r2-frame {
-  position: relative;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   overflow: hidden;
   background: var(--v2-navy);
-  /* JS drives scale + radius from 0.76 / 6px; CSS owns the start state */
-  transform: scale(0.76);
-  border-radius: 6px;
-  transform-origin: center center;
-  will-change: transform;
+  clip-path: inset(
+    calc(var(--r2-top) * var(--r2-open)) calc(var(--v2-gutter) * var(--r2-open))
+      calc(var(--r2-bottom) * var(--r2-open))
+      calc(var(--v2-gutter) * var(--r2-open)) round
+      calc(var(--v2-radius) * var(--r2-open))
+  );
+  will-change: clip-path;
 }
 
 .r2-frame video,
@@ -90,18 +107,20 @@
 /* mute chip — same square white chip as the CTAs */
 .r2-mute {
   position: absolute;
-  right: clamp(1.5rem, 5vw, 5rem);
-  bottom: clamp(1.25rem, 3vh, 2.25rem);
+  right: var(--v2-gutter);
+  bottom: 1.25rem;
   z-index: 2;
-  padding: 0.34rem 0.8rem;
+  /* a chip, not a button: small on a mouse, full height under a finger */
+  height: 2rem;
+  padding: 0 0.8rem;
   border: 0;
-  border-radius: 2px;
+  border-radius: var(--v2-radius-ui);
   background: var(--v2-pure);
   color: var(--v2-navy);
   font-family: var(--font-mono);
-  font-size: 0.66rem;
+  font-size: var(--v2-label-size);
   text-transform: uppercase;
-  letter-spacing: 0.14em;
+  letter-spacing: var(--v2-label-tracking);
   cursor: pointer;
 }
 
@@ -114,21 +133,25 @@
 
 .r2.is-static {
   height: auto;
-  padding: clamp(4rem, 10vh, 6rem) clamp(1.5rem, 5vw, 5rem);
+  padding: var(--v2-section-y) var(--v2-gutter);
 }
 
 .r2.is-static .r2-head {
   position: relative;
   top: auto;
   padding: 0;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
+  opacity: 1;
 }
 
 /* 4 / 3 — the source is 1600x1200. A 16/9 box cropped a quarter of the
    frame off the top and bottom; on mobile the reel should be whole. */
 .r2.is-static .r2-frame {
-  transform: none;
-  border-radius: 4px;
+  position: relative;
+  inset: auto;
+  width: 100%;
+  clip-path: none;
+  border-radius: var(--v2-radius);
   aspect-ratio: 4 / 3;
   height: auto;
 }
@@ -138,4 +161,12 @@
   right: auto;
   bottom: auto;
   margin-top: 1rem;
+  /* on the left edge with everything else, not floating in the centre */
+  justify-self: start;
+}
+
+@media (pointer: coarse) {
+  .r2-mute {
+    height: 2.75rem;
+  }
 }
