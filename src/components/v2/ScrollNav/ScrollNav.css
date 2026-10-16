@@ -1,0 +1,307 @@
+/* The scroll nav: a white pill, fixed and centred, that takes over from the
+   hero nav.
+
+   Motion (Emil Kowalski's rules):
+   · enter on a strong ease-out, so it moves the instant it is asked to;
+   · exit faster than it entered — the system is responding, not deciding;
+   · it never grows from nothing: it starts 8px up, a touch small and
+     slightly blurred, and the blur hides the moment where the fading pill
+     and the page behind it read as two separate things;
+   · its contents follow it in 40ms apart, so it assembles rather than pops.
+   Transform, opacity and a small filter only — nothing that triggers
+   layout.
+
+   The rest: White because it has to read on both grounds — on bone it lifts
+   by a hairline and a soft shadow, on navy it is the brightest thing there.
+   It sits under the menu sheet (150) and the loader (200). */
+
+.sn {
+  position: fixed;
+  top: 1rem;
+  left: 50%;
+  z-index: 140;
+  /* the strong ease-out, and the exit's quicker cousin */
+  --sn-ease: cubic-bezier(0.23, 1, 0.32, 1);
+  --sn-in: 420ms;
+  --sn-out: 220ms;
+
+  /* Three columns, the outer two equal: the links sit on the pill's exact
+     centre — and the page's — however wide the logo and the button are.
+     The width is set, not content-sized, so widening the pill adds air to
+     the outer columns and leaves the links' own spacing untouched. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  column-gap: 1.5rem;
+  width: min(62rem, calc(100% - 2rem));
+  height: 3.5rem;
+  /* equal on both sides, or the centre column is pushed off centre by the
+     difference (it was 9px right); the logo's extra inset is its own margin */
+  padding: 0 0.45rem;
+  border-radius: var(--v2-radius);
+  background: var(--v2-pure);
+  color: var(--v2-navy);
+  box-shadow:
+    0 0 0 1px rgba(0, 36, 89, 0.08),
+    0 10px 30px -12px rgba(0, 20, 50, 0.35);
+  /* hidden: 8px up, a little small, a little soft — and out of reach.
+     This is the EXIT timing: quick. */
+  opacity: 0;
+  visibility: hidden;
+  filter: blur(4px);
+  transform: translate3d(-50%, -0.5rem, 0) scale(0.97);
+  transform-origin: 50% 0;
+  transition:
+    opacity var(--sn-out) var(--sn-ease),
+    transform var(--sn-out) var(--sn-ease),
+    filter var(--sn-out) var(--sn-ease),
+    visibility 0s linear var(--sn-out);
+  will-change: transform, opacity;
+}
+
+/* ENTER timing: a little longer, on the same curve */
+.sn.is-shown {
+  opacity: 1;
+  visibility: visible;
+  filter: blur(0);
+  transform: translate3d(-50%, 0, 0) scale(1);
+  transition:
+    opacity var(--sn-in) var(--sn-ease),
+    transform var(--sn-in) var(--sn-ease),
+    filter var(--sn-in) var(--sn-ease),
+    visibility 0s;
+}
+
+/* The contents follow the pill in, 40ms apart; on the way out they leave
+   together with it, no stagger.
+   `scale` (the separate property, not `transform`) is the press feedback on
+   the buttons. Keeping it out of `transform` means the press can have its
+   own quick timing without fighting the entrance — and it is listed here
+   because these rules set the transition for every child. */
+.sn > * {
+  opacity: 0;
+  transform: translate3d(0, -0.25rem, 0);
+  transition:
+    opacity var(--sn-out) var(--sn-ease),
+    transform var(--sn-out) var(--sn-ease),
+    scale 160ms ease-out;
+}
+
+.sn.is-shown > * {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--sn-in) var(--sn-ease),
+    transform var(--sn-in) var(--sn-ease),
+    scale 160ms ease-out;
+}
+
+.sn.is-shown > :nth-child(1) {
+  transition-delay: 60ms;
+}
+
+.sn.is-shown > :nth-child(2) {
+  transition-delay: 100ms;
+}
+
+.sn.is-shown > :nth-child(3),
+.sn.is-shown > :nth-child(4) {
+  transition-delay: 140ms;
+}
+
+/* --- brand --- */
+
+.sn-brand {
+  justify-self: start;
+  margin-left: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: inherit;
+  font-size: var(--v2-t-base);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.sn-mark {
+  width: 1.25rem;
+  height: 1.25rem;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+/* --- links --- */
+
+.sn-links {
+  display: flex;
+  align-items: center;
+  /* the spacing the links had in the first version */
+  gap: clamp(1rem, 2vw, 1.75rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sn-links a {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  color: inherit;
+  font-size: var(--v2-t-base);
+  font-weight: 400;
+}
+
+/* --- CTA: the hero chip, inverted for the white pill --- */
+
+.sn-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  height: 2.6rem;
+  padding: 0 0.4rem 0 1rem;
+  border-radius: var(--v2-radius-ui);
+  background: var(--v2-navy);
+  color: var(--v2-paper);
+  font-size: var(--v2-t-base);
+  font-weight: 500;
+  white-space: nowrap;
+  justify-self: end;
+}
+
+/* pressed: it gives a little, so it feels heard */
+.sn-cta:active,
+.sn-menu:active {
+  scale: 0.97;
+}
+
+.sn-cta-arrow {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 1px;
+  background: var(--v2-accent);
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.sn-cta-arrow svg {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform 0.45s var(--v2-ease);
+}
+
+.sn-cta-arrow svg:last-child {
+  transform: translate(-150%, 150%);
+}
+
+.sn-cta:hover .sn-cta-arrow svg:first-child {
+  transform: translate(150%, -150%);
+}
+
+.sn-cta:hover .sn-cta-arrow svg:last-child {
+  transform: translate(0, 0);
+}
+
+/* --- menu button: phones and tablets only --- */
+
+.sn-menu {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+}
+
+.sn a:focus-visible,
+.sn button:focus-visible {
+  outline: 2px solid var(--v2-navy);
+  outline-offset: 3px;
+}
+
+/* the links go into the menu at the same width the hero's do */
+@media (max-width: 820px) {
+  .sn {
+    left: 1rem;
+    right: 1rem;
+    width: auto;
+    display: flex;
+    gap: 0.6rem;
+    justify-content: space-between;
+    transform: translate3d(0, -0.5rem, 0) scale(0.97);
+  }
+
+  .sn.is-shown {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  .sn-links {
+    display: none;
+  }
+
+  .sn-menu {
+    display: inline-flex;
+  }
+
+  /* brand on the left, both controls together on the right */
+  .sn-brand {
+    margin-right: auto;
+  }
+}
+
+@media (max-width: 560px) {
+  /* no room for the chip beside Menu: it lives in the menu sheet */
+  .sn-cta {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) {
+  .sn {
+    height: 3.75rem;
+  }
+
+  .sn-cta,
+  .sn-menu {
+    height: 2.75rem;
+  }
+}
+
+/* Reduced motion keeps the fade — it says "this appeared" — and drops
+   every movement: no slide, no scale, no stagger, no blur. */
+@media (prefers-reduced-motion: reduce) {
+  .sn,
+  .sn.is-shown {
+    filter: none;
+    transform: translate3d(-50%, 0, 0);
+    transition:
+      opacity 200ms ease,
+      visibility 0s linear 200ms;
+  }
+
+  .sn.is-shown {
+    transition: opacity 200ms ease, visibility 0s;
+  }
+
+  .sn > *,
+  .sn.is-shown > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) and (max-width: 820px) {
+  .sn,
+  .sn.is-shown {
+    transform: none;
+  }
+}

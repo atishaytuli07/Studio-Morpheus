@@ -22,14 +22,31 @@ const SERVICES = [
   { name: "Special Projects", line: "Got a vision that doesn't fit the box? We got you." },
 ];
 
+/* The dial under the arc: tick marks on the same wheel the cards ride, a
+   little inside them, turning with them. Two copies of the ticks — muted,
+   and lit-and-longer — with the lit copy masked to the centre, so ticks
+   brighten as they pass under the middle of the screen (the duplicate-and-
+   clip trick; one attribute per copy per frame, nothing per tick). */
+const DIAL_GAP = 22; // px between the card bottoms and the ticks
+const DIAL_STEP = 22; // px between ticks, along the arc
+const DIAL_LEN = 10; // px, a muted tick
+const DIAL_LIT = 15; // px, a lit tick
+const DIAL_BAND = 120; // px, the height of the strip the ticks are drawn in
+
+/* where the pin opens and closes: one card whole and the next showing by
+   this much of its width, at the right edge first and the left edge last */
+const PEEK = 0.3;
+
 export default function Services2() {
   const sectionRef = useRef(null);
   const cardsRef = useRef([]);
+  const dialRef = useRef(null);
 
   useLayoutEffect(() => {
     const section = sectionRef.current;
     const cards = cardsRef.current.filter(Boolean);
-    if (!section || !cards.length) return;
+    const dial = dialRef.current;
+    if (!section || !cards.length || !dial) return;
 
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       section.classList.add("is-static");
@@ -56,35 +73,77 @@ export default function Services2() {
       return w * 2.5;
     };
 
-    function positionCards(progress = 0) {
+    const ticks = [...dial.querySelectorAll("svg")];
+    const wheels = ticks.map((svg) => svg.querySelector("g"));
+    let geo = null;
+
+    /* Everything that depends on the screen: the arc, the sweep, the dial.
+       Rebuilt on resize, not per frame. */
+    function layout() {
+      const vw = window.innerWidth;
       const radius = getRadius();
-      /* 0.085 packed five cards into the visible window at 1920 with ~100px
-         between their rotated bounding boxes — crowded, and it read as if
-         the sweep were already under way when you arrived. 0.105 shows
-         three or four with real air. Safe now that the progress window is
-         derived from the geometry: wider spacing no longer costs dead
-         frames the way it did before that fix. */
-      const cardSpacing = 0.105;
-
-      /* Only part of the arc is ever on screen: a card is visible while
-         |cos(angle)| * radius stays within half the viewport. Solving that
-         gives the progress window the sweep should actually cover.
-         Driving 0 -> 1 blindly (as this did) spent ~37% of the pin on an
-         empty arc — scroll, nothing, cards, nothing. */
       const cardW = cards[0].offsetWidth || 300;
-      const limit = Math.min(
-        0.999,
-        (window.innerWidth / 2 + cardW / 2) / radius
-      );
-      const spread = (Math.PI / 2 - Math.acos(limit)) / arcAngle;
+      const cardH = cards[0].offsetHeight || 400;
 
-      /* A little runway so the first and last card ease in whole rather
-         than pop. Starting part-way in (tried, reverted) meant the pin
-         opened and closed on cards sliced by the screen edge. */
-      const margin = 0.05;
-      const lead = cardSpacing * (totalCards - 1);
-      const from = 0.5 - spread - lead - margin;
-      const to = 0.5 + spread + margin;
+      /* The gap between neighbours is set as a DISTANCE, not an angle. As a
+         fixed angle (0.105) the gap came out at ~145px at 1440 and changed
+         with every screen size and card size; this keeps it at CARD_GAP
+         along the arc, whatever the card's size, so bigger cards do not
+         drift apart and smaller ones do not crowd. */
+      const CARD_GAP = 56;
+      const cardSpacing = (cardW + CARD_GAP) / (radius * arcAngle);
+
+      /* The sweep opens with card 01 whole and card 02 peeking in from the
+         right edge, and closes with the last card whole and the one before
+         it peeking out at the left. It used to run from an empty arc to an
+         empty arc (cards eased in from off screen), so the pin opened and
+         closed on one half-card, or on nothing.
+         Where a whole card and a peek do not both fit (a phone, where the
+         card is most of the screen), the card is simply centred. */
+      const gutter = Math.min(vw * 0.05, 80);
+      const peekX = vw / 2 - (1 - PEEK) * cardW - CARD_GAP;
+      const firstX = peekX - cardW / 2 >= gutter - vw / 2 ? peekX : 0;
+      // the progress that puts a card's centre at x (from the screen centre)
+      const at = (x) => (Math.acos(x / radius) - startAngle) / arcAngle;
+      const from = at(firstX) - cardSpacing * (totalCards - 1);
+      const to = at(-firstX);
+
+      /* The dial: concentric with the cards' wheel, its top just under the
+         bottom of the centred card. Positioned in px because the cards'
+         line is (s2-cards' top is the heading stack). */
+      const top = cards[0].offsetParent.offsetTop + cardH + DIAL_GAP;
+      const r = radius - cardH / 2 - DIAL_GAP;
+      // the strip is the section wide, which excludes any scrollbar
+      const sw = section.clientWidth;
+      const cx = sw / 2;
+      const cy = r;
+      const step = DIAL_STEP / r;
+      dial.style.top = `${top}px`;
+      // enough ticks to run past both edges, whatever the turn
+      const reach = Math.asin(Math.min(1, (sw / 2 + DIAL_STEP * 2) / r));
+      const n = Math.ceil(reach / step) + 1;
+      ticks.forEach((svg, k) => {
+        const len = k === 0 ? DIAL_LEN : DIAL_LIT;
+        svg.setAttribute("viewBox", `0 0 ${sw} ${DIAL_BAND}`);
+        let d = "";
+        for (let i = -n; i <= n; i++) {
+          const sin = Math.sin(i * step);
+          const cos = Math.cos(i * step);
+          const y1 = cy - r * cos;
+          if (y1 > DIAL_BAND) continue;
+          const x1 = cx + r * sin;
+          const x2 = cx + (r - len) * sin;
+          const y2 = cy - (r - len) * cos;
+          d += `M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`;
+        }
+        svg.querySelector("path").setAttribute("d", d);
+      });
+
+      geo = { radius, cardSpacing, from, to, cx, cy, step };
+    }
+
+    function positionCards(progress = 0) {
+      const { radius, cardSpacing, from, to, cx, cy, step } = geo;
       const arcProgress = from + progress * (to - from);
 
       cards.forEach((card, i) => {
@@ -103,8 +162,17 @@ export default function Services2() {
           transformOrigin: "center center",
         });
       });
+
+      /* The wheel turns by exactly the cards' angle, so the ticks travel
+         with them. They are evenly spaced, so the turn is only needed
+         modulo one step: the strip never runs out. */
+      const turn = (arcAngle * arcProgress) % step;
+      const deg = (-(turn < 0 ? turn + step : turn) * 180) / Math.PI;
+      const t = `rotate(${deg.toFixed(3)} ${cx.toFixed(1)} ${cy.toFixed(1)})`;
+      wheels.forEach((g) => g.setAttribute("transform", t));
     }
 
+    layout();
     positionCards(0);
 
     const trigger = ScrollTrigger.create({
@@ -122,7 +190,10 @@ export default function Services2() {
       onUpdate: (self) => positionCards(self.progress),
     });
 
-    const handleResize = () => positionCards(0);
+    const handleResize = () => {
+      layout();
+      positionCards(trigger.progress);
+    };
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -162,6 +233,21 @@ export default function Services2() {
             </div>
           </article>
         ))}
+      </div>
+
+      {/* the dial: drawn in layout(), turned in positionCards() */}
+      <div className="s2-dial" ref={dialRef} aria-hidden="true">
+        <svg className="s2-dial-ticks" preserveAspectRatio="none">
+          <g>
+            <path />
+          </g>
+        </svg>
+        <svg className="s2-dial-ticks is-lit" preserveAspectRatio="none">
+          <g>
+            <path />
+          </g>
+        </svg>
+        <p className="s2-dial-label">scroll to turn</p>
       </div>
 
       <div className="s2-meta">

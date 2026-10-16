@@ -225,7 +225,7 @@
 
 .h2-brand-name {
   font-weight: 500;
-  font-size: 0.96rem;
+  font-size: var(--v2-t-base);
   letter-spacing: -0.02em;
 }
 
@@ -242,11 +242,6 @@
   font-size: var(--v2-t-base);
   font-weight: 400;
   color: var(--v2-fg);
-  transition: opacity 0.35s var(--v2-ease);
-}
-
-.h2-links a:hover {
-  opacity: 0.6;
 }
 
 /* square and compact. The pill was competing with the wordmark for weight;
@@ -322,17 +317,25 @@
 .h2-menu-btn {
   display: none;
   align-items: center;
+  justify-content: center;
   justify-self: end;
-  height: var(--v2-btn-h);
-  padding: 0 1rem;
-  border: 1px solid var(--v2-rule);
-  border-radius: var(--v2-radius-ui);
+  /* a 44px target around a 26px icon; pulled right so the lines, not the
+     invisible target, sit on the page's right edge */
+  width: 2.75rem;
+  height: 2.75rem;
+  margin-right: -0.55rem;
+  padding: 0;
+  border: 0;
   background: none;
   color: var(--v2-fg);
-  font: inherit;
-  font-size: var(--v2-t-base);
-  font-weight: 500;
   cursor: pointer;
+}
+
+/* inside the open sheet, the two lines cross — a beat after the sheet
+   starts to appear, so the change is seen rather than skipped */
+.h2-menu.is-open .v2-burger {
+  --burger-open: 1;
+  transition-delay: 80ms;
 }
 
 /* a full navy sheet over the page. visibility (not display) so it can fade,
@@ -612,6 +615,12 @@
     grid-template-columns: 1fr 1fr;
   }
 
+  /* the CTA moves into the menu here; with three columns its empty track
+     still took a gap, pushing the Menu button 10px in from the gutter */
+  .h2-nav {
+    grid-template-columns: 1fr auto;
+  }
+
   .h2-meta p:nth-child(2) {
     display: none;
   }
@@ -684,4 +693,11 @@
   transform: none;
   opacity: 1;
   will-change: auto;
+}
+
+/* the logo is a link: a thumb needs 44px, not the 25px of its text */
+@media (pointer: coarse) {
+  .h2-nav .h2-brand {
+    min-height: 2.75rem;
+  }
 }

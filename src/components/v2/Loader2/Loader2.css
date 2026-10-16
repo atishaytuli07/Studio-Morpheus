@@ -98,13 +98,18 @@
 .l2-count {
   right: var(--v2-pad);
   bottom: clamp(1rem, 3.4vh, 2rem);
-  font-family: var(--v2-display);
+  /* Geist Mono, light: the same family as the note beside it, so the two
+     corners read as one instrument. Every glyph is the same width by
+     design, so the count ticks in place without jittering — and its slashed
+     zero (Geist has no plain-zero alternate) is the instrument look. */
+  font-family: var(--font-mono);
   font-size: clamp(2.5rem, 6vw, 5.5rem);
-  font-weight: 500;
+  font-weight: 300;
   line-height: 0.9;
-  letter-spacing: -0.04em;
+  /* tight: monospace digits are drawn with wide side-bearings, so at this
+     size normal spacing leaves the number looking spread apart */
+  letter-spacing: -0.07em;
   text-transform: none;
   color: var(--v2-paper);
-  /* fixed-width digits: the count must tick, not jitter */
   font-variant-numeric: tabular-nums;
 }

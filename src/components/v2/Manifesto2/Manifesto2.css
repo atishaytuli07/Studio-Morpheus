@@ -86,8 +86,26 @@
   color: var(--v2-paper-word);
 }
 
+/* A highlight word fills in a vivid blue, under a navy bar (new.css).
+   Brighter than the accent blue used elsewhere (#2e6fbf, 61% saturation,
+   which read washed-out here): 83% saturation, 4.40:1 on bone. */
+.m2-word.is-hl .m2-fill {
+  color: #2563eb;
+}
+
+.m2-word .v2-hl-bar {
+  background: var(--v2-fg);
+}
+
+.m2.is-static .v2-hl-bar {
+  display: none;
+}
+
 .m2-fill {
   position: absolute;
+  /* a visual copy of the word: never selected or copied, or every word
+     pastes twice ("dreamdream") */
+  user-select: none;
   top: 0;
   left: 0;
   /* sized to its own text, not stretched to the word box: the two then agree
@@ -110,6 +128,23 @@
   opacity: 0;
 }
 
+/* Grows a touch under the pointer (Constantine's 1.1). On the two inner
+   layers, not the badge itself: the badge's entrance is a GSAP tween, and
+   GSAP writes an inline `scale: none` on what it animates, which silently
+   beat a hover rule there. `scale` (not `transform`) also leaves the ring's
+   spin untouched. */
+.m2-badge-ring,
+.m2-badge-disc {
+  transition: scale 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .m2-badge:hover .m2-badge-ring,
+  .m2-badge:hover .m2-badge-disc {
+    scale: 1.1;
+  }
+}
+
 .m2-badge-ring {
   position: absolute;
   inset: 0;
@@ -127,7 +162,7 @@
   justify-content: center;
   transform-origin: 50% 50%;
   font-family: var(--v2-font);
-  font-size: 0.7rem;
+  font-size: var(--v2-label-size);
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.06em;
@@ -244,29 +279,41 @@
   align-self: end;
   display: grid;
   grid-template-columns: repeat(2, max-content);
-  column-gap: clamp(1.25rem, 2.5vw, 2.25rem);
-  row-gap: 0.625rem;
+  column-gap: clamp(2rem, 4vw, 3.5rem);
+  row-gap: 0.55rem;
   margin: 0;
   padding: 0;
   list-style: none;
   opacity: 0;
 }
 
+/* The names are content, so they are set in the page's face — Neue
+   Montreal, sentence case — not the mono, which is kept for interface
+   labels (Brikken's split: mono for chrome, the sans for anything read).
+   The index numbers stay mono, small and muted: markers, not words. */
 .m2-disciplines li {
   display: flex;
   align-items: baseline;
-  gap: 0.55rem;
-  font-family: var(--font-mono);
-  line-height: 1.4;
-  font-size: var(--v2-label-size);
-  text-transform: uppercase;
-  letter-spacing: var(--v2-label-tracking);
+  gap: 0.5rem;
+  font-family: var(--v2-font);
+  font-size: var(--v2-t-base);
+  font-weight: 500;
+  line-height: 1.35;
+  letter-spacing: -0.012em;
   color: var(--v2-fg);
   white-space: nowrap;
 }
 
 .m2-disciplines span {
+  /* the loader's numerals: Geist Mono Light, tight spacing. A fixed width,
+     so every name starts on the same line. */
+  min-width: 1.15rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: -0.04em;
   color: var(--v2-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 /* --- the right column: the two taglines, then the quote --- */
@@ -498,11 +545,15 @@
 @media (min-width: 601px) and (max-width: 820px) {
   .m2-body {
     grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+    /* the index (two columns of names) and the ticker each get the full
+       width: side by side in a 0.8fr/1.2fr split the index was wider than
+       its column and ran straight into the ticker */
     grid-template-areas:
       "figure      lead"
       "figure      mid"
       "quote       quote"
-      "disciplines list";
+      "disciplines disciplines"
+      "list        list";
     column-gap: clamp(1.5rem, 4vw, 2.5rem);
   }
 

@@ -1,4 +1,4 @@
-/* Kind words — cards scattered across the section, tilted and overlapping,
+/* Client love — cards scattered across the section, tilted and overlapping,
    as if dropped on a table. Nothing moves on its own or on hover: a card
    can be taken and slid or thrown sideways (Testimonials2.jsx). Ground and ink come from
    .v2-invert; the navy cards re-point the tokens to their own ground. */
@@ -12,8 +12,45 @@
 
 /* --- heading: the same left-set label + title as every section --- */
 
+/* The heading row also carries the proof (Proof2): the figures to the
+   right of the heading, sitting on its baseline, and the client names on
+   one line underneath.
+   Flex with wrapping, not a two-column grid: the heading never shrinks or
+   breaks for the figures. Where both do not fit on one line, the figures
+   drop to the next one instead. */
 .t2-head {
+  display: flex;
+  flex-wrap: wrap;
+  /* the figures' labels sit on the heading's baseline, not its box bottom
+     (end-aligned they hung ~5px under the letters) */
+  align-items: last baseline;
+  column-gap: clamp(2rem, 5vw, 5rem);
+  row-gap: clamp(1.5rem, 2.5vw, 2rem);
   margin-bottom: var(--v2-head-gap);
+}
+
+.t2-title {
+  flex: 0 0 auto;
+}
+
+.t2-head .p2-stats {
+  margin-left: auto;
+}
+
+.t2-head .p2-clients {
+  flex: 0 0 100%;
+}
+
+/* Below ~1230 the heading and the four figures no longer share a line
+   (measured: they part between 1200 and 1230; 1260 leaves room for a
+   scrollbar). Wrapped but still pushed right, the figures looked
+   misplaced, so from here they go under the heading, set from the left. */
+@media (max-width: 1259px) {
+  .t2-head .p2-stats {
+    flex: 0 0 100%;
+    margin-left: 0;
+    justify-content: start;
+  }
 }
 
 .t2-label {
@@ -71,6 +108,12 @@
   box-shadow:
     0 1px 2px rgba(0, 20, 50, 0.12),
     0 24px 48px -22px rgba(0, 20, 50, 0.4);
+  /* The lift (below) is on `scale`, a separate property from the per-frame
+     transform, so it can ease without fighting the physics. Put down
+     faster than picked up. */
+  transition:
+    scale 220ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 220ms ease;
 }
 
 .t2-card:nth-child(1) {
@@ -106,8 +149,36 @@
   margin-top: 0.5rem;
 }
 
+/* Picked up: it comes off the table a little — slightly larger, its
+   shadow longer and softer, as if lifted toward you. Never moved up the
+   stack: a card taken from underneath stays underneath. */
 .t2-card.is-held {
   cursor: grabbing;
+  scale: 1.025;
+  box-shadow:
+    0 2px 4px rgba(0, 20, 50, 0.1),
+    0 40px 64px -24px rgba(0, 20, 50, 0.45);
+  transition:
+    scale 300ms cubic-bezier(0.23, 1, 0.32, 1),
+    box-shadow 300ms ease;
+}
+
+.t2-card.is-paper.is-held {
+  box-shadow:
+    0 0 0 1px rgba(0, 36, 89, 0.08),
+    0 2px 4px rgba(0, 20, 50, 0.08),
+    0 40px 64px -24px rgba(0, 20, 50, 0.38);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .t2-card,
+  .t2-card.is-held {
+    transition: box-shadow 220ms ease;
+  }
+
+  .t2-card.is-held {
+    scale: none;
+  }
 }
 
 /* a card with nowhere to travel is not offered as draggable */
@@ -126,7 +197,8 @@
 }
 
 .t2-card.is-paper {
-  background: #fbfaf5;
+  /* the same paper white as the service card titles (v1's --marble) */
+  background: var(--marble);
   color: var(--v2-fg);
   box-shadow:
     0 0 0 1px rgba(0, 36, 89, 0.08),

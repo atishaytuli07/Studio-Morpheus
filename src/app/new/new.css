@@ -45,13 +45,13 @@
      literally the same value. Pure white glared; this sits in the air. */
   --v2-fg: #eeede4;
   --v2-pure: #ffffff;
-  --v2-muted: rgba(238, 237, 228, 0.64);
-  /* SOLID, and lighter than it was. At rgba(...,0.38) the 10px mono rails
-     measured 2.98:1 on the navy — a real AA failure, not a rounding one.
-     This is 4.7:1. Solid also because these labels sit over the hero's
-     aurora, where an alpha value's effective contrast changes with the
-     gradient underneath it. */
-  --v2-faint: #8393a5;
+  /* ONE muted tone on navy, where there were three (bone at 64%, #8393a5
+     and #8b9dbc). It is their own #8b9dbc: 5.48:1 on the navy and 6.23:1 on
+     the footer's deeper navy, so every 11px label clears AA. Solid, not
+     alpha, because these labels sit over the hero's aurora, where an alpha
+     value's real contrast changes with the gradient underneath. */
+  --v2-muted: var(--v2-on-blue-muted);
+  --v2-faint: var(--v2-on-blue-muted);
   --v2-rule: rgba(238, 237, 228, 0.14);
 
   /* the light ground. Hue 215 — a desaturated tint of the brand blue, not a
@@ -76,8 +76,8 @@
      you are asked to read. Do not reuse this token for static text. */
   --v2-paper-word: color-mix(in srgb, var(--v2-navy) 35%, var(--v2-paper));
 
-  /* ink on blue — #8b9dbc is THEIR muted, and it only works here: on blue it
-     is 4.29:1, on bone it collapses to 2.34:1 */
+  /* ink on blue — #8b9dbc is THEIR muted, and it only works on navy: on
+     bone it collapses to 2.34:1 */
   --v2-on-blue: #eeede4;
   --v2-on-blue-muted: #8b9dbc;
   --v2-on-blue-rule: rgba(238, 237, 228, 0.2); /* their #eeede433 */
@@ -284,5 +284,157 @@
 @media (pointer: coarse) {
   .v2 {
     --v2-btn-h: 2.75rem;
+  }
+}
+
+/* The menu icon: two wide parallel lines that cross into an X when the
+   menu is open. Set --burger-open: 1 on any ancestor (or the icon) to cross
+   it. Transform only; a strong ease-out, 300ms (Emil: under ~300ms for UI). */
+.v2-burger {
+  --burger-open: 0;
+  --burger-w: 1.85rem;
+  --burger-gap: 0.5rem;
+  position: relative;
+  display: block;
+  width: var(--burger-w);
+  height: var(--burger-gap);
+}
+
+.v2-burger > span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition-delay: inherit;
+}
+
+/* apart by --burger-gap; open, both meet in the middle and rotate */
+.v2-burger > span:first-child {
+  top: 0;
+  transform: translateY(calc(var(--burger-open) * (var(--burger-gap) / 2 - 0.75px)))
+    rotate(calc(var(--burger-open) * 45deg));
+}
+
+.v2-burger > span:last-child {
+  bottom: 0;
+  transform: translateY(calc(var(--burger-open) * (var(--burger-gap) / -2 + 0.75px)))
+    rotate(calc(var(--burger-open) * -45deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .v2-burger > span {
+    transition: none;
+  }
+}
+
+/* Two-tone highlight words (Constantine's device): a few concept words in a
+   second blue, revealed by a solid bar that sweeps across and slides away.
+
+   The word is always in place in the section's ink — a second copy in the
+   highlight colour sits on top, clipped shut, so nothing ever leaves a hole
+   in the line. The bar is one clip-path animated through three states
+   (closed at the left → full → closed at the right), so it is reversible
+   when scrubbed and never touches layout.
+
+   Colours: on bone the bright accent blue (4.31:1, a large-text pass); on
+   navy their muted #8b9dbc (5.48:1). The muted blue on bone would be 2.34:1
+   — and would read as a word that has not filled in yet. */
+.v2-hl {
+  position: relative;
+  display: inline-block;
+  white-space: nowrap;
+  text-indent: 0;
+}
+
+.v2-hl-ink {
+  position: absolute;
+  /* a visual copy: never selected or copied twice */
+  user-select: none;
+  top: 0;
+  left: 0;
+  width: max-content;
+  color: var(--v2-hl, var(--v2-accent2));
+  clip-path: inset(0 100% 0 0);
+  will-change: clip-path;
+}
+
+.v2-hl-bar {
+  position: absolute;
+  left: -0.04em;
+  right: -0.04em;
+  top: 0.06em;
+  bottom: 0.04em;
+  background: currentColor;
+  clip-path: inset(0 100% 0 0);
+  pointer-events: none;
+}
+
+/* the finished state, for reduced motion and anywhere the wipe has played */
+.v2-hl.is-lit .v2-hl-ink {
+  clip-path: inset(0 0 0 0);
+}
+
+.v2-hl.is-lit .v2-hl-bar {
+  clip-path: inset(0 0 0 100%);
+}
+
+/* Underline-draw on hover, for text links (Griflan's .uline, faster).
+   The line is drawn in from the LEFT on hover and leaves to the RIGHT on
+   un-hover — it passes through rather than rewinding — by flipping the
+   transform-origin between the two states. 350ms in / 250ms out on a
+   strong ease-out: these are hovered dozens of times, so they stay short.
+   Real pointers only: a tap would otherwise leave it stuck drawn. */
+.h2-links a,
+.sn-links a,
+.f2-col a {
+  position: relative;
+}
+
+.h2-links a::after,
+.sn-links a::after,
+.f2-col a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Measured from the text, not the box: the box carries the line-height's
+     leading (7px below the baseline here), so a bottom-anchored line sat
+     ~10px under the letters. From the vertical centre, 0.45em lands it
+     ~2px under the baseline — and still does in the 44px touch boxes. */
+  top: calc(50% + 0.45em);
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .h2-links a:hover::after,
+  .sn-links a:hover::after,
+  .f2-col a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+    transition-duration: 350ms;
+  }
+}
+
+/* keyboard focus draws it too, so the state is not mouse-only */
+.h2-links a:focus-visible::after,
+.sn-links a:focus-visible::after,
+.f2-col a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .h2-links a::after,
+  .sn-links a::after,
+  .f2-col a::after {
+    transition: none;
   }
 }

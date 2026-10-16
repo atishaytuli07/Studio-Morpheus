@@ -177,12 +177,14 @@
 .f2-col a {
   font-size: var(--v2-t-base);
   color: var(--v2-muted);
-  transition: color 0.35s var(--v2-ease);
+  transition: color 250ms ease;
   overflow-wrap: anywhere;
 }
 
-.f2-col a:hover {
-  color: var(--v2-fg);
+@media (hover: hover) and (pointer: fine) {
+  .f2-col a:hover {
+    color: var(--v2-fg);
+  }
 }
 
 /* --- base line: the last thing on the page, under the wordmark --- */

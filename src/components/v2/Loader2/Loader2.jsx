@@ -37,8 +37,18 @@ const CELLS = WORDMARK_GLYPHS.map((g, i) => ({
 /* timing */
 const MIN_COUNT = 1.6; // s — the count never finishes faster than this
 const MAX_WAIT = 4; // s — and never waits on the network longer than this
-const TRAVEL = 1250; // ms — centre → the hero's wordmark
-const EXPO_IN_OUT = "cubic-bezier(0.87, 0, 0.13, 1)";
+const TRAVEL = 1100; // ms — centre → the hero's wordmark
+/* Motion values follow Emil Kowalski's rules.
+   · The glide is on-screen movement, but NOT a symmetric in-out. Every
+     symmetric in-out — the old expo (0.87, 0, 0.13, 1) and Emil's strong
+     (0.77, 0, 0.175, 1) alike — covers only ~5% of the distance in the first
+     quarter of the time, so the hand-off from the count read as a pause.
+     This curve has a gentle take-off and a long soft landing: 16% by the
+     first quarter (measured), and still no bump on arrival.
+   · Everything entering or leaving uses a strong ease-out, never ease-in:
+     ease-in delays the first movement, the moment the eye is on it. */
+const GLIDE = "cubic-bezier(0.5, 0, 0.15, 1)";
+const EASE_OUT = "cubic-bezier(0.23, 1, 0.32, 1)";
 const SMOOTH = "cubic-bezier(0.45, 0, 0.55, 1)";
 
 /* how wide the mark reads while centred: the page's side padding
@@ -152,20 +162,26 @@ export default function Loader2() {
       setTimeout(resolve, MAX_WAIT * 1000);
     });
 
-    // in: the mark and the notes surface out of the black
-    const intro = gsap.to([mark, ...root.querySelectorAll(".l2-meta")], {
-      opacity: 1,
-      duration: 0.8,
-      ease: "power2.out",
-      stagger: 0.1,
-      delay: 0.1,
-    });
+    // in: the mark surfaces out of the black, the notes rise 8px into place
+    const intro = gsap
+      .timeline({ delay: 0.1 })
+      .to(mark, { opacity: 1, duration: 0.8, ease: "power3.out" }, 0)
+      .fromTo(
+        root.querySelectorAll(".l2-meta"),
+        { opacity: 0, y: 8 },
+        { opacity: 1, y: 0, duration: 0.7, ease: "expo.out", stagger: 0.08 },
+        0.15
+      );
 
-    // most of the count runs on its own clock, easing into a hold at 86
+    /* Most of the count runs on its own clock, decelerating into a hold at
+       86. Ease-OUT, not in-out: an in-out count crawls through its first
+       numbers, exactly when someone first looks at it, and reads as slow.
+       This one leaps off zero and settles — which reads as "nearly there"
+       while the page finishes loading. */
     const lead = gsap.to(state, {
       p: 86,
       duration: MIN_COUNT,
-      ease: "power2.inOut",
+      ease: "power3.out",
       onUpdate: paint,
     });
 
@@ -176,8 +192,13 @@ export default function Loader2() {
     const land = () => {
       openLoaderLanded(Boolean(target));
       unlock();
+      // the hero's own letters are already on underneath: a quick crossfade
       running.push(
-        mark.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 350, fill: "forwards" })
+        mark.animate([{ opacity: 1 }, { opacity: 0 }], {
+          duration: 250,
+          easing: EASE_OUT,
+          fill: "forwards",
+        })
       );
       running[running.length - 1].onfinish = () => {
         root.style.display = "none";
@@ -195,7 +216,7 @@ export default function Loader2() {
 
       const move = mark.animate([{ transform: centred }, { transform: "none" }], {
         duration: TRAVEL,
-        easing: EXPO_IN_OUT,
+        easing: GLIDE,
         fill: "forwards",
       });
       // the black lifts under the moving mark; the hero comes up beneath
@@ -216,9 +237,14 @@ export default function Loader2() {
       tail = gsap
         .timeline()
         .to(state, { p: 100, duration: 0.4, ease: "power2.out", onUpdate: paint })
-        // the notes step aside before the mark moves
-        .to(root.querySelectorAll(".l2-meta"), { opacity: 0, y: 8, duration: 0.4, ease: "power2.in" }, "+=0.1")
-        .add(glide, "-=0.15");
+        // the notes step aside before the mark moves — quicker than they
+        // came, and eased out: leaving is the system responding
+        .to(
+          root.querySelectorAll(".l2-meta"),
+          { opacity: 0, y: 8, duration: 0.25, ease: "power3.out" },
+          "+=0.1"
+        )
+        .add(glide, "-=0.1");
     };
 
     Promise.all([ready, new Promise((r) => lead.eventCallback("onComplete", r))]).then(finish);

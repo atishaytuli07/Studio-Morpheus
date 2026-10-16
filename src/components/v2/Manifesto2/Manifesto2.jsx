@@ -12,6 +12,9 @@ gsap.registerPlugin(ScrollTrigger);
 const STATEMENT =
   "A creative studio for brands that dream in bold strategy, design and film, built end to end.";
 
+/* the concept words that take the second blue — never the first word */
+const HIGHLIGHT = new Set(["dream", "design", "film,"]);
+
 /* Real service names only — "SPATIAL" was mine and isn't one of the nine.
    Each character is placed on its own angular step, the way the reference
    does it: even spacing regardless of glyph width, which a textPath cannot
@@ -88,16 +91,30 @@ export default function Manifesto2() {
       /* Constantine's device: each word carries a clipped overlay in the
          full ink over a lighter base, and the clip opens as you scroll.
          Scrubbed — a progress state, not a one-shot reveal. */
-      gsap.to(".m2-fill", {
-        clipPath: "inset(0 0% 0 0)",
-        ease: "none",
-        stagger: 0.6,
+      /* Highlight words fill differently: a navy bar sweeps across the
+         word (first half of its slot), then slides off to the right while
+         the blue fill opens behind it (second half). Same slot length as
+         every other word, so the rhythm of the fill does not change. */
+      const tl = gsap.timeline({
+        defaults: { ease: "none" },
         scrollTrigger: {
           trigger: ".m2-top",
           start: "top 78%",
           end: "bottom 45%",
           scrub: true,
         },
+      });
+      gsap.utils.toArray(".m2-word", section).forEach((word, i) => {
+        const at = i * 0.6;
+        const fill = word.querySelector(".m2-fill");
+        const bar = word.querySelector(".v2-hl-bar");
+        if (!bar) {
+          tl.to(fill, { clipPath: "inset(0 0% 0 0)", duration: 1 }, at);
+          return;
+        }
+        tl.to(bar, { clipPath: "inset(0 0% 0 0%)", duration: 0.45 }, at)
+          .to(bar, { clipPath: "inset(0 0% 0 100%)", duration: 0.55 }, at + 0.45)
+          .to(fill, { clipPath: "inset(0 0% 0 0)", duration: 0.55 }, at + 0.45);
       });
 
       /* the ticker: one continuous drift, no steps and no holds. The list is
@@ -145,9 +162,10 @@ export default function Manifesto2() {
           {words.map((word, i) => (
             // the space lives OUTSIDE the inline-block, or it collapses
             <span key={i} aria-hidden="true">
-              <span className="m2-word">
+              <span className={HIGHLIGHT.has(word) ? "m2-word is-hl" : "m2-word"}>
                 <span className="m2-base">{word}</span>
                 <span className="m2-fill">{word}</span>
+                {HIGHLIGHT.has(word) && <span className="v2-hl-bar" />}
               </span>{" "}
             </span>
           ))}

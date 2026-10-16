@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 
+import Proof2 from "../Proof2/Proof2";
 import "./Testimonials2.css";
 
 /* PLACEHOLDER COPY — the old site has no testimonials (brand brief §9).
@@ -256,8 +257,12 @@ export default function Testimonials2() {
   return (
     <section className="t2 v2-invert" ref={ref}>
       <header className="t2-head">
-        <p className="t2-label">[ 05 — kind words ]</p>
-        <h2 className="t2-heading">Kind words</h2>
+        <div className="t2-title">
+          <p className="t2-label">[ 05 — client love ]</p>
+          <h2 className="t2-heading">Client love</h2>
+        </div>
+        {/* the numbers and names that back the quotes up */}
+        <Proof2 />
       </header>
 
       <div className="t2-table">

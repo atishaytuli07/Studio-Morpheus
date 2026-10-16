@@ -53,12 +53,22 @@ export default function Hero2() {
 
   /* The menu is a modal sheet: the page behind must not scroll, Escape
      closes it, focus moves in on open and back to the button on close. */
+  /* The scroll nav (ScrollNav) opens this same sheet once the hero's own
+     nav has scrolled away; one menu, two buttons. */
+  useEffect(() => {
+    const open = () => setMenuOpen(true);
+    window.addEventListener("v2:open-menu", open);
+    return () => window.removeEventListener("v2:open-menu", open);
+  }, []);
+
   useEffect(() => {
     if (!menuOpen) return;
+    // focus goes back to whichever button opened it, not always the hero's
+    const opener = document.activeElement;
     lenis?.stop();
     document.documentElement.style.overflow = "hidden";
     menuRef.current?.querySelector("a, button")?.focus();
-    const button = menuBtnRef.current;
+    const button = opener instanceof HTMLElement ? opener : menuBtnRef.current;
 
     const onKey = (e) => e.key === "Escape" && setMenuOpen(false);
     // rotated or resized past the breakpoint: the sheet has no button to shut it
@@ -281,9 +291,13 @@ export default function Hero2() {
           ref={menuBtnRef}
           aria-expanded={menuOpen}
           aria-controls="h2-menu"
+          aria-label="Open menu"
           onClick={() => setMenuOpen(true)}
         >
-          Menu
+          <span className="v2-burger" aria-hidden="true">
+            <span />
+            <span />
+          </span>
         </button>
       </header>
 
@@ -308,9 +322,14 @@ export default function Hero2() {
           <button
             type="button"
             className="h2-menu-btn"
+            aria-label="Close menu"
             onClick={() => setMenuOpen(false)}
           >
-            Close
+            {/* the same two lines, crossed while the sheet is open (CSS) */}
+            <span className="v2-burger" aria-hidden="true">
+              <span />
+              <span />
+            </span>
           </button>
         </div>
 

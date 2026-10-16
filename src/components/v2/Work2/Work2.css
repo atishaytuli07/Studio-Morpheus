@@ -41,8 +41,8 @@
 .w2-count {
   margin: 0 0 0.6rem;
   font-family: var(--font-mono);
-  font-size: 0.72rem;
-  letter-spacing: 0.16em;
+  font-size: var(--v2-label-size);
+  letter-spacing: var(--v2-label-tracking);
   color: var(--v2-muted);
 }
 
@@ -125,9 +125,25 @@
   object-fit: cover;
   display: block;
   will-change: transform;
+  /* Black and white at rest; the colour is the reward (Constantine). A
+     touch of contrast keeps the grey from going flat. The return to grey is
+     quicker than the reveal — leaving is the system responding. */
+  filter: grayscale(1) contrast(1.05);
+  transition: filter 350ms ease;
+}
+
+/* in colour: hovered or focused (Work2.css below), or — on touch, where
+   there is no hover — once the card has reached the middle of the screen */
+.w2-card.is-lit .w2-media img,
+.w2-link:focus-visible .w2-media img {
+  filter: grayscale(0) contrast(1);
+  transition: filter 600ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 .w2-title {
+  display: flex;
+  align-items: center;
+  gap: 0.15em;
   margin: 1.25rem 0 0;
   font-family: var(--v2-display);
   font-weight: 500;
@@ -136,6 +152,19 @@
   letter-spacing: -0.02em;
   color: var(--v2-fg);
   transition: color 0.5s var(--v2-ease);
+}
+
+/* the arrow after the title: out of sight at rest, slides in from below-
+   left on hover — in on a strong ease-out, out faster than it came */
+.w2-arrow {
+  width: 0.85em;
+  height: 0.85em;
+  flex-shrink: 0;
+  opacity: 0;
+  transform: translate3d(-0.25em, 0.25em, 0);
+  transition:
+    opacity 180ms ease,
+    transform 180ms ease;
 }
 
 .w2-tags {
@@ -155,6 +184,46 @@
 
   .w2-link:hover .w2-zoom {
     transform: scale(1.035);
+  }
+
+  .w2-link:hover .w2-media img {
+    filter: grayscale(0) contrast(1);
+    transition: filter 600ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+
+  .w2-link:hover .w2-arrow {
+    opacity: 1;
+    transform: none;
+    transition:
+      opacity 300ms cubic-bezier(0.23, 1, 0.32, 1),
+      transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  }
+}
+
+/* keyboard focus shows the arrow too */
+.w2-link:focus-visible .w2-arrow {
+  opacity: 1;
+  transform: none;
+}
+
+/* pressed: the frame gives a little, so the click feels heard. `scale`,
+   not `transform`, so it never fights the entrance or the hover zoom. */
+.w2-media {
+  transition: scale 160ms ease-out;
+}
+
+.w2-link:active .w2-media {
+  scale: 0.985;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .w2-arrow,
+  .w2-link:hover .w2-arrow {
+    transform: none;
+  }
+
+  .w2-link:active .w2-media {
+    scale: 1;
   }
 }
 

@@ -54,9 +54,27 @@ export default function Work2() {
     const section = ref.current;
     if (!section) return;
 
+    /* Touch screens have no hover, so the colour would never show. There,
+       each card turns to colour once it reaches the middle band of the
+       screen, and stays. Runs under reduced motion too: it is a colour
+       change, not movement. */
+    let lit = null;
+    if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) {
+      lit = new IntersectionObserver(
+        (entries) =>
+          entries.forEach((e) => {
+            if (!e.isIntersecting) return;
+            e.target.classList.add("is-lit");
+            lit.unobserve(e.target);
+          }),
+        { rootMargin: "-35% 0px -35% 0px" }
+      );
+      section.querySelectorAll(".w2-card").forEach((c) => lit.observe(c));
+    }
+
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       section.classList.add("is-static");
-      return;
+      return () => lit?.disconnect();
     }
 
     const ctx = gsap.context(() => {
@@ -79,6 +97,7 @@ export default function Work2() {
     const stopParallax = mountParallax(section);
 
     return () => {
+      lit?.disconnect();
       stopParallax();
       ctx.revert();
     };
@@ -109,7 +128,18 @@ export default function Work2() {
                   <img src={p.src} alt={p.title} data-speed="0.30" loading="lazy" />
                 </div>
               </figure>
-              <h3 className="w2-title">{p.title}</h3>
+              <h3 className="w2-title">
+                {p.title}
+                {/* says "this opens" on hover; hidden from screen readers */}
+                <svg className="w2-arrow" viewBox="0 0 16 16" aria-hidden="true">
+                  <path
+                    d="M4.5 11.5L11.5 4.5M11.5 4.5H6M11.5 4.5V10"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                  />
+                </svg>
+              </h3>
               <p className="w2-tags">{p.tags}</p>
             </a>
           </article>

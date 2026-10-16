@@ -2,8 +2,22 @@
    deep navy cards sweeping over the brand-navy ground */
 
 .s2 {
-  /* one card height, named, because the arc's position depends on it */
-  --s2-card-h: 420px;
+  /* Where the heading block ends: label + heading + the shared gap,
+     measured from the section top. The arc hangs from this line, always —
+     so the cards can never ride up over the heading, or under the scroll
+     nav pill, on any screen height. */
+  --s2-top: var(--v2-section-y);
+  --s2-stack: calc(
+    var(--s2-top) + 1.75rem + var(--v2-h-size) * 0.9 + var(--v2-head-gap) +
+      0.75rem
+  );
+  /* The card takes the height that is left below the heading, less room
+     for the rail along the bottom and the arc's dip — between 19rem and
+     440px. Width follows at v1's ratio. (The reserve was 8.5rem: sized for
+     the outermost tilted card while it is half off screen, it left every
+     card smaller than it needed to be.) */
+  --s2-card-h: clamp(19rem, calc(100svh - var(--s2-stack) - 6rem), 440px);
+  --s2-card-ratio: 0.786;
 
   position: relative;
   width: 100%;
@@ -17,7 +31,7 @@
    read as fragments. Now it is always whole, and the cards pass beneath. */
 .s2-header {
   position: absolute;
-  top: var(--v2-section-y);
+  top: var(--s2-top);
   left: var(--v2-gutter);
   right: var(--v2-gutter);
   z-index: 1;
@@ -73,13 +87,7 @@
      On a tall screen the first applies. On a short laptop the second does,
      and the cards ride up over the heading instead of being cut off at the
      bottom — which is what happened when only the first was used. */
-  top: min(
-    calc(
-      var(--v2-section-y) + 1.75rem + var(--v2-h-size) * 0.9 +
-        var(--v2-head-gap) + 0.75rem
-    ),
-    calc(100svh - var(--s2-card-h) - 10rem)
-  );
+  top: var(--s2-stack);
   left: 50%;
   transform: translate(-50%, -50%);
   width: 150vw;
@@ -98,7 +106,7 @@
   position: absolute;
   left: 50%;
   top: 50%;
-  --card-w: 330px;
+  --card-w: calc(var(--s2-card-h) * var(--s2-card-ratio));
   width: var(--card-w);
   height: var(--s2-card-h);
   margin-left: calc(var(--card-w) / -2);
@@ -158,6 +166,62 @@
   color: rgba(181, 198, 212, 0.8);
 }
 
+/* --- the dial: a strip of ticks under the arc, turning with it --- */
+
+.s2-dial {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  /* top is set in px by Services2.jsx, just under the centred card */
+  height: 120px;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.s2-dial-ticks {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  fill: none;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  /* fades out toward both edges, where the corner notes sit */
+  -webkit-mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
+  mask-image: linear-gradient(90deg, transparent 6%, #000 30%, #000 70%, transparent 94%);
+}
+
+.s2-dial-ticks path {
+  stroke: var(--v2-muted);
+  opacity: 0.45;
+}
+
+/* the lit copy: longer, bone, and only under the middle — about a card */
+.s2-dial-ticks.is-lit {
+  -webkit-mask-image: linear-gradient(90deg, transparent 38%, #000 50%, transparent 62%);
+  mask-image: linear-gradient(90deg, transparent 38%, #000 50%, transparent 62%);
+}
+
+.s2-dial-ticks.is-lit path {
+  stroke: var(--v2-fg);
+  opacity: 1;
+}
+
+.s2-dial-label {
+  position: absolute;
+  left: 50%;
+  top: 28px;
+  margin: 0;
+  transform: translateX(-50%);
+  font-family: var(--font-mono);
+  font-size: var(--v2-label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--v2-label-tracking);
+  color: var(--v2-muted);
+  white-space: nowrap;
+}
+
 /* --- reduced motion: static grid --- */
 
 .s2.is-static {
@@ -197,6 +261,10 @@
   transform: none !important;
 }
 
+.s2.is-static .s2-dial {
+  display: none;
+}
+
 .s2.is-static .s2-meta {
   position: relative;
   margin-top: 2.5rem;
@@ -205,13 +273,16 @@
 
 /* --- responsive card sizing --- */
 
-@media (max-width: 1200px) {
-  .s2-card {
-    --card-w: 290px;
+/* short laptops: the heading block moves up so the cards keep their size */
+@media (min-width: 1025px) and (max-height: 820px) {
+  .s2 {
+    --s2-top: 4.5rem;
   }
 
-  .s2 {
-    --s2-card-h: 380px;
+  /* the outer cards dip into the bottom corners here; the two corner notes
+     are decoration, the cards are the content — the notes give way */
+  .s2-meta {
+    display: none;
   }
 }
 
