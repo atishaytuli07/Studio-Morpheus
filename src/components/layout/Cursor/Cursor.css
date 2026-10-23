@@ -1,0 +1,130 @@
+/* The cursor. Positioned by transform on .cur (Cursor.jsx); everything
+   below animates transform, opacity and colour only. It sits above the
+   loader so it is never lost behind it. */
+
+/* the native cursor goes only once ours is running (mouse + trackpad) */
+.has-cursor,
+.has-cursor * {
+  cursor: none !important;
+}
+
+.cur {
+  --cur-ink: var(--navy);
+  --cur-paper: var(--paper);
+  --cur-ease: cubic-bezier(0.23, 1, 0.32, 1);
+
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 300;
+  pointer-events: none;
+  /* hidden until the pointer is first seen, and when it leaves the window */
+  opacity: 0;
+  transition: opacity 200ms ease;
+  will-change: transform;
+}
+
+.cur.is-shown {
+  opacity: 1;
+}
+
+/* over navy: the colours swap */
+.cur.is-on-dark {
+  --cur-ink: var(--paper);
+  --cur-paper: var(--navy);
+}
+
+/* the square, centred on the pointer's hotspot */
+.cur-dot {
+  position: absolute;
+  left: -4px;
+  top: -4px;
+  width: 8px;
+  height: 8px;
+  background: var(--cur-ink);
+  /* the outline used over links; zero-width until then */
+  box-shadow: inset 0 0 0 0 var(--cur-ink);
+  transition:
+    transform 250ms var(--cur-ease),
+    background-color 200ms ease,
+    box-shadow 200ms ease;
+}
+
+/* Over something that can be clicked: larger, and HOLLOW. Grown solid it
+   sat on top of the word under it and hid letters ("ser█ces"); as an
+   outline it frames the text instead of covering it. 1px inset at 1.75x
+   reads as a ~1.75px line. */
+.cur.is-active .cur-dot {
+  background-color: transparent;
+  box-shadow: inset 0 0 0 1px var(--cur-ink);
+  transform: scale(1.75);
+}
+
+/* pressed: it gives */
+.cur.is-down .cur-dot {
+  transform: scale(0.8);
+  transition-duration: 120ms, 200ms, 200ms;
+}
+
+.cur.is-active.is-down .cur-dot {
+  transform: scale(1.4);
+}
+
+/* The tag: a small chip to the right of the square, in the page's label
+   voice. It slides out from the square rather than appearing from nothing,
+   and leaves faster than it arrives. */
+.cur-label {
+  position: absolute;
+  left: 12px;
+  top: -12px;
+  display: flex;
+  align-items: center;
+  height: 24px;
+  padding: 0 0.6rem;
+  border-radius: var(--radius-ui);
+  background: var(--cur-ink);
+  color: var(--cur-paper);
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  letter-spacing: var(--label-tracking);
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate3d(-6px, 0, 0) scale(0.9);
+  transform-origin: 0 50%;
+  transition:
+    opacity 150ms ease,
+    transform 150ms var(--cur-ease),
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.cur.has-label .cur-label {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity 250ms var(--cur-ease),
+    transform 300ms var(--cur-ease),
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+/* with a tag, the square stays a small solid square: the tag is the
+   emphasis */
+.cur.has-label .cur-dot {
+  background-color: var(--cur-ink);
+  box-shadow: inset 0 0 0 0 var(--cur-ink);
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cur-dot,
+  .cur-label,
+  .cur.has-label .cur-label {
+    transition:
+      opacity 150ms ease,
+      background-color 200ms ease,
+      box-shadow 200ms ease,
+      color 200ms ease;
+  }
+}

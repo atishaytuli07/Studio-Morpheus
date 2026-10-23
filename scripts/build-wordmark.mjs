@@ -51,7 +51,7 @@ ${letters.map((l) => `  // ${l.ch}\n  "${l.d}",`).join("\n")}
 ];
 `;
 
-writeFileSync("src/components/v2/Hero2/wordmark.js", out);
+writeFileSync("src/lib/wordmark.js", out);
 
 console.log(`viewBox: ${viewBox}`);
 console.log(`glyphs:  ${letters.length}`);

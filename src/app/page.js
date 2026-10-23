@@ -1,30 +1,29 @@
-"use client";
-
-import { useState } from "react";
-import Preloader, { isInitialLoad } from "@/components/Preloader/Preloader";
-import Hero from "@/components/Hero/Hero";
-import Founder from "@/components/Founder/Founder";
-import Services from "@/components/Services/Services";
-import Work from "@/components/Work/Work";
-import Testimonials from "@/components/Testimonials/Testimonials";
-import Footer from "@/components/Footer/Footer";
-
-const PRELOADER_HOLD = 4.4;
+import Loader from "@/components/layout/Loader/Loader";
+import Nav from "@/components/layout/Nav/Nav";
+import Cursor from "@/components/layout/Cursor/Cursor";
+import Footer from "@/components/layout/Footer/Footer";
+import Hero from "@/components/sections/Hero/Hero";
+import WhatWeDo from "@/components/sections/WhatWeDo/WhatWeDo";
+import Showreel from "@/components/sections/Showreel/Showreel";
+import SelectedWork from "@/components/sections/SelectedWork/SelectedWork";
+import Services from "@/components/sections/Services/Services";
+import ClientLove from "@/components/sections/ClientLove/ClientLove";
+import Close from "@/components/sections/Close/Close";
 
 export default function Home() {
-  const [showPreloader] = useState(isInitialLoad);
-
-  const introDelay = showPreloader ? PRELOADER_HOLD : 0.5;
-
   return (
-    <>
-      {showPreloader && <Preloader />}
-      <Hero introDelay={introDelay} />
-      <Founder />
+    <main>
+      <Loader />
+      <Hero />
+      <Nav />
+      <WhatWeDo />
+      <Showreel />
+      <SelectedWork />
       <Services />
-      <Work />
-      <Testimonials />
+      <ClientLove />
+      <Close />
       <Footer />
-    </>
+      <Cursor />
+    </main>
   );
 }

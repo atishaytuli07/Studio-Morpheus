@@ -1,12 +1,12 @@
 // Dev-only: downscale + re-encode source imagery to web-appropriate sizes.
-// Run after dropping new files into public/services or public/founder.
+// Run after dropping new files into public/services or public/work.
 import sharp from "sharp";
 import { readdir, rename, unlink } from "fs/promises";
 import path from "path";
 
 const TARGETS = [
   { dir: "public/services", width: 760, quality: 78 },
-  { dir: "public/founder", width: 900, quality: 80 },
+  { dir: "public/work", width: 1100, quality: 80 },
 ];
 
 for (const { dir, width, quality } of TARGETS) {

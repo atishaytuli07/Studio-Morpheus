@@ -1,0 +1,425 @@
+/* Monolog-style hero, rebuilt from their scraped source:
+   100svh + site-margin padding · blurred artwork at 60% behind ·
+   mark + masked copy centred · full-width uncropped wordmark at 60%
+   opacity along the bottom, letters rising from individual masks. */
+
+.h2 {
+  /* held in a variable so the wordmark can break back out of it exactly */
+  --h2-pad: clamp(0.9rem, 1.6vw, 1.5rem);
+
+  position: relative;
+  height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  /* their .hero_home_wrap padding: the whole hero sits inside a site margin.
+     The top also keeps the room the hero's own nav row used to take (58px):
+     the fixed glass nav (Nav) floats over that band now, and the copy and
+     the wordmark stay exactly where they were. */
+  padding: calc(var(--h2-pad) + 3.6rem) var(--h2-pad) var(--h2-pad);
+  /* transparent: the route owns the ground now */
+  color: var(--fg);
+}
+
+/* --- backdrop: blurred artwork, bottom gradient, grain --- */
+
+.h2-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+/* blurred artwork as a colour wash, pulled into the navy by a hue-rotate +
+   the deep-navy multiply layer below it — keeps the palette blue + white */
+/* aurora: a soft blue mass drifting diagonally across the frame — the
+   "moving gradient". Built, not photographed, so it can never read as an
+   accidental figure the way the blurred artwork did. */
+.h2-aurora-p {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+.h2-aurora {
+  position: absolute;
+  top: -30%;
+  right: -25%;
+  width: 95vw;
+  height: 95vh;
+  pointer-events: none;
+  /* The softness lives in the gradient's stops, eased out to nothing. It
+     was a blur(48px) filter on a layer nearly the size of the screen,
+     re-run by the compositor on every frame of the drift — the hero's
+     heaviest cost by far. */
+  background: radial-gradient(
+    ellipse 54% 48% at 50% 50%,
+    color-mix(in srgb, var(--accent2) 70%, transparent) 0%,
+    color-mix(in srgb, var(--accent2) 52%, transparent) 20%,
+    color-mix(in srgb, var(--accent) 34%, transparent) 44%,
+    color-mix(in srgb, var(--accent) 14%, transparent) 62%,
+    color-mix(in srgb, var(--accent) 4%, transparent) 74%,
+    transparent 84%
+  );
+  opacity: 0;
+  will-change: transform, opacity;
+  animation: h2-drift 28s ease-in-out infinite alternate;
+}
+
+@keyframes h2-drift {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translate3d(-26%, 20%, 0) rotate(-9deg) scale(1.22);
+  }
+}
+
+/* the second mass: smaller, lighter, starting bottom-left and moving
+   up and to the right — against the first, on a period that never
+   lines up with it, so the field is always changing */
+.h2-aurora-2 {
+  top: auto;
+  right: auto;
+  bottom: -25%;
+  left: -18%;
+  width: 72vw;
+  height: 72vh;
+  background: radial-gradient(
+    ellipse 54% 50% at 50% 50%,
+    color-mix(in srgb, var(--accent2) 50%, transparent) 0%,
+    color-mix(in srgb, var(--accent2) 36%, transparent) 22%,
+    color-mix(in srgb, var(--accent) 20%, transparent) 46%,
+    color-mix(in srgb, var(--accent) 8%, transparent) 64%,
+    color-mix(in srgb, var(--accent) 2%, transparent) 76%,
+    transparent 86%
+  );
+  animation: h2-drift-2 37s ease-in-out infinite alternate;
+}
+
+@keyframes h2-drift-2 {
+  from {
+    transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+  }
+  to {
+    transform: translate3d(24%, -18%, 0) rotate(12deg) scale(1.18);
+  }
+}
+
+/* off screen: freeze the drifts and the glow pulse */
+.h2.is-offscreen .h2-aurora,
+.h2.is-offscreen .h2-glow::before {
+  animation-play-state: paused;
+}
+
+/* horizon glow anchoring the wordmark, breathing slowly */
+.h2-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -22%;
+  width: 130vw;
+  height: 58vh;
+  transform: translateX(-50%);
+  pointer-events: none;
+  opacity: 0;
+  will-change: opacity;
+}
+
+.h2-glow::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 58% 56% at 50% 62%,
+    color-mix(in srgb, var(--accent2) 64%, transparent) 0%,
+    color-mix(in srgb, var(--accent2) 48%, transparent) 22%,
+    color-mix(in srgb, var(--accent) 30%, transparent) 48%,
+    color-mix(in srgb, var(--accent) 10%, transparent) 66%,
+    transparent 80%
+  );
+  animation: h2-glow-pulse 13s ease-in-out infinite alternate;
+}
+
+@keyframes h2-glow-pulse {
+  from {
+    opacity: 0.65;
+    transform: scaleX(1);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1.12);
+  }
+}
+
+/* veil: darkens the upper half so the copy zone reads calm and even,
+   plus a corner vignette. z-index keeps it under the grain. */
+.h2-bg::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--deep) 32%, transparent) 0%,
+      transparent 52%
+    ),
+    radial-gradient(
+      ellipse 90% 70% at 50% 55%,
+      transparent 0%,
+      color-mix(in srgb, var(--deep) 38%, transparent) 82%
+    );
+}
+
+/* settles the image into the ground, deepening toward the wordmark */
+.h2-bg-gradient {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 46%;
+  /* light: enough to seat the wordmark, not enough to kill the horizon glow */
+  background: linear-gradient(
+    180deg,
+    transparent,
+    color-mix(in srgb, var(--deep) 34%, transparent)
+  );
+}
+
+/* grain now lives at the route level (.site-grain in globals.css) so every
+   section shares the same texture, not just the hero */
+
+/* --- centred content: masked copy lines --- */
+
+.h2-content {
+  position: relative;
+  z-index: 2;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 0 1rem clamp(1rem, 3vh, 2.5rem);
+}
+
+.h2-copy {
+  margin: 0;
+  /* stated, not inherited: as an <h1> it was picking up the old site's
+     heading face (Pangram) from globals.css — the only text on the page
+     not set in Neue Montreal */
+  font-family: var(--display);
+  font-weight: 500;
+  /* larger than it was (23px at 1440): alone in the middle of a full
+     screen it read as a caption, and left the hero's centre empty */
+  font-size: clamp(1.2rem, 2.2vw, 2.2rem);
+  line-height: 1.25;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+
+/* the split-line-mask pattern from their markup */
+.h2-line {
+  display: block;
+  overflow: hidden;
+}
+
+.h2-line-inner {
+  display: block;
+  transform: translateY(110%);
+  will-change: transform;
+}
+
+/* --- meta rail --- */
+
+/* sits above the wordmark with real separation — it was almost touching */
+.h2-meta {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  /* three equal-sided columns: with space-between the middle caption sat
+     38px left of centre, because the outer two are different widths */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 1rem;
+  padding: 0 calc(var(--gutter) - var(--h2-pad));
+}
+
+.h2-meta p:last-child {
+  justify-self: end;
+}
+
+.h2-meta p {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+  color: var(--faint);
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+/* --- the wordmark --- */
+
+/* flat, opaque fill — the transparency let the backdrop bleed through the
+   letters and made the tone patchy. Slightly narrower than full width so
+   the mark breathes, with the full baseline visible (no accidental clip). */
+/* the liquid canvas sits exactly over the SVG and replaces it once the
+   entrance has settled — see wordmarkFluid.js */
+.h2-wordmark-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+.h2-wordmark.is-fluid .h2-wordmark-svg {
+  visibility: hidden;
+}
+
+.h2-wordmark {
+  position: relative;
+  z-index: 2;
+  width: 94%;
+  margin-top: clamp(2rem, 4.5vh, 3.5rem);
+  padding-bottom: clamp(0.6rem, 1.4vh, 1.1rem);
+  /* The bleed. The letters hang ~24% of their height below the hero's edge
+     and the hero clips them there. The section beneath is the same bone as
+     the letters, so the mark reads as dissolving INTO it — constantine's
+     wordmark→section connection, inverted. Transform only, so layout and
+     the liquid canvas measurement are untouched. */
+  transform: translateY(24%);
+}
+
+/* outlines, not live text — the viewBox scales them to any width natively,
+   so there is no font to wait for and no measuring loop. Cool porcelain
+   white: pure #fff glared against the navy, this sits into it. */
+.h2-wordmark-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  color: var(--fg);
+  overflow: visible;
+}
+
+/* each glyph is its own group, so they can rise independently.
+   transform-box keeps the % relative to the glyph, not the viewBox */
+.h2-letter {
+  transform-box: fill-box;
+  transform: translateY(30%);
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+/* ============ responsive ============ */
+
+@media (max-width: 820px) {
+  /* Not a full 100svh slab on a phone or tablet, but not content-height
+     either: sized to its content the hero was under half the screen and
+     the next section started inside the first view. 82svh keeps it the
+     opening screen, with the copy centred in what is left. overflow:hidden
+     still clips the wordmark's bleed at the section edge. */
+  .h2 {
+    height: auto;
+    min-height: 82svh;
+    padding-bottom: 0;
+  }
+
+  .h2-content {
+    flex: 1 0 auto;
+    padding: 3rem 1rem;
+  }
+
+  .h2-meta {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Full bleed on a phone. At 94% inside the hero's own padding the mark was
+     ~340px on a 390px screen and read as small; here it breaks back out of
+     that padding and touches both edges, which is what makes it feel like
+     the wordmark rather than a picture of one. */
+  .h2-wordmark {
+    width: calc(100% + var(--h2-pad) * 2);
+    margin-top: clamp(1.25rem, 4vh, 2rem);
+    margin-left: calc(var(--h2-pad) * -1);
+  }
+
+  .h2-copy {
+    font-size: clamp(1.25rem, 4.8vw, 1.9rem);
+  }
+}
+
+@media (max-width: 560px) {
+  .h2-meta {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .h2-meta p:nth-child(2) {
+    display: none;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .h2-meta {
+    display: none;
+  }
+}
+
+/* rest states: reached by the timeline, or immediately when settled /
+   reduced-motion — CSS is the single source of truth for both ends */
+@media (prefers-reduced-motion: reduce) {
+  .h2-aurora {
+    opacity: 0.55;
+    animation: none;
+  }
+
+  .h2-aurora-2 {
+    opacity: 0.42;
+  }
+
+  .h2-glow {
+    opacity: 1;
+  }
+
+  .h2-glow::before {
+    animation: none;
+  }
+
+  .h2-meta p {
+    opacity: 1;
+    transform: none;
+  }
+
+  .h2-line-inner,
+  .h2-letter {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.h2.is-settled .h2-aurora {
+  opacity: 0.55;
+}
+
+.h2.is-settled .h2-aurora-2 {
+  opacity: 0.42;
+}
+
+.h2.is-settled .h2-glow {
+  opacity: 1;
+}
+
+.h2.is-settled .h2-meta p {
+  opacity: 1;
+  transform: none;
+}
+
+.h2.is-settled .h2-line-inner,
+.h2.is-settled .h2-letter {
+  transform: none;
+  opacity: 1;
+  will-change: auto;
+}
+

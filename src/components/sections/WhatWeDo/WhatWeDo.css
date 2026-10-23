@@ -1,0 +1,367 @@
+/* What we do — bone ground, navy ink (from .theme-paper). A head (label,
+   disc, the statement) and one three-column body on the work grid's
+   tracks. Four type styles: the label, the statement, the body copy and
+   the index. */
+
+.m2 {
+  position: relative;
+  /* sits above the hero so it swallows the wordmark's bleed */
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  /* head → body: a step more than the heading gap, because the head here
+     is a full sentence, not one word */
+  gap: clamp(3.5rem, 6vw, 6rem);
+  padding: var(--section-y) var(--gutter);
+  overflow: hidden;
+}
+
+/* ============ head: label · disc, then the statement ============ */
+
+/* The label sits where every section's label sits and the statement 1rem
+   under it, as every heading does. The disc takes the right edge across
+   both rows, so it never pushes the statement down. */
+.m2-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-rows: auto auto;
+  column-gap: clamp(2rem, 5vw, 5rem);
+  row-gap: 1rem;
+}
+
+.m2-label {
+  grid-column: 1;
+  grid-row: 1;
+  margin: 0;
+  line-height: 1.25;
+}
+
+/* The statement in the site's heading voice: Medium, sentence case, set
+   from the left. Smaller than a one-word section title because it is a
+   sentence — four lines at this size, not eight. It was bold, uppercase and
+   justified edge to edge, which opened holes between the words on its
+   short lines and was the only heading on the page that looked like that. */
+.m2-statement {
+  grid-column: 1;
+  grid-row: 2;
+  margin: 0;
+  /* a narrow measure at a calmer size: four short lines read as a
+     statement, three long ones read as a banner (it was 4.4vw / 16em) */
+  max-width: 13.5em;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: clamp(1.85rem, 3.5vw, 3.4rem);
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+}
+
+/* each word stacks a lighter base with a clipped full-ink fill over it */
+.m2-word {
+  position: relative;
+  display: inline-block;
+}
+
+.m2-base {
+  color: var(--paper-word);
+}
+
+/* A highlight word fills in a vivid blue, under a navy bar (globals.css).
+   83% saturation, 4.40:1 on bone; the accent blue read washed-out here. */
+.m2-word.is-hl .m2-fill {
+  color: #2563eb;
+}
+
+.m2-word .hl-bar {
+  background: var(--fg);
+}
+
+.m2.is-static .hl-bar {
+  display: none;
+}
+
+.m2-fill {
+  position: absolute;
+  /* a visual copy of the word: never selected or copied, or every word
+     pastes twice ("dreamdream") */
+  user-select: none;
+  top: 0;
+  left: 0;
+  width: max-content;
+  color: var(--fg);
+  white-space: nowrap;
+  /* CSS owns the start state so StrictMode re-mounts can't strand it */
+  clip-path: inset(0 100% 0 0);
+}
+
+/* ============ the rotating discipline disc ============ */
+
+.m2-badge {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: start;
+  position: relative;
+  width: clamp(5.5rem, 10vw, 9.5rem);
+  aspect-ratio: 1;
+}
+
+/* Grows a touch under the pointer. On the two inner layers, not the badge
+   itself: the badge's entrance is a GSAP tween, and GSAP writes an inline
+   `scale: none` on what it animates, which silently beat a hover rule
+   there. `scale` (not `transform`) also leaves the ring's spin untouched. */
+.m2-badge-ring,
+.m2-badge-disc {
+  transition: scale 300ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .m2-badge:hover .m2-badge-ring,
+  .m2-badge:hover .m2-badge-disc {
+    scale: 1.1;
+  }
+}
+
+.m2-badge-ring {
+  position: absolute;
+  inset: 0;
+  animation: m2-spin 14s linear infinite;
+  will-change: transform;
+}
+
+/* nothing spins or runs where nobody sees it (WhatWeDo.jsx: .is-idle) */
+.m2.is-idle .m2-badge-ring,
+.m2.is-idle .cl2-track {
+  animation-play-state: paused;
+}
+
+/* each character is centred in the badge, then rotated to its own angle and
+   pushed outward — even angular spacing, whatever the glyph widths */
+.m2-badge-ring span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: 50% 50%;
+  font-family: var(--font);
+  font-size: var(--label-size);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.06em;
+  color: var(--muted);
+  white-space: pre;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* the navy disc, just inside the letter ring */
+.m2-badge-disc {
+  position: absolute;
+  inset: 20%;
+  border-radius: 50%;
+  background: var(--fg);
+}
+
+@keyframes m2-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ============ body: three columns ============ */
+
+/* The work grid's three tracks and gutter, so the two sections share their
+   columns. Everything hangs from the same top line — the old staggered
+   layout left a different gap under each column. */
+.m2-body {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  column-gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  align-items: start;
+}
+
+/* --- how we work: four steps in numbered rows --- */
+
+/* The index's look (hairline rows, mono numerals), with a title and one
+   line per step. The step is read, so it is set in the page's face; the
+   numbers stay mono, small and muted — markers, not words. */
+.m2-process {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+
+/* the old index's rhythm exactly: 0.7rem rows, 0.75rem from number to
+   word, the name at body size — with the step's line tucked under it */
+.m2-process li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+
+.m2-process-n {
+  /* the loader's numerals: Geist Mono Light, tight spacing. A fixed width,
+     so every title starts on the same line. */
+  flex: 0 0 1.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.m2-process-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.m2-process-title {
+  font-family: var(--font);
+  font-size: var(--t-body);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.012em;
+  color: var(--fg);
+}
+
+.m2-process-line {
+  font-size: var(--t-sm);
+  font-weight: 500;
+  line-height: 1.4;
+  letter-spacing: -0.005em;
+  color: var(--muted);
+}
+
+/* --- the figure: framed, TRUE colour --- */
+
+.m2-figure {
+  position: relative;
+  margin: 0;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  border-radius: var(--radius);
+  background: var(--navy);
+}
+
+/* height is set by mountParallax() from data-speed; the frame clips */
+.m2-figure img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  will-change: transform;
+}
+
+/* --- the words --- */
+
+/* Set from the left with ragged ends. Justified, the short measure opened
+   rivers through every paragraph, and the first-line indent read as a
+   rendering fault. */
+/* The column runs the full height of the row, so the client names can
+   sit at its foot, level with the bottom of the picture. */
+.m2-text {
+  min-width: 0;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* the names, stacked for a column this narrow: the label over the run */
+.m2-text .cl2 {
+  margin-top: auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.75rem;
+  padding-top: 1.25rem;
+}
+
+/* the column's own paragraphs only — not the label inside the names */
+.m2-text > p {
+  margin: 0;
+  font-size: var(--t-body);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: -0.012em;
+  color: var(--fg);
+  text-wrap: pretty;
+}
+
+/* the first paragraph leads: the same words, in full ink; the second sits
+   back a step */
+.m2-text > p + p {
+  color: var(--muted);
+}
+
+/* ============ reduced motion ============ */
+
+.m2.is-static .m2-fill {
+  clip-path: inset(0 0 0 0);
+}
+
+.m2.is-static .m2-badge-ring {
+  animation: none;
+}
+
+/* ============ responsive ============ */
+
+/* tablet: the figure beside the words, the steps across the full width,
+   two by two */
+@media (max-width: 1024px) {
+  .m2-body {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: clamp(2.5rem, 5vw, 3.5rem);
+  }
+
+  .m2-process {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: clamp(1.25rem, 2.4vw, 2.25rem);
+  }
+}
+
+/* phone: one column — figure, words, then the index in two */
+@media (max-width: 600px) {
+  /* Small, but not so small the ring collides with itself: at 4.5rem the
+     44 letters at label size overlapped into a smudge. A smaller face on a
+     slightly larger ring keeps them apart. */
+  .m2-badge {
+    width: 5.25rem;
+  }
+
+  .m2-badge-ring span {
+    font-size: 0.5rem;
+  }
+
+  /* minmax(0, …), not 1fr: a bare 1fr track grows to its content's
+     min-content width, and the client names' run is one unbroken line
+     thousands of pixels long — it pushed the column to 4,200px */
+  .m2-body {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 2.5rem;
+  }
+
+  /* reading order on a phone: the picture, the words, then the steps */
+  .m2-figure {
+    order: 1;
+    aspect-ratio: 4 / 3;
+  }
+
+  .m2-text {
+    order: 2;
+  }
+
+  .m2-process {
+    order: 3;
+    grid-row: auto;
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
