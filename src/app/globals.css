@@ -1,36 +1,68 @@
-@import "./fonts.css";
-
 /* ============================================================
-   studio morpheus. — design tokens (see brand/design-system.md)
-   Two-hue system: navy family + warm paper. No third color.
+   studio morpheus. — global styles
+   1. fonts   2. base   3. design tokens (on .site)   4. shared pieces
+   Component styles live next to their components.
    ============================================================ */
 
+/* ---------- 1. fonts (self-hosted; only the cuts in use) ---------- */
+
+/* Neue Montreal: the site's face, body and headings */
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-display: swap;
+}
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "neue-montreal";
+  src: url("/fonts/neue-montreal/PPNeueMontreal-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-display: swap;
+}
+
+/* Pangram Sans: the service card names (and the base heading face) */
+@font-face {
+  font-family: "pangram-sans";
+  src: url("/fonts/pangram-sans/PPPangramSans-Regular.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "pangram-sans";
+  src: url("/fonts/pangram-sans/PPPangramSans-Medium.otf") format("opentype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Geist Mono: labels, numbers, the loader count */
+@font-face {
+  font-family: "geist-mono";
+  src: url("/fonts/geist-mono/geist-mono-variable.ttf") format("truetype-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------- 2. base ---------- */
+
 :root {
-  /* cool blue family (brand) + warm parchment. no third hue. */
+  /* the service cards' own palette (Services.css) */
   --ink: #050a14;
   --navy: #002459;
   --haze: #25506e;
-  --mist: #b5c6d4;
-  --parchment: #f1ece2;
   --marble: #fbf9f5;
-  --chalk: #e8e8e3;
-  --soot: #080807;
-  --white: #ffffff;
 
-  /* shared page grid inset — every section's verticals align to this */
-  --grid-inset: clamp(1.5rem, 7vw, 7rem);
-
-  --rule: rgba(181, 198, 212, 0.16);
-  --rule-strong: rgba(181, 198, 212, 0.3);
-
-  /* single-face system: Pangram Sans display + body.
-     Palace Italic is the accent face (Pangram has no italic cut). */
   --font-display: "pangram-sans", system-ui, sans-serif;
   --font-body: "pangram-sans", system-ui, sans-serif;
-  --font-accent: "palace", Georgia, serif;
   --font-mono: "geist-mono", ui-monospace, monospace;
-
-  --ease-premium: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 * {
@@ -50,17 +82,8 @@ html::-webkit-scrollbar {
 html,
 body {
   width: 100%;
-  background-color: var(--parchment);
-  color: var(--soot);
-}
-
-/* while the preloader runs, nothing scrolls — including touch */
-html.is-loading,
-html.is-loading body {
-  overflow: hidden;
-  height: 100%;
-  touch-action: none;
-  overscroll-behavior: none;
+  background-color: #f1ece2;
+  color: #080807;
 }
 
 body {
@@ -71,8 +94,6 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
 }
-
-/* --- type scale ------------------------------------------------ */
 
 h1,
 h2,
@@ -103,13 +124,28 @@ h4 {
   line-height: 1.2;
 }
 
-/* accent word inside a heading */
-em {
-  font-family: var(--font-accent);
-  font-style: italic;
-  letter-spacing: 0;
+a {
+  color: inherit;
+  text-decoration: none;
 }
 
+img {
+  max-width: 100%;
+  display: block;
+}
+
+section {
+  position: relative;
+  padding-top: clamp(6rem, 12vh, 10rem);
+  padding-bottom: clamp(6rem, 12vh, 10rem);
+}
+
+::selection {
+  background: #2e6fbf;
+  color: #ffffff;
+}
+
+/* mono micro-label (the service card index) */
 .mono {
   font-family: var(--font-mono);
   font-size: 0.8rem;
@@ -119,83 +155,7 @@ em {
   color: rgba(8, 8, 7, 0.5);
 }
 
-/* on dark grounds */
-.on-dark .mono,
-.mono.mono-light {
-  color: var(--mist);
-}
-
-/* compact chip CTA — light plate, dark text, arrow in its own square */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.43rem;
-  height: 1.86rem;
-  padding: 0.25rem 0.25rem 0.25rem 0.43rem;
-  background: var(--white);
-  color: var(--soot);
-  border: none;
-  border-radius: 2px;
-  font-family: var(--font-body);
-  font-size: 0.9375rem;
-  font-weight: 500;
-  line-height: 1.25;
-  letter-spacing: 0;
-  white-space: nowrap;
-  cursor: pointer;
-  opacity: 0.9;
-  overflow: clip;
-  transition:
-    opacity 0.4s var(--ease-premium),
-    background-color 0.4s var(--ease-premium);
-}
-
-.btn:hover {
-  opacity: 1;
-  background: var(--white);
-}
-
-.btn-arrow {
-  display: grid;
-  place-items: center;
-  flex-shrink: 0;
-  width: 1.36rem;
-  height: 1.36rem;
-  background: var(--ink);
-  color: var(--white);
-  border-radius: 2px;
-  transition: transform 0.45s var(--ease-premium);
-}
-
-.btn-arrow svg {
-  width: 0.72rem;
-  height: 0.72rem;
-}
-
-.btn:hover .btn-arrow {
-  transform: translate(1.5px, -1.5px);
-}
-
-/* dark chip — for use on parchment grounds */
-.btn-invert {
-  background: var(--ink);
-  color: var(--parchment);
-}
-
-.btn-invert:hover {
-  background: var(--navy);
-}
-
-.btn-invert .btn-arrow {
-  background: var(--parchment);
-  color: var(--ink);
-}
-
-/* --- navy duotone -------------------------------------------------
-   Source imagery arrives in every colour imaginable. Stripping it to
-   greyscale and re-tinting navy makes any photo sit inside the brand. */
-
+/* navy duotone: any photo, stripped to grey and re-tinted into the brand */
 .duotone {
   position: relative;
   overflow: hidden;
@@ -225,55 +185,402 @@ em {
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  background: linear-gradient(
-    to top,
-    rgba(5, 10, 20, 0.55) 0%,
-    transparent 55%
-  );
+  background: linear-gradient(to top, rgba(5, 10, 20, 0.55) 0%, transparent 55%);
 }
 
-/* mono micro-tag */
-.tag {
-  display: inline-block;
-  padding: 0.32rem 0.7rem;
-  border: 1px solid var(--rule-strong);
-  font-family: var(--font-mono);
-  font-size: 0.66rem;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  color: var(--mist);
-}
+/* ---------- 3. design tokens + 4. shared pieces ---------- */
 
-a {
-  color: inherit;
-  text-decoration: none;
-}
+.site {
+  /* ONE ground for the whole page — never alternating. Saturated blue used
+     as wallpaper is what made the old palette shout; the ground is now a
+     dark, mostly-desaturated midnight and the saturation moved into the
+     light. Same lesson everwonder.studio's #0B0B28 teaches: dark, quiet
+     ground + one big luminous bloom. Still blue + white, just deeper. */
+  /* the dark ground IS the brand navy — lightness 17%, unmistakably blue.
+     The old #0a1226 (L 9%) was a near-black with a cast: next to warm bone it
+     read as black-and-cream, which is why the bone looked dull. */
+  --bg: #002459;
+  --deep: #001a42; /* the shadow pocket, still blue */
 
-img {
-  max-width: 100%;
-  display: block;
-}
+  /* the brand navy is now a LIGHT source, not a surface */
+  --navy: #002459;
+  --accent: #1b4e8f;
+  --accent2: #2e6fbf;
 
-section {
+  /* the light ink is the SAME bone as the light ground — one colour doing
+     both jobs, so the wordmark on navy and the paper under blue type are
+     literally the same value. Pure white glared; this sits in the air. */
+  --fg: #eeede4;
+  --pure: #ffffff;
+  /* ONE muted tone on navy, where there were three (bone at 64%, #8393a5
+     and #8b9dbc). It is their own #8b9dbc: 5.48:1 on the navy and 6.23:1 on
+     the footer's deeper navy, so every 11px label clears AA. Solid, not
+     alpha, because these labels sit over the hero's aurora, where an alpha
+     value's real contrast changes with the gradient underneath. */
+  --muted: var(--on-blue-muted);
+  --faint: var(--on-blue-muted);
+  --rule: rgba(238, 237, 228, 0.14);
+
+  /* the light ground. Hue 215 — a desaturated tint of the brand blue, not a
+     neutral grey and not a warm bone, so the page is still only ever blue
+     and white. This is the third step of the tonal system:
+     paper l≈94  ·  navy l≈17  ·  deep l≈9 */
+  /* Constantine's pair, verbatim. #eeede4 and #0d3479 sit at 10.01:1 in BOTH
+     directions — bone on blue and blue on bone read identically well, which
+     is what lets whole sections invert without retuning anything. */
+  --paper: #eeede4;
+
+  /* ink on bone */
+  --paper-fg: #002459; /* 12.6:1 — the brand navy */
+  --paper-muted: #3d5a8f; /*  5.84:1 */
+  --paper-faint: #4a68a0; /*  4.73:1 */
+  --paper-rule: rgba(0, 36, 89, 0.2);
+  /* unfilled statement words: a GHOST of the ink, not a second colour — the
+     navy diluted into the bone, so it tracks both tokens. At 35% it is
+     ≈#98a5b3 / 2.1:1 — below the 3:1 text floor by choice: this is a
+     transient state that fills to 12.6:1 as you scroll, never something
+     you are asked to read. Do not reuse this token for static text. */
+  --paper-word: color-mix(in srgb, var(--navy) 35%, var(--paper));
+
+  /* ink on blue — #8b9dbc is THEIR muted, and it only works on navy: on
+     bone it collapses to 2.34:1 */
+  --on-blue: #eeede4;
+  --on-blue-muted: #8b9dbc;
+  --on-blue-rule: rgba(238, 237, 228, 0.2); /* their #eeede433 */
+
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --pad: clamp(1.25rem, 4vw, 4rem);
+
+  /* ONE spacing system for every section. Before this each section carried
+     its own numbers (side 23–72px, top 90–108, bottom 0–108) and the page
+     read as six separate designs. */
+  --gutter: clamp(1.5rem, 5vw, 5rem); /* side margin, 72px at 1440 */
+  /* Width-based, not height-based: tied to vh, a tall tablet got MORE
+     padding than a desktop (128–153px against 108). */
+  --section-y: clamp(4.5rem, 7.5vw, 6.75rem); /* above and below a section */
+  --head-gap: clamp(2.5rem, 3.75vw, 3.5rem); /* heading → content */
+
+  /* ONE section heading and ONE section label */
+  --h-size: clamp(2.75rem, 7.5vw, 7.5rem);
+  --h-leading: 0.9;
+  --h-tracking: -0.04em;
+  --label-size: 0.68rem;
+  --label-tracking: 0.16em;
+
+  /* text below heading size: five steps, no near-duplicates (the page had
+     13.6/14.1, 15.0/15.2, 20.9/21.6 and 25.2/27.4 side by side) */
+  --t-sm: 0.875rem; /* tags, card lines */
+  --t-base: 0.95rem; /* links, names, buttons */
+  --t-body: 1.125rem; /* paragraphs */
+  --t-lg: clamp(1.15rem, 1.45vw, 1.35rem); /* card and project titles */
+  --t-xl: clamp(1.35rem, 1.9vw, 1.75rem); /* quotes, pull lines */
+
+  /* two corner radii: controls, and everything that frames content */
+  --radius-ui: 2px;
+  --radius: 8px;
+
+  /* one button height */
+  --btn-h: 2.5rem;
+  --font: "neue-montreal", "Helvetica Neue", Arial, sans-serif;
+  /* section titles: the body face at Medium, never extrabold — the wordmark
+     is the only heavy thing on the site (DZ!NR runs 400, brikken Medium) */
+  --display: "neue-montreal", "Helvetica Neue", Arial, sans-serif;
+
   position: relative;
-  padding-top: clamp(6rem, 12vh, 10rem);
-  padding-bottom: clamp(6rem, 12vh, 10rem);
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font);
 }
 
-/* --- film grain (dream texture) --------------------------------- */
+/* sections are transparent — they sit ON the ground rather than each
+   painting their own, which is what caused the banding between panels */
+.site > main {
+  position: relative;
+  z-index: 1;
+}
 
-.grain {
+/* Inverted sections: paper ground, navy ink. Every component reads its
+   colours from these tokens, so redefining them here flips a whole section
+   without touching the component's own CSS. */
+/* bone ground, blue ink */
+.theme-paper {
+  --fg: var(--paper-fg);
+  /* SOLID tints, not alpha — the dark side's alphas collapse when flipped
+     (navy at 42% over bone measures 2.7:1 on 10px mono). */
+  --muted: var(--paper-muted);
+  --faint: var(--paper-faint);
+  --rule: var(--paper-rule);
+
+  background: var(--paper);
+  color: var(--fg);
+}
+
+/* the single continuous bloom: two enormous soft light masses drifting
+   behind everything, so the dark never reads as flat and the light feels
+   like one room the page moves through */
+.site-bloom {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.035;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 240px 240px;
+  background:
+    radial-gradient(
+      ellipse 85% 55% at 76% 8%,
+      color-mix(in srgb, var(--accent2) 22%, transparent) 0%,
+      transparent 68%
+    ),
+    radial-gradient(
+      ellipse 95% 65% at 12% 92%,
+      color-mix(in srgb, var(--navy) 55%, transparent) 0%,
+      transparent 70%
+    );
+  /* still: it drifted forever on a viewport-sized layer, which marked the
+     whole screen as changed every frame — behind sections that are solid
+     bone, where it cannot be seen. The hero's aurora is the moving light. */
 }
 
-::selection {
-  background: var(--steel);
-  color: var(--white);
+/* Route-wide grain. It sits above the sections (their opaque grounds would
+   cover it otherwise), which means it also paints over type — so it has to
+   be gentle. `overlay` at 0.16 was speckling the letterforms of 18px body
+   copy and reading as a blur or a drop shadow.
+   Now a pre-rendered tile (public/grain.png — light and dark
+   specks at up to 3% alpha, so on average it neither lightens nor darkens)
+   in the normal blend. It was an SVG noise filter in soft-light, and a
+   blend mode over the whole viewport re-blends every pixel of every frame
+   the page scrolls. */
+.site-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  background-image: url("/grain.png");
+  background-size: 160px 160px;
+}
+
+/* faint vertical column lines across the whole route — brikken's structural
+   detail. Six columns, hairline, drawn from the ink token so they invert. */
+.site-grid {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.55;
+}
+
+/* five real hairlines at the sixths, so they can draw up from the floor
+   when the hero is revealed (GridLines.jsx). Undrawn until then. */
+.site-grid span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--rule);
+  transform-origin: 50% 100%;
+  transform: scaleY(0);
+}
+
+/* drawn for good: the inline transform is cleared and the lines stop being
+   animation layers */
+.site-grid.is-drawn span {
+  transform: none;
+}
+
+/* fingers need 44px: every button grows to it on touch screens */
+@media (pointer: coarse) {
+  .site {
+    --btn-h: 2.75rem;
+  }
+}
+
+/* The menu icon: two wide parallel lines that cross into an X when the
+   menu is open. Set --burger-open: 1 on any ancestor (or the icon) to cross
+   it. Transform only; a strong ease-out, 300ms (Emil: under ~300ms for UI). */
+.burger {
+  --burger-open: 0;
+  --burger-w: 1.85rem;
+  --burger-gap: 0.5rem;
+  position: relative;
+  display: block;
+  width: var(--burger-w);
+  height: var(--burger-gap);
+}
+
+.burger > span {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 1.5px;
+  background: currentColor;
+  border-radius: 1px;
+  transition: transform 300ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition-delay: inherit;
+}
+
+/* apart by --burger-gap; open, both meet in the middle and rotate */
+.burger > span:first-child {
+  top: 0;
+  transform: translateY(calc(var(--burger-open) * (var(--burger-gap) / 2 - 0.75px)))
+    rotate(calc(var(--burger-open) * 45deg));
+}
+
+.burger > span:last-child {
+  bottom: 0;
+  transform: translateY(calc(var(--burger-open) * (var(--burger-gap) / -2 + 0.75px)))
+    rotate(calc(var(--burger-open) * -45deg));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .burger > span {
+    transition: none;
+  }
+}
+
+/* The section label: small mono caps in the muted ink. Spacing belongs
+   to wherever it sits. */
+.label {
+  font-family: var(--font-mono);
+  font-size: var(--label-size);
+  text-transform: uppercase;
+  letter-spacing: var(--label-tracking);
+  color: var(--muted);
+}
+
+/* the section title: one size and voice for every section */
+.section-title {
+  margin: 0;
+  font-family: var(--display);
+  font-weight: 500;
+  font-size: var(--h-size);
+  line-height: var(--h-leading);
+  letter-spacing: var(--h-tracking);
+  color: var(--fg);
+}
+
+/* The site's one button (components/ui/Button.jsx): the chip, its label
+   and the blue arrow square. Position and motion belong to each use. */
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  height: var(--btn-h);
+  padding: 0 0.45rem 0 1rem;
+  border-radius: var(--radius-ui);
+  font-size: var(--t-base);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.button--light {
+  background: var(--pure);
+  color: var(--navy);
+}
+
+.button--dark {
+  background: var(--navy);
+  color: var(--paper);
+}
+
+/* the arrow square: two arrows, one leaving up-right as its twin arrives
+   from below-left when the button is hovered */
+.arrow-swap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  border-radius: 1px;
+  background: var(--accent);
+  color: #fff;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.arrow-swap svg {
+  position: absolute;
+  width: 0.85rem;
+  height: 0.85rem;
+  transition: transform 0.45s var(--ease);
+}
+
+.arrow-swap svg:last-child {
+  transform: translate(-150%, 150%);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :hover > .arrow-swap svg:first-child {
+    transform: translate(150%, -150%);
+  }
+
+  :hover > .arrow-swap svg:last-child {
+    transform: translate(0, 0);
+  }
+}
+
+/* The highlight bar (WhatWeDo): a solid bar that sweeps across a concept
+   word and slides away as its second-blue fill opens. One clip-path through
+   three states — closed at the left, full, closed at the right — so it is
+   reversible when scrubbed and never touches layout. */
+.hl-bar {
+  position: absolute;
+  left: -0.04em;
+  right: -0.04em;
+  top: 0.06em;
+  bottom: 0.04em;
+  background: currentColor;
+  clip-path: inset(0 100% 0 0);
+  pointer-events: none;
+}
+
+/* Underline-draw on hover, for text links (Griflan's .uline, faster).
+   The line is drawn in from the LEFT on hover and leaves to the RIGHT on
+   un-hover — it passes through rather than rewinding — by flipping the
+   transform-origin between the two states. 350ms in / 250ms out on a
+   strong ease-out: these are hovered dozens of times, so they stay short.
+   Real pointers only: a tap would otherwise leave it stuck drawn. */
+.gn-links a,
+.f2-col a {
+  position: relative;
+}
+
+.gn-links a::after,
+.f2-col a::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  /* Measured from the text, not the box: the box carries the line-height's
+     leading (7px below the baseline here), so a bottom-anchored line sat
+     ~10px under the letters. From the vertical centre, 0.45em lands it
+     ~2px under the baseline — and still does in the 44px touch boxes. */
+  top: calc(50% + 0.45em);
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right center;
+  transition: transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  pointer-events: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .gn-links a:hover::after,
+  .f2-col a:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+    transition-duration: 350ms;
+  }
+}
+
+/* keyboard focus draws it too, so the state is not mouse-only */
+.gn-links a:focus-visible::after,
+.f2-col a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left center;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gn-links a::after,
+  .f2-col a::after {
+    transition: none;
+  }
 }
